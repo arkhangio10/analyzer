@@ -233,6 +233,13 @@ Do not let animation obscure controls, hide system status, delay core actions, o
 - **Alternatives:** Enable Gemini throughout the existing UI immediately, process unapproved sources, or defer the provider boundary until full orchestration exists.
 - **Impact:** The experiment can now be exercised after local ADC configuration. It reports model and token evidence but does not yet persist results, run ADK orchestration, or enter the practice loop.
 
+### 2026-08-28 — Execute computer file actions only in a managed sandbox
+
+- **Decision:** Permit bounded file reads and writes only below a per-execution `.runtime/computer_sandboxes` directory; keep browser, mouse, and keyboard actions blocked until a container adapter exists.
+- **Reason:** Provide measurable execution evidence without claiming OS isolation or allowing arbitrary shell access on a machine where Docker is not installed.
+- **Alternatives:** Execute directly on the host, pretend validation is execution, or wait for every destination adapter before testing any action.
+- **Impact:** File results expose only status, byte count, and SHA-256. Paths cannot be absolute or traverse upward, environment secrets are not resolved, and the local boundary must not be described as Docker-grade isolation.
+
 ## Current Status
 
 The target path did not exist when initialization began, so there was no prior repository content inside it to preserve.
@@ -246,18 +253,20 @@ Currently present:
 - typed robot-motion contracts, deterministic safety validation, movement procedure extraction, instructor-grounded replay evaluation, and in-memory training-session retrieval;
 - agent and service module boundaries with no fabricated behavior;
 - a provider-neutral visible-processing API whose local session reports `cloud_calls_made=0`, validates a built-in six-joint trajectory, extracts nine procedure steps, and returns replay evidence;
+- destination-aware project intake, guarded YouTube candidate discovery with explicit approval, cross-source reconciliation, and protected frozen evaluation;
+- validation-only computer plans plus explicitly acknowledged file reads and writes confined to per-execution managed local sandboxes with redacted evidence;
 - dependency/configuration manifests, secret-safe environment template, ignore rules, Dockerfile, Compose service, and smoke tests;
 - placeholder directories for local data, frozen evaluations, scripts, and exports;
 - a verified local environment: `.venv` on Python 3.12.10 with every declared dependency installed and the project installed editable with the `dev` extra.
 
-Verified on 2026-08-28: all 26 tests pass; Uvicorn serves the UI and the processing API; a full local robot-motion session reaches 100%, passes safety validation, extracts nine steps, returns a replay score of 1.0, and reports zero cloud calls. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker configuration exists, but Docker is not installed on the current machine, so the image build remains unverified.
+Verified on 2026-08-28: all 45 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes while browser actions remain blocked. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker configuration exists, but Docker is not installed on the current machine, so image and container-browser execution remain unverified.
 
 Not yet built:
 
 - Google ADK hello agent and workflow orchestration;
 - durable video-session persistence and uploaded-video ingestion;
 - higher-frame-rate motion analysis for robot-ready gait extraction;
-- video-based structured extraction, reconciliation, reflection, retry, or general-purpose execution logic;
+- integrated video-to-reconciliation orchestration, reflection, retry, or general-purpose browser execution logic;
 - Firestore, Pub/Sub, Cloud Storage, Cloud Run, or per-trained-agent export packaging.
 
 Product direction confirmed on 2026-08-28: the UI adapts the Be The Buzz fluid-box visual language, supports Spanish and English for international jurors, and visibly renders backend-owned processing stages without pretending that provider video processing is implemented. The repository application is containerized; the final per-agent export remains a one-click Docker package with runtime-injected secrets.

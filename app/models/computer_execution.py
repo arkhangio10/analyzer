@@ -3,7 +3,7 @@
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ComputerActionKind(StrEnum):
@@ -45,3 +45,66 @@ class ComputerPlanValidationResult(BaseModel):
     execution_mode: Literal["validation_only"] = "validation_only"
     host_actions_made: Literal[0] = 0
     cloud_calls_made: Literal[0] = 0
+
+
+class ComputerActionStatus(StrEnum):
+    """Observable outcome for one attempted sandbox action."""
+
+    COMPLETED = "completed"
+    BLOCKED = "blocked"
+    FAILED = "failed"
+
+
+class ComputerExecutionStatus(StrEnum):
+    """Aggregate state for one bounded sandbox execution."""
+
+    COMPLETED = "completed"
+    PARTIALLY_COMPLETED = "partially_completed"
+    BLOCKED = "blocked"
+    REJECTED = "rejected"
+
+
+class ComputerSandboxExecutionRequest(BaseModel):
+    """Explicitly approved execution in the managed local filesystem sandbox."""
+
+    project_id: str = Field(min_length=1, max_length=120)
+    application: str = Field(min_length=1, max_length=160)
+    actions: list[ComputerAction] = Field(min_length=1, max_length=100)
+    input_files: dict[str, str] = Field(default_factory=dict)
+    sandbox_required: Literal[True] = True
+    acknowledge_local_sandbox_write: Literal[True]
+
+    @field_validator("input_files")
+    @classmethod
+    def limit_input_files(cls, value: dict[str, str]) -> dict[str, str]:
+        if len(value) > 20:
+            raise ValueError("At most 20 input files may seed one sandbox.")
+        if sum(len(content.encode("utf-8")) for content in value.values()) > 262_144:
+            raise ValueError("Sandbox input files may total at most 256 KiB.")
+        return value
+
+
+class ComputerActionExecution(BaseModel):
+    """Redacted evidence for one sandbox action."""
+
+    action_id: str
+    kind: ComputerActionKind
+    status: ComputerActionStatus
+    target: str
+    bytes_processed: int = Field(default=0, ge=0)
+    content_sha256: str | None = None
+    message: str
+
+
+class ComputerSandboxExecutionResult(BaseModel):
+    """Auditable sandbox result that does not expose file contents."""
+
+    execution_id: str
+    project_id: str
+    status: ComputerExecutionStatus
+    sandbox_uri: str
+    actions: list[ComputerActionExecution]
+    violations: list[str] = Field(default_factory=list)
+    external_host_actions_made: Literal[0] = 0
+    cloud_calls_made: Literal[0] = 0
+    browser_adapter_available: Literal[False] = False

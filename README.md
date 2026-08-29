@@ -104,7 +104,16 @@ Project and source-intake endpoints:
 - `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
 - `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
 - `POST /api/learning/evaluate/frozen`: score a candidate against a server-side protected case without returning its expected answer.
-- `POST /api/execution/computer/validate`: validate browser, text, and sandboxed file actions; arbitrary shell actions are not accepted and host actions remain zero.
+- `POST /api/execution/computer/validate`: validate browser, text, and sandboxed file actions; arbitrary shell actions are not accepted.
+- `POST /api/execution/computer/execute`: execute bounded read/write actions under `.runtime/computer_sandboxes`; UI automation remains visibly blocked until a container browser adapter exists.
+- `GET /api/execution/computer/executions/{execution_id}`: retrieve redacted action evidence, hashes, and byte counts without returning file contents.
+
+The local filesystem sandbox requires explicit acknowledgement, rejects absolute
+or traversing paths, limits seeded inputs to 256 KiB and individual writes to
+64 KiB, never resolves environment secrets, and reports zero external host and
+cloud actions. It is a development boundary, not an OS or Docker security
+boundary. Install Docker before enabling browser automation or treating learned
+computer procedures as isolated executables.
 
 Automatic discovery is disabled by default. Enable YouTube Data API v3 in the
 Google Cloud project, create a restricted API key, and set

@@ -1,6 +1,9 @@
 """External provider and infrastructure boundaries."""
 
-from app.services.computer_execution_service import ComputerExecutionService
+from app.services.computer_execution_service import (
+    ComputerExecutionNotFoundError,
+    ComputerExecutionService,
+)
 from app.services.firestore_service import FirestoreService
 from app.services.gemini_service import (
     GeminiConfigurationError,
@@ -26,6 +29,7 @@ from app.services.youtube_service import (
 
 __all__ = [
     "ComputerExecutionService",
+    "ComputerExecutionNotFoundError",
     "FirestoreService",
     "GeminiService",
     "GeminiConfigurationError",

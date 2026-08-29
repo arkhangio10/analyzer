@@ -3,9 +3,14 @@
 from app.models.evaluation import EvaluationResult
 from app.models.computer_execution import (
     ComputerAction,
+    ComputerActionExecution,
     ComputerActionKind,
+    ComputerActionStatus,
+    ComputerExecutionStatus,
     ComputerPlanValidationRequest,
     ComputerPlanValidationResult,
+    ComputerSandboxExecutionRequest,
+    ComputerSandboxExecutionResult,
 )
 from app.models.learning import (
     FrozenEvaluationRequest,
@@ -56,9 +61,14 @@ from app.models.video_extraction import (
 __all__ = [
     "EvaluationResult",
     "ComputerAction",
+    "ComputerActionExecution",
     "ComputerActionKind",
+    "ComputerActionStatus",
+    "ComputerExecutionStatus",
     "ComputerPlanValidationRequest",
     "ComputerPlanValidationResult",
+    "ComputerSandboxExecutionRequest",
+    "ComputerSandboxExecutionResult",
     "FrozenEvaluationRequest",
     "FrozenEvaluationResult",
     "ProcedureEvidence",
