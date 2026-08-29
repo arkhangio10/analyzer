@@ -1,13 +1,25 @@
 """FastAPI entry point for the APRENDIZ service."""
 
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
+from app.api.processing_routes import router as processing_router
+from app.api.training_routes import router as training_router
+from app.api.video_extraction_routes import router as video_extraction_router
 
+
+APP_DIR = Path(__file__).resolve().parent
 
 app = FastAPI(
     title="APRENDIZ",
     description="Procedural knowledge acquisition from human demonstrations.",
     version="0.1.0",
 )
+app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.include_router(router)
+app.include_router(processing_router)
+app.include_router(training_router)
+app.include_router(video_extraction_router)

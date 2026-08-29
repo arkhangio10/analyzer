@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Enseña una tarea una vez. Obtén un agente capaz de ejecutarla.">
+    <meta name="theme-color" content="#f3f0e8">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="APRENDIZ — Enséñalo una vez. Ejecútalo siempre.">
+    <meta property="og:description" content="De demostración a agente validado.">
+    <meta property="og:image" content="/static/og.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="APRENDIZ — Enséñalo una vez. Ejecútalo siempre.">
+    <meta name="twitter:description" content="De demostración a agente validado.">
+    <meta name="twitter:image" content="/static/og.png">
+    <title>APRENDIZ — Enseña. Valida. Ejecuta.</title>
+    <link rel="stylesheet" href="../static/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Ir al contenido</a>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="APRENDIZ, inicio">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span>APRENDIZ</span>
+      </a>
+      <div class="header-actions">
+        <div class="language-switch" role="group" aria-label="Seleccionar idioma">
+          <button type="button" data-language="es" aria-pressed="true">ES</button>
+          <button type="button" data-language="en" aria-pressed="false">EN</button>
+        </div>
+        <nav aria-label="Navegación principal">
+          <a href="#metodo">Método</a>
+          <a href="#procesamiento">Proceso</a>
+          <a href="#entrenar">Entrenar</a>
+          <a class="nav-cta" href="#entrenar">Crear agente <span aria-hidden="true">↗</span></a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Aprendizaje procedural</p>
+          <h1 id="hero-title">Enséñalo<br><span>una vez.</span></h1>
+          <p class="hero-summary">Convierte demostraciones reales en agentes que entienden el proceso, practican y demuestran lo aprendido.</p>
+          <a class="primary-action" href="#entrenar">Entrenar un agente <span aria-hidden="true">↗</span></a>
+          <div class="system-status" aria-live="polite"><span></span><b id="system-status">Comprobando sistema</b></div>
+        </div>
+
+        <div class="hero-stage" aria-label="Flujo de aprendizaje de APRENDIZ">
+          <div class="orb orb-one" aria-hidden="true"></div>
+          <div class="orb orb-two" aria-hidden="true"></div>
+          <article class="flow-card flow-card-main">
+            <div class="card-topline"><span>01 / OBSERVAR</span><span>VIDEO</span></div>
+            <div class="play-mark" aria-hidden="true">▶</div>
+            <p>La demostración se convierte en conocimiento estructurado.</p>
+          </article>
+          <article class="flow-card flow-card-score">
+            <span class="card-label">VALIDACIÓN</span>
+            <strong>94<span>%</span></strong>
+            <p>Precisión en casos no vistos</p>
+          </article>
+          <article class="flow-card flow-card-export">
+            <span class="card-label">ENTREGA</span>
+            <strong>DOCKER</strong>
+            <p>Tu agente listo para ejecutar.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="method" id="metodo" aria-labelledby="method-title">
+        <div class="section-heading">
+          <p class="eyebrow">DEL EJEMPLO A LA EJECUCIÓN</p>
+          <h2 id="method-title">No memoriza.<br><span>Aprende el proceso.</span></h2>
+        </div>
+        <div class="method-grid">
+          <article><span>01</span><h3>Observa</h3><p>Comprende una demostración en video y extrae pasos, reglas y excepciones.</p></article>
+          <article><span>02</span><h3>Practica</h3><p>Ensaya variaciones progresivas y corrige su memoria procedural.</p></article>
+          <article><span>03</span><h3>Demuestra</h3><p>Se valida con casos protegidos que nunca vio durante el aprendizaje.</p></article>
+          <article class="accent-card"><span>04</span><h3>Ejecuta</h3><p>Recibes un agente portable, versionado y listo para correr.</p></article>
+        </div>
+      </section>
+
+      <section class="processing-section" id="procesamiento" aria-labelledby="processing-title">
+        <div class="processing-heading">
+          <div>
+            <p class="eyebrow">PROCESAMIENTO VISIBLE</p>
+            <h2 id="processing-title">Mira cómo<br><span>aprende.</span></h2>
+          </div>
+          <div class="processing-intro">
+            <p>Cada paso deja evidencia. El sistema muestra qué observa, qué extrae, cómo practica y con qué resultados se valida.</p>
+            <button class="demo-trigger" id="demo-processing" type="button">Ejecutar simulación local <span aria-hidden="true">↓</span></button>
+          </div>
+        </div>
+
+        <div class="processing-console" id="processing-console" aria-live="polite">
+          <div class="console-header">
+            <div class="console-title"><span class="console-live-dot"></span><b>APRENDIZ / SESIÓN DE ENTRENAMIENTO</b></div>
+            <span class="demo-badge">BACKEND / SIMULACIÓN LOCAL</span>
+          </div>
+
+          <div class="process-progress" role="progressbar" aria-label="Progreso del procesamiento" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="process-progress-meta"><span id="process-status">Listo para iniciar</span><strong id="process-percent">0%</strong></div>
+            <div class="process-progress-track"><span id="process-progress-bar"></span></div>
+          </div>
+
+          <div class="console-grid">
+            <div class="source-monitor">
+              <div class="monitor-screen">
+                <div class="scan-line" aria-hidden="true"></div>
+                <span class="monitor-tag">FUENTE / TRAYECTORIA</span>
+                <div class="monitor-symbol" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="monitor-caption"><span id="monitor-task">Recoger y colocar una pieza frágil</span><b id="monitor-time">00/05</b></div>
+              </div>
+              <div class="signal-row"><span><i></i> Trayectoria estructurada</span><span id="source-name">local-simulation://guided-demo</span></div>
+            </div>
+
+            <ol class="pipeline-list" aria-label="Etapas del procesamiento">
+              <li data-process-stage="0"><span class="stage-index">01</span><div><b>Validando la demostración</b><small>Comprobando articulaciones, tiempo y velocidad</small></div><span class="stage-state">PENDIENTE</span></li>
+              <li data-process-stage="1"><span class="stage-index">02</span><div><b>Extrayendo el movimiento</b><small>Convirtiendo waypoints en pasos y reglas</small></div><span class="stage-state">PENDIENTE</span></li>
+              <li data-process-stage="2"><span class="stage-index">03</span><div><b>Preparando una repetición</b><small>Construyendo una ejecución contra la referencia</small></div><span class="stage-state">PENDIENTE</span></li>
+              <li data-process-stage="3"><span class="stage-index">04</span><div><b>Evaluando la repetición</b><small>Comparando posición, duración y seguridad</small></div><span class="stage-state">PENDIENTE</span></li>
+              <li data-process-stage="4"><span class="stage-index">05</span><div><b>Preparando la entrega</b><small>Verificando el contrato del paquete Docker</small></div><span class="stage-state">PENDIENTE</span></li>
+            </ol>
+
+            <div class="extraction-panel">
+              <div class="panel-label"><span>MEMORIA PROCEDURAL</span><span id="memory-version">V0</span></div>
+              <div class="extraction-metrics">
+                <article><span>Pasos</span><strong id="metric-steps">—</strong></article>
+                <article><span>Reglas</span><strong id="metric-rules">—</strong></article>
+                <article><span>Ejemplos</span><strong id="metric-examples">—</strong></article>
+                <article><span>Precisión</span><strong id="metric-score">—</strong></article>
+              </div>
+              <div class="process-log" id="process-log" aria-label="Registro de actividad">
+                <p><time>00:00</time><span>Esperando una demostración para comenzar…</span></p>
+              </div>
+              <div class="process-result" id="process-result">
+                <span class="result-icon" aria-hidden="true">✓</span>
+                <div><b>Procedimiento local validado</b><small>El backend extrajo y evaluó una trayectoria segura en simulación.</small></div>
+                <span class="docker-chip">DOCKER</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="demo-disclosure"><span aria-hidden="true">i</span> Esta sesión consulta el backend real y procesa una trayectoria local estructurada. No llama a Gemini, no interpreta todavía el video y no controla hardware.</p>
+      </section>
+
+      <section class="trainer-preview" id="entrenar" aria-labelledby="trainer-title">
+        <div class="trainer-intro">
+          <p class="eyebrow">NUEVO ENTRENAMIENTO</p>
+          <h2 id="trainer-title">¿Qué debe aprender<br>tu agente?</h2>
+          <p>Define la tarea, comparte una demostración y revisa el plan antes de iniciar.</p>
+        </div>
+
+        <form class="trainer-form" id="trainer-form" novalidate>
+          <ol class="step-nav" aria-label="Progreso de configuración">
+            <li class="is-active" data-step-marker="1"><span>01</span> Tarea</li>
+            <li data-step-marker="2"><span>02</span> Fuente</li>
+            <li data-step-marker="3"><span>03</span> Revisar</li>
+          </ol>
+
+          <fieldset class="form-step is-active" data-step="1">
+            <legend>Describe el resultado que necesitas</legend>
+            <label for="task-description">Tarea del agente</label>
+            <textarea id="task-description" name="task" rows="4" required minlength="12" placeholder="Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil."></textarea>
+            <p class="field-help">Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.</p>
+            <p class="field-error" id="task-error" role="alert"></p>
+            <div class="form-actions form-actions-end">
+              <button class="form-button form-button-primary" type="button" data-next>Continuar <span aria-hidden="true">→</span></button>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-step" data-step="2" hidden>
+            <legend>Añade una referencia para la futura demostración</legend>
+            <div class="source-options" role="radiogroup" aria-label="Tipo de fuente">
+              <label class="source-option is-selected"><input type="radio" name="source-type" value="youtube" checked> <span><b>YouTube</b><small>Referencia a un video instructivo</small></span></label>
+              <label class="source-option"><input type="radio" name="source-type" value="upload"> <span><b>Video local</b><small>El archivo no se envía todavía</small></span></label>
+            </div>
+            <div data-source-panel="youtube">
+              <label for="video-url">Enlace de referencia</label>
+              <input id="video-url" name="video-url" type="url" inputmode="url" placeholder="https://youtube.com/watch?v=…">
+            </div>
+            <div data-source-panel="upload" hidden>
+              <label class="file-drop" for="video-file"><span class="file-icon" aria-hidden="true">↑</span><b id="file-label">Selecciona un video</b><small>MP4, MOV o WEBM</small></label>
+              <input class="visually-hidden" id="video-file" name="video-file" type="file" accept="video/mp4,video/quicktime,video/webm">
+            </div>
+            <p class="field-error" id="source-error" role="alert"></p>
+            <div class="form-actions">
+              <button class="form-button form-button-ghost" type="button" data-back>← Atrás</button>
+              <button class="form-button form-button-primary" type="button" data-next>Revisar <span aria-hidden="true">→</span></button>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-step" data-step="3" hidden>
+            <legend>Todo listo para preparar el aprendizaje</legend>
+            <dl class="review-list">
+              <div><dt>Tarea</dt><dd id="review-task"></dd></div>
+              <div><dt>Fuente</dt><dd id="review-source"></dd></div>
+              <div><dt>Entrega</dt><dd>Agente versionado en Docker</dd></div>
+            </dl>
+            <div class="honesty-note"><span aria-hidden="true">i</span><p><b>Primera versión funcional.</b> Esta ejecución usa el backend local y una trayectoria robótica estructurada. El enlace o archivo se conserva como referencia, pero el análisis del video con Gemini permanece desactivado.</p></div>
+            <div class="form-actions">
+              <button class="form-button form-button-ghost" type="button" data-back>← Editar</button>
+              <button class="form-button form-button-primary" type="submit">Ver procesamiento <span aria-hidden="true">→</span></button>
+            </div>
+          </fieldset>
+        </form>
+
+        <p class="privacy-note"><span aria-hidden="true">●</span> Tus datos y credenciales nunca se incluyen en la imagen Docker.</p>
+      </section>
+    </main>
+
+    <footer>
+      <span>APRENDIZ / 2026</span>
+      <span>ENSEÑA · VALIDA · EJECUTA</span>
+    </footer>
+    <script src="../static/app.js" defer></script>
+  </body>
+</html>

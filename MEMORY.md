@@ -8,13 +8,13 @@ Read this document before making significant architectural changes. It records t
 
 ## Mission
 
-Teach AI agents procedural tasks from human demonstrations and instructional videos.
+Teach software agents and embodied systems such as robots procedural tasks from human demonstrations and instructional videos.
 
 ## Product Vision
 
-Enable a non-programmer to explain what an agent should learn, provide demonstrations, let APRENDIZ practice and validate the procedure, see honest performance, and ultimately obtain a usable runnable agent.
+Enable a non-programmer to explain what an agent should learn, choose whether it will execute on a computer or through a robot, provide or discover demonstrations, let APRENDIZ practice and validate the procedure in an isolated destination, see honest performance, and ultimately obtain a usable runnable agent.
 
-The first hackathon domain is Peruvian accounting calculations such as IGV, net income, CTS, gratificaciones, and simple bank reconciliation. This narrow domain gives objective numerical outcomes, but the architecture must remain generic.
+The first hackathon domain is Peruvian accounting calculations such as IGV, net income, CTS, gratificaciones, and simple bank reconciliation. Robot movement learning is now an explicit embodied use case. Both domains provide measurable outcomes, and the architecture must remain generic rather than coupling procedural memory to accounting or one robot vendor.
 
 ## Core Principle
 
@@ -22,20 +22,25 @@ The MVP does not modify foundation-model weights. It is not fine-tuning, LoRA, o
 
 Learning means automated procedural knowledge acquisition from unstructured video, with externally anchored self-evaluation. The product builds and improves versioned, structured procedural memory containing objectives, inputs, outputs, ordered steps, rules, conditions, exceptions, examples, sources, uncertainty, and evaluation evidence.
 
+For physical procedures, memory must also retain coordinate or joint-space conventions, timestamps, safety envelopes, speed limits, tool or gripper state, simulator evidence, and the boundary between observed movement and approved hardware execution.
+
 Never simplify the system to "video -> prompt".
 
 ## User Flow
 
 1. The user assigns a task.
-2. `TaskClarifierAgent` forms a task definition: name, objective, expected inputs and outputs, constraints, tools, success criteria, and known exceptions.
-3. If information is incomplete or ambiguous, APRENDIZ asks contextual clarification questions, updates its understanding, and repeats until sufficiently clear.
-4. The user chooses YouTube instructional videos or uploaded training videos.
-5. The system understands demonstrations and extracts structured procedural knowledge: objective, inputs, outputs, steps, rules, conditions, exceptions, examples, and expected results.
-6. APRENDIZ creates a versioned Skill/Procedure.
-7. It imitates demonstrated examples, practices progressively varied exercises, and evaluates results against trustworthy anchors.
-8. On failure, it analyzes the failure, reflects, updates procedural memory, and retries. Failures remain visible.
-9. It performs generalization tests and then a final blind validation against a frozen unseen set that learning cannot modify.
-10. The user sees measured performance and, in a later milestone, can export a runnable agent package.
+2. The user chooses an execution destination: computer or robot.
+3. `TaskClarifierAgent` forms a task definition and destination contract: name, objective, expected inputs and outputs, constraints, tools, environment or robot model, success criteria, and known exceptions.
+4. If information is incomplete or ambiguous, APRENDIZ asks contextual clarification questions, updates its understanding, and repeats until sufficiently clear.
+5. The user chooses a YouTube URL, uploads a training video, or asks APRENDIZ to search for reference videos.
+6. For automatic search, APRENDIZ shows candidate summaries, relevance, source lineage, contradictions, limitations, and estimated processing cost. Training starts only after user approval.
+7. The system understands approved demonstrations and extracts structured procedural knowledge: objective, inputs, outputs, steps, rules, conditions, exceptions, examples, and expected results.
+8. APRENDIZ creates a versioned Skill/Procedure independent from one operating system or robot vendor.
+9. A destination adapter maps the procedure to computer actions or retargets observed human or animal behavior to a specific robot model and simulator.
+10. It imitates demonstrated examples, practices progressively varied exercises, and evaluates results against trustworthy anchors in an isolated environment.
+11. On failure, it analyzes the failure, reflects, updates procedural memory, and retries. Failures remain visible.
+12. It performs generalization tests and then a final blind validation against a frozen unseen set that learning cannot modify.
+13. After human approval, the user can export a one-click Docker agent package. Robot hardware execution remains behind a separate safety-approved adapter.
 
 Critical vertical slice:
 
@@ -67,6 +72,7 @@ Avoid circular self-evaluation. A model must not merely create its own test, ans
 2. **Cross-video validation:** a procedure extracted from one video should be tested with examples from another; contradictions must appear as uncertainty.
 3. **Frozen human evaluation set:** manually maintained unseen cases are immutable to the learning loop and provide final validation.
 4. **Transparent uncertainty:** report disagreement, missing evidence, and failures honestly; never manufacture confidence.
+5. **Embodied safety:** learn and evaluate robot motion in simulation first. Replay accuracy never substitutes for collision checking, dynamics validation, risk assessment, or explicit human approval before hardware use.
 
 ## Planned Agents
 
@@ -85,7 +91,7 @@ The files for these responsibilities currently define boundaries only. They do n
 
 - Python 3.12
 - Google ADK
-- Google Gemini through the Google GenAI SDK
+- Google Gemini through the Google GenAI SDK; `gemini-3.5-flash-lite` is the selected first model and provider calls default to disabled
 - FastAPI and Uvicorn
 - Pydantic, pydantic-settings, and python-dotenv
 - httpx and python-multipart
@@ -98,13 +104,15 @@ Do not add TensorFlow, PyTorch, Hugging Face Transformers, LangChain, or another
 ## Current Priorities
 
 1. Environment works. **Done** — see Current Status.
-2. ADK hello agent works.
-3. Gemini can process one instructional video.
-4. Video can become structured procedure JSON.
-5. Instructor examples can be extracted.
-6. Executor can use the procedure on an unseen case.
-7. Accuracy can be measured.
-8. Only then should the product UI become sophisticated.
+2. Structured robot-motion demonstration becomes a safety-checked procedure. **Done** — observation-level, simulation-only.
+3. Candidate robot replay can be evaluated against instructor ground truth. **Done** — imitation-level only.
+4. Connect the bilingual product UI to the real training-session API. **Done** — local simulation session with backend-owned progress.
+5. Process one user-approved instructional video with Gemini 3.5 Flash Lite through the guarded experiment endpoint. **Done** — see Current Status.
+6. Add destination selection and typed computer/robot execution contracts.
+7. Add automatic YouTube reference discovery, summaries, cost preview, and explicit user approval.
+8. Extract instructor examples and structured procedure JSON from video.
+9. Execute and measure an unseen case with trustworthy expected results.
+10. Add robot simulator or hardware adapters only after selecting a target platform and defining its safety contract.
 
 The first experiment should take exactly one instructional video and test whether Gemini reliably returns `task`, `objective`, `inputs`, `outputs`, `steps`, `rules`, `exceptions`, and `examples` as structured JSON.
 
@@ -117,6 +125,7 @@ The first experiment should take exactly one instructional video and test whethe
 - No premature React frontend.
 - No complex multi-user authorization.
 - No production-scale infrastructure yet.
+- No commands to physical robots, autonomous hardware execution, or claims of physical safety in the current slice.
 
 ## Development Principles
 
@@ -127,6 +136,7 @@ The first experiment should take exactly one instructional video and test whethe
 - Add tests for deterministic logic.
 - Never hide evaluation failures or uncertainty.
 - Never store secrets in Git.
+- Never add AI authorship, AI co-author trailers, generator signatures, badges, or "generated by" attribution to project artifacts or Git history. Preserve configured repository identity and do not fabricate human authorship.
 - Avoid unnecessary dependencies and abstraction hierarchies.
 - Prefer a working narrow vertical slice over many incomplete features.
 - Protect frozen evaluation data from mutation by training flows.
@@ -134,7 +144,22 @@ The first experiment should take exactly one instructional video and test whethe
 
 ## Downloadable Agent Vision
 
-A future export may contain `agent.py`, `skill.json`, prompts, frozen evaluations, dependency metadata, an environment template, and usage documentation. The export system is not part of repository initialization and is not implemented.
+The final product deliverable is a versioned Docker agent package. It may contain `agent.py`, `skill.json`, prompts, frozen evaluations, dependency metadata, health checks, an environment template, Docker configuration, a small cross-platform launcher, and usage documentation. A user who already has Docker installed should not need to install Python or project dependencies: starting the package should launch the agent and make its local interface available with minimal interaction.
+
+Never bake credentials, API keys, `.env` contents, user uploads, or private training data into the Docker image. Supply secrets and user-specific configuration at runtime. The export system is not part of repository initialization and is not implemented.
+
+## Product UI Direction
+
+Use the Be The Buzz fluid-box reference as visual inspiration, not as a design to copy. Adapt these principles to APRENDIZ:
+
+- oversized, expressive typography with concise supporting copy;
+- modular content blocks that fluidly reposition across the learning journey;
+- a high-contrast palette with restrained gradients and a clear action color;
+- purposeful transitions that explain state changes, progress, evaluation, and correction;
+- responsive layouts, keyboard navigation, strong focus states, and reduced-motion support;
+- honest visibility of uncertainty, contradictions, failures, and frozen-validation results.
+
+Do not let animation obscure controls, hide system status, delay core actions, or become required to understand the workflow.
 
 ## Decision Log
 
@@ -159,6 +184,55 @@ A future export may contain `agent.py`, `skill.json`, prompts, frozen evaluation
 - **Alternatives:** Model-generated tests graded solely by the same model.
 - **Impact:** Every future evaluation result should retain its expected-output source and expose failures.
 
+### 2026-08-28 — Deliver exported agents as one-click Docker packages
+
+- **Decision:** The final user deliverable will be a versioned Docker agent package with a minimal launcher and runtime-injected configuration.
+- **Reason:** Users should be able to run their trained agent without installing Python or manually resolving dependencies.
+- **Alternatives:** Deliver a loose source directory, require a manual Python environment, or host every generated agent centrally.
+- **Impact:** Exported agents need a stable runtime contract, health checks, external secret handling, portable storage choices, and reproducible image builds.
+
+### 2026-08-28 — Adopt a fluid modular UI direction
+
+- **Decision:** Use the Be The Buzz fluid-box interaction as inspiration for APRENDIZ's future web experience while preserving accessibility and clarity.
+- **Reason:** The moving modular composition fits the product's observe-understand-practice-evaluate workflow and can make state transitions tangible.
+- **Alternatives:** A conventional dashboard or a static form wizard.
+- **Impact:** UI components should support responsive repositioning, explicit workflow states, restrained motion, and reduced-motion fallbacks.
+
+### 2026-08-28 — Add simulation-first robot-motion procedural learning
+
+- **Decision:** Treat robot movement as an explicit procedural-learning use case and begin with structured joint-space demonstrations in simulation.
+- **Reason:** Robot movement makes the product's observe-practice-evaluate model tangible while retaining objective limits and replay measurements.
+- **Alternatives:** Couple immediately to one robot vendor, send commands directly to hardware, or postpone embodied procedures entirely.
+- **Impact:** Motion learning requires typed waypoints, time, joint and velocity limits, instructor-grounded replay evaluation, explicit simulation scope, and a separate future hardware safety contract.
+
+### 2026-08-28 — Connect the UI through a provider-neutral processing session
+
+- **Decision:** Drive the visible five-stage UI from a typed, pollable backend session that currently uses a built-in safe robot trajectory and reports zero cloud calls.
+- **Reason:** Replace the frontend-only animation with real backend state without pretending that raw-video understanding or Gemini orchestration already exists.
+- **Alternatives:** Keep a timer-only demo, enable Gemini before confirming credit coverage, or couple the browser directly to provider APIs.
+- **Impact:** Future video providers must preserve the session contract, expose their execution mode and failures, and keep provider calls behind service boundaries.
+
+### 2026-08-28 — Containerize the repository application
+
+- **Decision:** Add a secret-safe Dockerfile and Compose service for the current FastAPI application.
+- **Reason:** Validate the one-command runtime shape early while the separate per-trained-agent exporter remains future work.
+- **Alternatives:** Wait until export generation exists or require local Python for every demonstration.
+- **Impact:** The repository app can run on port 8080 without embedding `.env`, uploads, local runtimes, or credentials; exported agent packages still need their own later contract.
+
+### 2026-08-28 — Make execution destination explicit and add approved reference discovery
+
+- **Decision:** Keep procedural learning domain-independent, ask whether execution targets a computer or robot, and add automatic YouTube reference discovery with summaries and explicit user approval.
+- **Reason:** The same instructional evidence can describe digital work, physical craftsmanship, or animal motion, but execution requires different environment and safety contracts.
+- **Alternatives:** Treat the product as robot-only, assume one computer environment, or train automatically from unreviewed search results.
+- **Impact:** Task clarification must collect a computer environment contract or robot embodiment contract. Search candidates are not training evidence until approved. Human or animal movement must be retargeted through a specific robot model and simulator before code can be produced.
+
+### 2026-08-28 — Add a guarded first-video provider experiment
+
+- **Decision:** Expose one synchronous Vertex AI extraction endpoint for a user-approved public YouTube video, with provider calls disabled by default, explicit cost acknowledgement, low media resolution, an output-token cap, typed procedural output, and usage reporting.
+- **Reason:** Verify the uncertain video-to-procedure path without coupling provider behavior to the deterministic local simulation or silently incurring cloud cost.
+- **Alternatives:** Enable Gemini throughout the existing UI immediately, process unapproved sources, or defer the provider boundary until full orchestration exists.
+- **Impact:** The experiment can now be exercised after local ADC configuration. It reports model and token evidence but does not yet persist results, run ADK orchestration, or enter the practice loop.
+
 ## Current Status
 
 The target path did not exist when initialization began, so there was no prior repository content inside it to preserve.
@@ -166,21 +240,28 @@ The target path did not exist when initialization began, so there was no prior r
 Currently present:
 
 - documented mission, architecture, learning loop, evaluation strategy, priorities, and agent instructions;
-- minimal FastAPI application with `/` and `/health`;
+- FastAPI application with the product interface at `/`, JSON status at `/api/status`, process health at `/health`, and OpenAPI documentation at `/docs`;
+- an initial responsive bilingual Spanish/English frontend with a fluid modular visual system, guided task/source/review interaction, backend-driven processing progress, keyboard focus states, reduced-motion support, and social-preview metadata;
 - initial Pydantic contracts for task definitions, procedures, skills, training examples, and evaluation results;
+- typed robot-motion contracts, deterministic safety validation, movement procedure extraction, instructor-grounded replay evaluation, and in-memory training-session retrieval;
 - agent and service module boundaries with no fabricated behavior;
-- dependency/configuration manifests, secret-safe environment template, ignore rules, and smoke tests;
+- a provider-neutral visible-processing API whose local session reports `cloud_calls_made=0`, validates a built-in six-joint trajectory, extracts nine procedure steps, and returns replay evidence;
+- dependency/configuration manifests, secret-safe environment template, ignore rules, Dockerfile, Compose service, and smoke tests;
 - placeholder directories for local data, frozen evaluations, scripts, and exports;
 - a verified local environment: `.venv` on Python 3.12.10 with every declared dependency installed and the project installed editable with the `dev` extra.
 
-Verified on 2026-08-27: `pip check` reports no broken requirements; `google.adk`, `google.genai`, and the Google Cloud clients import successfully; both smoke tests pass; and Uvicorn serves `/`, `/health`, and `/docs` with HTTP 200. `.env` exists locally from `.env.example` with empty credential values, so no provider call has been made yet.
+Verified on 2026-08-28: all 26 tests pass; Uvicorn serves the UI and the processing API; a full local robot-motion session reaches 100%, passes safety validation, extracts nine steps, returns a replay score of 1.0, and reports zero cloud calls. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker configuration exists, but Docker is not installed on the current machine, so the image build remains unverified.
 
 Not yet built:
 
 - Google ADK hello agent and workflow orchestration;
-- Gemini credentials or provider calls;
-- video ingestion and understanding;
-- structured extraction, reconciliation, practice, reflection, retry, or execution logic;
-- Firestore, Pub/Sub, Cloud Storage, Cloud Run, export packaging, or frontend integration.
+- durable video-session persistence and uploaded-video ingestion;
+- higher-frame-rate motion analysis for robot-ready gait extraction;
+- video-based structured extraction, reconciliation, reflection, retry, or general-purpose execution logic;
+- Firestore, Pub/Sub, Cloud Storage, Cloud Run, or per-trained-agent export packaging.
+
+Product direction confirmed on 2026-08-28: the UI adapts the Be The Buzz fluid-box visual language, supports Spanish and English for international jurors, and visibly renders backend-owned processing stages without pretending that provider video processing is implemented. The repository application is containerized; the final per-agent export remains a one-click Docker package with runtime-injected secrets.
+
+Backend progress verified on 2026-08-28: the simulation-only robot-motion vertical slice accepts structured instructor demonstrations, rejects unsafe joint positions and velocities, extracts an observation-level procedure, stores the session in memory, and evaluates candidate replay data against the instructor reference. It does not process raw video, control hardware, check collisions or dynamics, or prove generalization.
 
 Update this status only after verifying new functionality.
