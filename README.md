@@ -104,6 +104,7 @@ Project and source-intake endpoints:
 - `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
 - `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
 - `POST /api/learning/evaluate/frozen`: score a candidate against a server-side protected case without returning its expected answer.
+- `POST /api/execution/computer/validate`: validate browser, text, and sandboxed file actions; arbitrary shell actions are not accepted and host actions remain zero.
 
 Automatic discovery is disabled by default. Enable YouTube Data API v3 in the
 Google Cloud project, create a restricted API key, and set

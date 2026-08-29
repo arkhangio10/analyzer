@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api.routes import router
 from app.api.processing_routes import router as processing_router
 from app.api.learning_routes import router as learning_router
+from app.api.computer_execution_routes import router as computer_execution_router
 from app.api.project_routes import router as project_router
 from app.api.source_routes import router as source_router
 from app.api.training_routes import router as training_router
@@ -25,6 +26,7 @@ app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.include_router(router)
 app.include_router(processing_router)
 app.include_router(learning_router)
+app.include_router(computer_execution_router)
 app.include_router(project_router)
 app.include_router(source_router)
 app.include_router(training_router)
