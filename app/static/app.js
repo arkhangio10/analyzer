@@ -26,16 +26,22 @@ const translations = {
     processLogs: ["Sesión creada; validando una trayectoria de seis articulaciones.", "Límites, tiempos y velocidades comprobados por el backend.", "Procedimiento observable extraído desde waypoints estructurados.", "Repetición comparada con la referencia; no es validación de hardware.", "Contrato Docker preparado; llamadas cloud realizadas: 0."],
     processError: "El backend no pudo completar la sesión. Revisa el estado y vuelve a intentarlo.",
     trainerEyebrow: "NUEVO ENTRENAMIENTO", trainerTitle: "¿Qué debe aprender<br>tu agente?", trainerIntro: "Define la tarea, comparte una demostración y revisa el plan antes de iniciar.",
-    formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
+    formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Destino", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
     taskPlaceholder: "Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil.", taskHelp: "Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.",
-    continue: "Continuar <span aria-hidden=\"true\">→</span>", sourceLegend: "Añade una referencia para la futura demostración", sourceTypeLabel: "Tipo de fuente",
+    continue: "Continuar <span aria-hidden=\"true\">→</span>", destinationLegend: "¿Dónde ejecutará lo aprendido?", destinationTypeLabel: "Destino de ejecución",
+    robot: "Robot", robotCopy: "Movimiento validado primero en simulación", computer: "Computadora", computerCopy: "Procedimiento aislado antes de ejecutarlo",
+    robotModelLabel: "Marca y modelo exacto", robotModelPlaceholder: "Ej.: Unitree Go2", robotHelp: "Usaremos ARP-1 y seleccionaremos el simulador compatible automáticamente.",
+    computerAppLabel: "Aplicación objetivo", computerAppPlaceholder: "Ej.: Google Chrome, Excel o Blender", computerHelp: "El sistema operativo se detectará automáticamente y la primera ejecución será aislada.",
+    sourceLegend: "Añade una referencia para la futura demostración", sourceTypeLabel: "Tipo de fuente",
     youtubeCopy: "Referencia a un video instructivo", upload: "Video local", uploadCopy: "El archivo no se envía todavía", videoUrlLabel: "Enlace de referencia",
     selectVideo: "Selecciona un video", fileTypes: "MP4, MOV o WEBM", back: "← Atrás", review: "Revisar <span aria-hidden=\"true\">→</span>",
-    reviewLegend: "Todo listo para preparar el aprendizaje", reviewLabels: ["Tarea", "Fuente", "Entrega"], dockerDelivery: "Agente versionado en Docker",
-    honesty: "<b>Primera versión funcional.</b> Esta ejecución usa el backend local y una trayectoria robótica estructurada. El enlace o archivo se conserva como referencia, pero el análisis del video con Gemini permanece desactivado.",
-    edit: "← Editar", viewProcessing: "Ver procesamiento <span aria-hidden=\"true\">→</span>",
+    reviewLegend: "Todo listo para preparar el aprendizaje", reviewLabels: ["Tarea", "Destino", "Configuración", "Fuente", "Entrega"], dockerDelivery: "Agente versionado en Docker",
+    robotReview: "Robot / simulación primero", computerReview: "Computadora / entorno aislado", robotConfig: "ARP-1 · simulador automático", computerConfig: "Sistema operativo automático · sandbox obligatorio",
+    honestyRobot: "<b>Primera versión funcional.</b> El contrato del robot se crea en el backend y esta demostración procesa una trayectoria local estructurada. No controla hardware físico.",
+    honestyComputer: "<b>Contrato funcional.</b> El proyecto queda preparado para ejecución aislada. El ejecutor de tareas de computadora se implementará en la siguiente fase y hoy no simula acciones falsas.",
+    edit: "← Editar", prepareProject: "Preparar proyecto <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Proyecto {id} creado. Iniciando validación robótica local…", projectReadyComputer: "Proyecto {id} creado. Contrato de computadora listo; el ejecutor aislado es la siguiente fase.", projectError: "No se pudo preparar el proyecto. Revisa los datos e inténtalo nuevamente.",
     privacy: "<span aria-hidden=\"true\">●</span> Tus datos y credenciales nunca se incluyen en la imagen Docker.", footer: "ENSEÑA · VALIDA · EJECUTA",
-    taskError: "Describe la tarea con al menos 12 caracteres.", urlError: "Añade un enlace de video válido.", fileError: "Selecciona un archivo de video.", noSource: "Sin fuente",
+    taskError: "Describe la tarea con al menos 12 caracteres.", robotModelError: "Indica la marca y el modelo del robot.", computerAppError: "Indica la aplicación donde se ejecutará la tarea.", urlError: "Añade un enlace de video válido.", fileError: "Selecciona un archivo de video.", noSource: "Sin fuente",
     systemChecking: "Comprobando sistema", systemOnline: "Sistema disponible", systemPreview: "Vista de interfaz",
   },
   en: {
@@ -63,16 +69,22 @@ const translations = {
     processLogs: ["Session created; validating a six-joint trajectory.", "Limits, timestamps, and velocities checked by the backend.", "Observable procedure extracted from structured waypoints.", "Replay compared with its reference; this is not hardware validation.", "Docker contract prepared; cloud calls made: 0."],
     processError: "The backend could not complete the session. Check its status and try again.",
     trainerEyebrow: "NEW TRAINING", trainerTitle: "What should your<br>agent learn?", trainerIntro: "Define the task, share a demonstration, and review the plan before starting.",
-    formProgressLabel: "Configuration progress", formMarkers: ["Task", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
+    formProgressLabel: "Configuration progress", formMarkers: ["Task", "Destination", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
     taskPlaceholder: "Example: Teach a robot arm to pick and place a fragile component.", taskHelp: "Describe the outcome and important limits. This first session runs in simulation only.",
-    continue: "Continue <span aria-hidden=\"true\">→</span>", sourceLegend: "Add a reference for the future demonstration", sourceTypeLabel: "Source type", youtubeCopy: "Instructional video reference",
+    continue: "Continue <span aria-hidden=\"true\">→</span>", destinationLegend: "Where will the learned behavior run?", destinationTypeLabel: "Execution destination",
+    robot: "Robot", robotCopy: "Motion validated in simulation first", computer: "Computer", computerCopy: "Procedure isolated before execution",
+    robotModelLabel: "Exact brand and model", robotModelPlaceholder: "Example: Unitree Go2", robotHelp: "We will use ARP-1 and select a compatible simulator automatically.",
+    computerAppLabel: "Target application", computerAppPlaceholder: "Example: Google Chrome, Excel, or Blender", computerHelp: "The operating system will be detected automatically and the first run will be isolated.",
+    sourceLegend: "Add a reference for the future demonstration", sourceTypeLabel: "Source type", youtubeCopy: "Instructional video reference",
     upload: "Local video", uploadCopy: "The file is not uploaded yet", videoUrlLabel: "Reference link", selectVideo: "Select a video", fileTypes: "MP4, MOV, or WEBM",
     back: "← Back", review: "Review <span aria-hidden=\"true\">→</span>", reviewLegend: "Everything is ready to prepare learning",
-    reviewLabels: ["Task", "Source", "Delivery"], dockerDelivery: "Versioned agent in Docker",
-    honesty: "<b>First functional version.</b> This run uses the local backend and a structured robot trajectory. The link or file is retained as a reference, but Gemini video analysis remains disabled.",
-    edit: "← Edit", viewProcessing: "View processing <span aria-hidden=\"true\">→</span>",
+    reviewLabels: ["Task", "Destination", "Configuration", "Source", "Delivery"], dockerDelivery: "Versioned agent in Docker",
+    robotReview: "Robot / simulation first", computerReview: "Computer / isolated environment", robotConfig: "ARP-1 · automatic simulator", computerConfig: "Automatic OS · mandatory sandbox",
+    honestyRobot: "<b>First functional version.</b> The robot contract is created by the backend and this demonstration processes a structured local trajectory. It does not control physical hardware.",
+    honestyComputer: "<b>Functional contract.</b> The project is prepared for isolated execution. The computer-task executor is the next phase and no actions are falsely simulated today.",
+    edit: "← Edit", prepareProject: "Prepare project <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Project {id} created. Starting local robot validation…", projectReadyComputer: "Project {id} created. Computer contract ready; the isolated executor is the next phase.", projectError: "The project could not be prepared. Check the data and try again.",
     privacy: "<span aria-hidden=\"true\">●</span> Your data and credentials are never included in the Docker image.", footer: "TEACH · VALIDATE · EXECUTE",
-    taskError: "Describe the task using at least 12 characters.", urlError: "Add a valid video link.", fileError: "Select a video file.", noSource: "No source",
+    taskError: "Describe the task using at least 12 characters.", robotModelError: "Enter the robot brand and model.", computerAppError: "Enter the application where the task will run.", urlError: "Add a valid video link.", fileError: "Select a video file.", noSource: "No source",
     systemChecking: "Checking system", systemOnline: "System available", systemPreview: "Interface preview",
   },
 };
@@ -81,10 +93,14 @@ const form = document.querySelector("#trainer-form");
 const steps = [...document.querySelectorAll(".form-step")];
 const markers = [...document.querySelectorAll("[data-step-marker]")];
 const taskInput = document.querySelector("#task-description");
+const robotModel = document.querySelector("#robot-model");
+const computerApplication = document.querySelector("#computer-application");
 const videoUrl = document.querySelector("#video-url");
 const videoFile = document.querySelector("#video-file");
 const taskError = document.querySelector("#task-error");
+const destinationError = document.querySelector("#destination-error");
 const sourceError = document.querySelector("#source-error");
+const projectFeedback = document.querySelector("#project-feedback");
 const processingConsole = document.querySelector("#processing-console");
 const processResult = document.querySelector("#process-result");
 const processLog = document.querySelector("#process-log");
@@ -171,7 +187,21 @@ function applyLanguage(language) {
   taskInput.placeholder = t.taskPlaceholder;
   setContent(".field-help", t.taskHelp);
   setContent('[data-step="1"] [data-next]', t.continue, true);
-  setContent('[data-step="2"] legend', t.sourceLegend);
+  setContent('[data-step="2"] legend', t.destinationLegend);
+  document.querySelector(".destination-options").ariaLabel = t.destinationTypeLabel;
+  setContent('.destination-option:first-child b', t.robot);
+  setContent('.destination-option:first-child small', t.robotCopy);
+  setContent('.destination-option:last-child b', t.computer);
+  setContent('.destination-option:last-child small', t.computerCopy);
+  setContent('label[for="robot-model"]', t.robotModelLabel);
+  robotModel.placeholder = t.robotModelPlaceholder;
+  setContent("#robot-help", t.robotHelp);
+  setContent('label[for="computer-application"]', t.computerAppLabel);
+  computerApplication.placeholder = t.computerAppPlaceholder;
+  setContent("#computer-help", t.computerHelp);
+  setContent('[data-step="2"] [data-back]', t.back);
+  setContent('[data-step="2"] [data-next]', t.continue, true);
+  setContent('[data-step="3"] legend', t.sourceLegend);
   document.querySelector(".source-options").ariaLabel = t.sourceTypeLabel;
   setContent('.source-option:first-child small', t.youtubeCopy);
   setContent('.source-option:last-child b', t.upload);
@@ -179,14 +209,14 @@ function applyLanguage(language) {
   setContent('label[for="video-url"]', t.videoUrlLabel);
   if (!videoFile.files.length) setContent("#file-label", t.selectVideo);
   setContent(".file-drop small", t.fileTypes);
-  setContent('[data-step="2"] [data-back]', t.back);
-  setContent('[data-step="2"] [data-next]', t.review, true);
-  setContent('[data-step="3"] legend', t.reviewLegend);
+  setContent('[data-step="3"] [data-back]', t.back);
+  setContent('[data-step="3"] [data-next]', t.review, true);
+  setContent('[data-step="4"] legend', t.reviewLegend);
   document.querySelectorAll(".review-list dt").forEach((label, index) => { label.textContent = t.reviewLabels[index]; });
   setContent(".review-list div:last-child dd", t.dockerDelivery);
-  setContent(".honesty-note p", t.honesty, true);
-  setContent('[data-step="3"] [data-back]', t.edit);
-  setContent('[data-step="3"] button[type="submit"]', t.viewProcessing, true);
+  setContent(".honesty-note p", selectedDestination() === "robot" ? t.honestyRobot : t.honestyComputer, true);
+  setContent('[data-step="4"] [data-back]', t.edit);
+  setContent('[data-step="4"] button[type="submit"]', t.prepareProject, true);
   setContent(".privacy-note", t.privacy, true);
   setContent("footer span:last-child", t.footer);
   document.querySelectorAll("[data-language]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.language === currentLanguage)); });
@@ -203,6 +233,7 @@ function showStep(stepNumber) {
 }
 
 function selectedSourceType() { return form.elements["source-type"].value; }
+function selectedDestination() { return form.elements.destination.value; }
 
 function validateCurrentStep() {
   const t = translations[currentLanguage];
@@ -213,6 +244,14 @@ function validateCurrentStep() {
     return valid;
   }
   if (currentStep === 2) {
+    const destination = selectedDestination();
+    const target = destination === "robot" ? robotModel : computerApplication;
+    const valid = target.value.trim().length >= 2;
+    destinationError.textContent = valid ? "" : destination === "robot" ? t.robotModelError : t.computerAppError;
+    target.setAttribute("aria-invalid", String(!valid));
+    return valid;
+  }
+  if (currentStep === 3) {
     const type = selectedSourceType();
     const valid = Boolean((type === "youtube" && videoUrl.value.trim() && videoUrl.checkValidity()) || (type === "upload" && videoFile.files.length > 0));
     sourceError.textContent = valid ? "" : type === "youtube" ? t.urlError : t.fileError;
@@ -222,9 +261,61 @@ function validateCurrentStep() {
 }
 
 function fillReview() {
+  const t = translations[currentLanguage];
+  const destination = selectedDestination();
   const source = selectedSourceType() === "youtube" ? videoUrl.value.trim() : videoFile.files[0]?.name;
   setContent("#review-task", taskInput.value.trim());
-  setContent("#review-source", source || translations[currentLanguage].noSource);
+  setContent("#review-destination", destination === "robot" ? t.robotReview : t.computerReview);
+  setContent("#review-configuration", destination === "robot" ? `${robotModel.value.trim()} · ${t.robotConfig}` : `${computerApplication.value.trim()} · ${t.computerConfig}`);
+  setContent("#review-source", source || t.noSource);
+  setContent(".honesty-note p", destination === "robot" ? t.honestyRobot : t.honestyComputer, true);
+}
+
+function showProjectFeedback(message, isError = false) {
+  projectFeedback.textContent = message;
+  projectFeedback.hidden = false;
+  projectFeedback.classList.toggle("is-error", isError);
+}
+
+async function prepareProject() {
+  const t = translations[currentLanguage];
+  const destination = selectedDestination();
+  const source = selectedSourceType() === "youtube" ? videoUrl.value.trim() : videoFile.files[0]?.name;
+  projectFeedback.hidden = true;
+  processSubmit.disabled = true;
+  try {
+    const payload = {
+      task_description: taskInput.value.trim(),
+      destination,
+      language: currentLanguage,
+    };
+    if (destination === "robot") {
+      payload.robot_model = robotModel.value.trim();
+    } else {
+      payload.computer_application = computerApplication.value.trim();
+    }
+    const response = await fetch("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) throw new Error(`Project creation failed: ${response.status}`);
+    const project = await response.json();
+    if (!project.is_sufficiently_clear) {
+      showProjectFeedback(project.clarification_questions[0]?.question || t.projectError, true);
+      return;
+    }
+    const readyMessage = destination === "robot" ? t.projectReadyRobot : t.projectReadyComputer;
+    showProjectFeedback(readyMessage.replace("{id}", project.project_id));
+    if (destination === "robot") {
+      window.setTimeout(() => startProcessing(taskInput.value.trim(), source), reducedMotion.matches ? 0 : 550);
+    }
+  } catch (error) {
+    showProjectFeedback(t.projectError, true);
+    console.error(error);
+  } finally {
+    processSubmit.disabled = false;
+  }
 }
 
 function renderProcessMetrics() {
@@ -364,8 +455,17 @@ async function startProcessing(task, source, immediate = false) {
 form.addEventListener("click", (event) => {
   const nextButton = event.target.closest("[data-next]");
   const backButton = event.target.closest("[data-back]");
-  if (nextButton && validateCurrentStep()) { if (currentStep === 2) fillReview(); showStep(Math.min(3, currentStep + 1)); }
+  if (nextButton && validateCurrentStep()) { if (currentStep === 3) fillReview(); showStep(Math.min(4, currentStep + 1)); }
   if (backButton) showStep(Math.max(1, currentStep - 1));
+});
+
+document.querySelectorAll("input[name='destination']").forEach((radio) => {
+  radio.addEventListener("change", () => {
+    document.querySelectorAll(".destination-option").forEach((option) => option.classList.toggle("is-selected", option.contains(radio)));
+    document.querySelectorAll("[data-destination-panel]").forEach((panel) => { panel.hidden = panel.dataset.destinationPanel !== radio.value; });
+    destinationError.textContent = "";
+    projectFeedback.hidden = true;
+  });
 });
 
 document.querySelectorAll("input[name='source-type']").forEach((radio) => {
@@ -377,7 +477,7 @@ document.querySelectorAll("input[name='source-type']").forEach((radio) => {
 });
 
 videoFile.addEventListener("change", () => setContent("#file-label", videoFile.files[0]?.name || translations[currentLanguage].selectVideo));
-form.addEventListener("submit", (event) => { event.preventDefault(); const source = selectedSourceType() === "youtube" ? videoUrl.value.trim() : videoFile.files[0]?.name; startProcessing(taskInput.value.trim(), source); });
+form.addEventListener("submit", (event) => { event.preventDefault(); prepareProject(); });
 processButton.addEventListener("click", () => startProcessing(translations[currentLanguage].demoTask, "local-simulation://guided-demo"));
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language)));
 

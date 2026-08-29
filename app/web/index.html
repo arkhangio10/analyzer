@@ -156,8 +156,9 @@
         <form class="trainer-form" id="trainer-form" novalidate>
           <ol class="step-nav" aria-label="Progreso de configuración">
             <li class="is-active" data-step-marker="1"><span>01</span> Tarea</li>
-            <li data-step-marker="2"><span>02</span> Fuente</li>
-            <li data-step-marker="3"><span>03</span> Revisar</li>
+            <li data-step-marker="2"><span>02</span> Destino</li>
+            <li data-step-marker="3"><span>03</span> Fuente</li>
+            <li data-step-marker="4"><span>04</span> Revisar</li>
           </ol>
 
           <fieldset class="form-step is-active" data-step="1">
@@ -172,6 +173,37 @@
           </fieldset>
 
           <fieldset class="form-step" data-step="2" hidden>
+            <legend>¿Dónde ejecutará lo aprendido?</legend>
+            <div class="destination-options" role="radiogroup" aria-label="Destino de ejecución">
+              <label class="destination-option is-selected">
+                <input type="radio" name="destination" value="robot" checked>
+                <span class="destination-icon" aria-hidden="true">R</span>
+                <span><b>Robot</b><small>Movimiento validado primero en simulación</small></span>
+              </label>
+              <label class="destination-option">
+                <input type="radio" name="destination" value="computer">
+                <span class="destination-icon" aria-hidden="true">C</span>
+                <span><b>Computadora</b><small>Procedimiento aislado antes de ejecutarlo</small></span>
+              </label>
+            </div>
+            <div class="destination-detail" data-destination-panel="robot">
+              <label for="robot-model">Marca y modelo exacto</label>
+              <input id="robot-model" name="robot-model" type="text" maxlength="160" placeholder="Ej.: Unitree Go2">
+              <p class="field-help" id="robot-help">Usaremos ARP-1 y seleccionaremos el simulador compatible automáticamente.</p>
+            </div>
+            <div class="destination-detail" data-destination-panel="computer" hidden>
+              <label for="computer-application">Aplicación objetivo</label>
+              <input id="computer-application" name="computer-application" type="text" maxlength="160" placeholder="Ej.: Google Chrome, Excel o Blender">
+              <p class="field-help" id="computer-help">El sistema operativo se detectará automáticamente y la primera ejecución será aislada.</p>
+            </div>
+            <p class="field-error" id="destination-error" role="alert"></p>
+            <div class="form-actions">
+              <button class="form-button form-button-ghost" type="button" data-back>← Atrás</button>
+              <button class="form-button form-button-primary" type="button" data-next>Continuar <span aria-hidden="true">→</span></button>
+            </div>
+          </fieldset>
+
+          <fieldset class="form-step" data-step="3" hidden>
             <legend>Añade una referencia para la futura demostración</legend>
             <div class="source-options" role="radiogroup" aria-label="Tipo de fuente">
               <label class="source-option is-selected"><input type="radio" name="source-type" value="youtube" checked> <span><b>YouTube</b><small>Referencia a un video instructivo</small></span></label>
@@ -192,17 +224,20 @@
             </div>
           </fieldset>
 
-          <fieldset class="form-step" data-step="3" hidden>
+          <fieldset class="form-step" data-step="4" hidden>
             <legend>Todo listo para preparar el aprendizaje</legend>
             <dl class="review-list">
               <div><dt>Tarea</dt><dd id="review-task"></dd></div>
+              <div><dt>Destino</dt><dd id="review-destination"></dd></div>
+              <div><dt>Configuración</dt><dd id="review-configuration"></dd></div>
               <div><dt>Fuente</dt><dd id="review-source"></dd></div>
               <div><dt>Entrega</dt><dd>Agente versionado en Docker</dd></div>
             </dl>
             <div class="honesty-note"><span aria-hidden="true">i</span><p><b>Primera versión funcional.</b> Esta ejecución usa el backend local y una trayectoria robótica estructurada. El enlace o archivo se conserva como referencia, pero el análisis del video con Gemini permanece desactivado.</p></div>
+            <div class="project-feedback" id="project-feedback" role="status" aria-live="polite" hidden></div>
             <div class="form-actions">
               <button class="form-button form-button-ghost" type="button" data-back>← Editar</button>
-              <button class="form-button form-button-primary" type="submit">Ver procesamiento <span aria-hidden="true">→</span></button>
+              <button class="form-button form-button-primary" type="submit">Preparar proyecto <span aria-hidden="true">→</span></button>
             </div>
           </fieldset>
         </form>

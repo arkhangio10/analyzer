@@ -7,6 +7,14 @@ from app.models.processing import (
     RobotMotionProcessingRequest,
     RobotMotionProcessingSession,
 )
+from app.models.project import (
+    ClarificationQuestion,
+    ComputerExecutionContract,
+    ExecutionDestination,
+    ProjectClarificationRequest,
+    ProjectDraft,
+    RobotExecutionContract,
+)
 from app.models.robot_motion import (
     JointLimit,
     MotionWaypoint,
@@ -32,6 +40,12 @@ __all__ = [
     "ProcessingStatus",
     "RobotMotionProcessingRequest",
     "RobotMotionProcessingSession",
+    "ClarificationQuestion",
+    "ComputerExecutionContract",
+    "ExecutionDestination",
+    "ProjectClarificationRequest",
+    "ProjectDraft",
+    "RobotExecutionContract",
     "JointLimit",
     "MotionWaypoint",
     "RobotMotionEvaluationRequest",

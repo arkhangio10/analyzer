@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
 from app.api.processing_routes import router as processing_router
+from app.api.project_routes import router as project_router
 from app.api.training_routes import router as training_router
 from app.api.video_extraction_routes import router as video_extraction_router
 
@@ -21,5 +22,6 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.include_router(router)
 app.include_router(processing_router)
+app.include_router(project_router)
 app.include_router(training_router)
 app.include_router(video_extraction_router)

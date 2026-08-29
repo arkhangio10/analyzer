@@ -1,0 +1,28 @@
+"""Routes for project clarification and destination configuration."""
+
+from fastapi import APIRouter, HTTPException, status
+
+from app.models.project import ProjectClarificationRequest, ProjectDraft
+from app.services.project_service import ProjectNotFoundError, ProjectService
+
+
+router = APIRouter(prefix="/api/projects", tags=["projects"])
+project_service = ProjectService()
+
+
+@router.post("", response_model=ProjectDraft, status_code=status.HTTP_201_CREATED)
+async def create_project(request: ProjectClarificationRequest) -> ProjectDraft:
+    """Create a project while asking no more than one critical question."""
+    return project_service.create(request)
+
+
+@router.get("/{project_id}", response_model=ProjectDraft)
+async def get_project(project_id: str) -> ProjectDraft:
+    """Retrieve an existing local project draft."""
+    try:
+        return project_service.get(project_id)
+    except ProjectNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project was not found.",
+        ) from error
