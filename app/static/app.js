@@ -33,7 +33,8 @@ const translations = {
     robotModelLabel: "Marca y modelo exacto", robotModelPlaceholder: "Ej.: Unitree Go2", robotHelp: "Usaremos ARP-1 y seleccionaremos el simulador compatible automáticamente.",
     computerAppLabel: "Aplicación objetivo", computerAppPlaceholder: "Ej.: Google Chrome, Excel o Blender", computerHelp: "El sistema operativo se detectará automáticamente y la primera ejecución será aislada.",
     sourceLegend: "Añade una referencia para la futura demostración", sourceTypeLabel: "Tipo de fuente",
-    youtubeCopy: "Referencia a un video instructivo", upload: "Video local", uploadCopy: "El archivo no se envía todavía", videoUrlLabel: "Enlace de referencia",
+    youtubeCopy: "Referencia a un video instructivo", upload: "Video local", uploadCopy: "El archivo no se envía todavía", automatic: "Búsqueda automática", automaticCopy: "Encuentra referencias para que las apruebes", videoUrlLabel: "Enlace de referencia",
+    searchLabel: "¿Qué demostración debe buscar?", searchPlaceholder: "Ej.: perro corriendo vista lateral biomecánica", searchButton: "Buscar referencias", searching: "Buscando…", searchHelp: "La búsqueda usa una llamada acotada; ningún video se analiza hasta que lo apruebes.", approveSources: "Aprobar selección", approving: "Aprobando…", sourceApproved: "{count} referencia(s) aprobada(s). El análisis aún no ha comenzado.", searchEmpty: "No se encontraron videos para esta búsqueda.", searchUnavailable: "La búsqueda automática no está configurada todavía. Puedes usar un enlace directo mientras se habilita YouTube Data API.", selectCandidate: "Selecciona al menos una referencia antes de aprobar.",
     selectVideo: "Selecciona un video", fileTypes: "MP4, MOV o WEBM", back: "← Atrás", review: "Revisar <span aria-hidden=\"true\">→</span>",
     reviewLegend: "Todo listo para preparar el aprendizaje", reviewLabels: ["Tarea", "Destino", "Configuración", "Fuente", "Entrega"], dockerDelivery: "Agente versionado en Docker",
     robotReview: "Robot / simulación primero", computerReview: "Computadora / entorno aislado", robotConfig: "ARP-1 · simulador automático", computerConfig: "Sistema operativo automático · sandbox obligatorio",
@@ -41,7 +42,7 @@ const translations = {
     honestyComputer: "<b>Contrato funcional.</b> El proyecto queda preparado para ejecución aislada. El ejecutor de tareas de computadora se implementará en la siguiente fase y hoy no simula acciones falsas.",
     edit: "← Editar", prepareProject: "Preparar proyecto <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Proyecto {id} creado. Iniciando validación robótica local…", projectReadyComputer: "Proyecto {id} creado. Contrato de computadora listo; el ejecutor aislado es la siguiente fase.", projectError: "No se pudo preparar el proyecto. Revisa los datos e inténtalo nuevamente.",
     privacy: "<span aria-hidden=\"true\">●</span> Tus datos y credenciales nunca se incluyen en la imagen Docker.", footer: "ENSEÑA · VALIDA · EJECUTA",
-    taskError: "Describe la tarea con al menos 12 caracteres.", robotModelError: "Indica la marca y el modelo del robot.", computerAppError: "Indica la aplicación donde se ejecutará la tarea.", urlError: "Añade un enlace de video válido.", fileError: "Selecciona un archivo de video.", noSource: "Sin fuente",
+    taskError: "Describe la tarea con al menos 12 caracteres.", robotModelError: "Indica la marca y el modelo del robot.", computerAppError: "Indica la aplicación donde se ejecutará la tarea.", urlError: "Añade un enlace de video válido.", fileError: "Selecciona un archivo de video.", automaticError: "Busca y aprueba al menos una referencia.", noSource: "Sin fuente",
     systemChecking: "Comprobando sistema", systemOnline: "Sistema disponible", systemPreview: "Vista de interfaz",
   },
   en: {
@@ -76,7 +77,8 @@ const translations = {
     robotModelLabel: "Exact brand and model", robotModelPlaceholder: "Example: Unitree Go2", robotHelp: "We will use ARP-1 and select a compatible simulator automatically.",
     computerAppLabel: "Target application", computerAppPlaceholder: "Example: Google Chrome, Excel, or Blender", computerHelp: "The operating system will be detected automatically and the first run will be isolated.",
     sourceLegend: "Add a reference for the future demonstration", sourceTypeLabel: "Source type", youtubeCopy: "Instructional video reference",
-    upload: "Local video", uploadCopy: "The file is not uploaded yet", videoUrlLabel: "Reference link", selectVideo: "Select a video", fileTypes: "MP4, MOV, or WEBM",
+    upload: "Local video", uploadCopy: "The file is not uploaded yet", automatic: "Automatic search", automaticCopy: "Find references for you to approve", videoUrlLabel: "Reference link", selectVideo: "Select a video", fileTypes: "MP4, MOV, or WEBM",
+    searchLabel: "What demonstration should it find?", searchPlaceholder: "Example: dog running lateral view biomechanics", searchButton: "Find references", searching: "Searching…", searchHelp: "Search uses one bounded call; no video is analyzed until you approve it.", approveSources: "Approve selection", approving: "Approving…", sourceApproved: "{count} reference(s) approved. Analysis has not started yet.", searchEmpty: "No videos were found for this search.", searchUnavailable: "Automatic search is not configured yet. You can use a direct link while YouTube Data API is enabled.", selectCandidate: "Select at least one reference before approval.",
     back: "← Back", review: "Review <span aria-hidden=\"true\">→</span>", reviewLegend: "Everything is ready to prepare learning",
     reviewLabels: ["Task", "Destination", "Configuration", "Source", "Delivery"], dockerDelivery: "Versioned agent in Docker",
     robotReview: "Robot / simulation first", computerReview: "Computer / isolated environment", robotConfig: "ARP-1 · automatic simulator", computerConfig: "Automatic OS · mandatory sandbox",
@@ -84,7 +86,7 @@ const translations = {
     honestyComputer: "<b>Functional contract.</b> The project is prepared for isolated execution. The computer-task executor is the next phase and no actions are falsely simulated today.",
     edit: "← Edit", prepareProject: "Prepare project <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Project {id} created. Starting local robot validation…", projectReadyComputer: "Project {id} created. Computer contract ready; the isolated executor is the next phase.", projectError: "The project could not be prepared. Check the data and try again.",
     privacy: "<span aria-hidden=\"true\">●</span> Your data and credentials are never included in the Docker image.", footer: "TEACH · VALIDATE · EXECUTE",
-    taskError: "Describe the task using at least 12 characters.", robotModelError: "Enter the robot brand and model.", computerAppError: "Enter the application where the task will run.", urlError: "Add a valid video link.", fileError: "Select a video file.", noSource: "No source",
+    taskError: "Describe the task using at least 12 characters.", robotModelError: "Enter the robot brand and model.", computerAppError: "Enter the application where the task will run.", urlError: "Add a valid video link.", fileError: "Select a video file.", automaticError: "Find and approve at least one reference.", noSource: "No source",
     systemChecking: "Checking system", systemOnline: "System available", systemPreview: "Interface preview",
   },
 };
@@ -95,6 +97,10 @@ const markers = [...document.querySelectorAll("[data-step-marker]")];
 const taskInput = document.querySelector("#task-description");
 const robotModel = document.querySelector("#robot-model");
 const computerApplication = document.querySelector("#computer-application");
+const sourceQuery = document.querySelector("#source-query");
+const sourceCandidates = document.querySelector("#source-candidates");
+const searchSourcesButton = document.querySelector("#search-sources");
+const approveSourcesButton = document.querySelector("#approve-sources");
 const videoUrl = document.querySelector("#video-url");
 const videoFile = document.querySelector("#video-file");
 const taskError = document.querySelector("#task-error");
@@ -121,6 +127,8 @@ let processProgress = 0;
 let processCompletedStages = 0;
 let processSession = null;
 let processErrorMessage = "";
+let sourceSearch = null;
+let approvedSources = [];
 
 function setContent(selector, value, useHtml = false) {
   const element = document.querySelector(selector);
@@ -203,12 +211,19 @@ function applyLanguage(language) {
   setContent('[data-step="2"] [data-next]', t.continue, true);
   setContent('[data-step="3"] legend', t.sourceLegend);
   document.querySelector(".source-options").ariaLabel = t.sourceTypeLabel;
-  setContent('.source-option:first-child small', t.youtubeCopy);
-  setContent('.source-option:last-child b', t.upload);
-  setContent('.source-option:last-child small', t.uploadCopy);
+  setContent('[data-source-option="youtube"] small', t.youtubeCopy);
+  setContent('[data-source-option="upload"] b', t.upload);
+  setContent('[data-source-option="upload"] small', t.uploadCopy);
+  setContent('[data-source-option="automatic"] b', t.automatic);
+  setContent('[data-source-option="automatic"] small', t.automaticCopy);
   setContent('label[for="video-url"]', t.videoUrlLabel);
   if (!videoFile.files.length) setContent("#file-label", t.selectVideo);
   setContent(".file-drop small", t.fileTypes);
+  setContent('label[for="source-query"]', t.searchLabel);
+  sourceQuery.placeholder = t.searchPlaceholder;
+  setContent("#search-sources", t.searchButton);
+  setContent("#search-help", t.searchHelp);
+  if (!approveSourcesButton.disabled) setContent("#approve-sources", t.approveSources);
   setContent('[data-step="3"] [data-back]', t.back);
   setContent('[data-step="3"] [data-next]', t.review, true);
   setContent('[data-step="4"] legend', t.reviewLegend);
@@ -253,8 +268,12 @@ function validateCurrentStep() {
   }
   if (currentStep === 3) {
     const type = selectedSourceType();
-    const valid = Boolean((type === "youtube" && videoUrl.value.trim() && videoUrl.checkValidity()) || (type === "upload" && videoFile.files.length > 0));
-    sourceError.textContent = valid ? "" : type === "youtube" ? t.urlError : t.fileError;
+    const valid = Boolean(
+      (type === "youtube" && videoUrl.value.trim() && videoUrl.checkValidity())
+      || (type === "upload" && videoFile.files.length > 0)
+      || (type === "automatic" && approvedSources.length > 0)
+    );
+    sourceError.textContent = valid ? "" : type === "youtube" ? t.urlError : type === "upload" ? t.fileError : t.automaticError;
     return valid;
   }
   return true;
@@ -263,12 +282,125 @@ function validateCurrentStep() {
 function fillReview() {
   const t = translations[currentLanguage];
   const destination = selectedDestination();
-  const source = selectedSourceType() === "youtube" ? videoUrl.value.trim() : videoFile.files[0]?.name;
+  const sourceType = selectedSourceType();
+  const source = sourceType === "youtube"
+    ? videoUrl.value.trim()
+    : sourceType === "upload"
+      ? videoFile.files[0]?.name
+      : approvedSources.map((item) => item.title).join(" · ");
   setContent("#review-task", taskInput.value.trim());
   setContent("#review-destination", destination === "robot" ? t.robotReview : t.computerReview);
   setContent("#review-configuration", destination === "robot" ? `${robotModel.value.trim()} · ${t.robotConfig}` : `${computerApplication.value.trim()} · ${t.computerConfig}`);
   setContent("#review-source", source || t.noSource);
   setContent(".honesty-note p", destination === "robot" ? t.honestyRobot : t.honestyComputer, true);
+}
+
+function renderSourceStatus(message, isError = false) {
+  sourceCandidates.innerHTML = "";
+  const status = document.createElement("p");
+  status.className = `source-search-status${isError ? " is-error" : ""}`;
+  status.textContent = message;
+  sourceCandidates.append(status);
+}
+
+function renderSourceCandidates(candidates) {
+  const t = translations[currentLanguage];
+  sourceCandidates.innerHTML = "";
+  if (!candidates.length) {
+    renderSourceStatus(t.searchEmpty);
+    approveSourcesButton.hidden = true;
+    return;
+  }
+  candidates.forEach((candidate) => {
+    const card = document.createElement("label");
+    card.className = "source-candidate";
+    const imageElement = document.createElement("img");
+    imageElement.alt = "";
+    imageElement.loading = "lazy";
+    if (candidate.thumbnail_url) imageElement.src = candidate.thumbnail_url;
+    const copy = document.createElement("span");
+    const title = document.createElement("b");
+    title.textContent = candidate.title;
+    const channel = document.createElement("small");
+    channel.textContent = candidate.channel;
+    const summary = document.createElement("p");
+    summary.textContent = candidate.summary;
+    copy.append(title, channel, summary);
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.name = "source-candidate";
+    checkbox.value = candidate.video_id;
+    checkbox.setAttribute("aria-label", candidate.title);
+    card.append(imageElement, copy, checkbox);
+    sourceCandidates.append(card);
+  });
+  approveSourcesButton.hidden = false;
+  approveSourcesButton.disabled = false;
+  setContent("#approve-sources", t.approveSources);
+}
+
+async function searchAutomaticSources() {
+  const t = translations[currentLanguage];
+  const query = sourceQuery.value.trim();
+  if (query.length < 3) {
+    renderSourceStatus(t.automaticError, true);
+    return;
+  }
+  approvedSources = [];
+  sourceSearch = null;
+  searchSourcesButton.disabled = true;
+  approveSourcesButton.hidden = true;
+  setContent("#search-sources", t.searching);
+  renderSourceStatus(t.searching);
+  try {
+    const response = await fetch("/api/sources/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query,
+        language: currentLanguage,
+        max_results: 3,
+        acknowledge_search_quota: true,
+      }),
+    });
+    if (!response.ok) throw new Error(`Source search failed: ${response.status}`);
+    sourceSearch = await response.json();
+    renderSourceCandidates(sourceSearch.candidates);
+  } catch (error) {
+    renderSourceStatus(t.searchUnavailable, true);
+    console.error(error);
+  } finally {
+    searchSourcesButton.disabled = false;
+    setContent("#search-sources", t.searchButton);
+  }
+}
+
+async function approveAutomaticSources() {
+  const t = translations[currentLanguage];
+  const selectedIds = [...document.querySelectorAll("input[name='source-candidate']:checked")].map((input) => input.value);
+  if (!sourceSearch || !selectedIds.length) {
+    sourceError.textContent = t.selectCandidate;
+    return;
+  }
+  approveSourcesButton.disabled = true;
+  setContent("#approve-sources", t.approving);
+  try {
+    const response = await fetch(`/api/sources/search/${encodeURIComponent(sourceSearch.search_id)}/approve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ video_ids: selectedIds }),
+    });
+    if (!response.ok) throw new Error(`Source approval failed: ${response.status}`);
+    const result = await response.json();
+    approvedSources = result.approved_sources;
+    renderSourceStatus(t.sourceApproved.replace("{count}", String(approvedSources.length)));
+    approveSourcesButton.hidden = true;
+    sourceError.textContent = "";
+  } catch (error) {
+    renderSourceStatus(t.searchUnavailable, true);
+    approveSourcesButton.hidden = true;
+    console.error(error);
+  }
 }
 
 function showProjectFeedback(message, isError = false) {
@@ -280,7 +412,12 @@ function showProjectFeedback(message, isError = false) {
 async function prepareProject() {
   const t = translations[currentLanguage];
   const destination = selectedDestination();
-  const source = selectedSourceType() === "youtube" ? videoUrl.value.trim() : videoFile.files[0]?.name;
+  const sourceType = selectedSourceType();
+  const source = sourceType === "youtube"
+    ? videoUrl.value.trim()
+    : sourceType === "upload"
+      ? videoFile.files[0]?.name
+      : approvedSources.map((item) => item.url).join(", ");
   projectFeedback.hidden = true;
   processSubmit.disabled = true;
   try {
@@ -472,11 +609,21 @@ document.querySelectorAll("input[name='source-type']").forEach((radio) => {
   radio.addEventListener("change", () => {
     document.querySelectorAll(".source-option").forEach((option) => option.classList.toggle("is-selected", option.contains(radio)));
     document.querySelectorAll("[data-source-panel]").forEach((panel) => { panel.hidden = panel.dataset.sourcePanel !== radio.value; });
+    if (radio.value === "automatic" && !sourceQuery.value.trim()) sourceQuery.value = taskInput.value.trim();
     sourceError.textContent = "";
   });
 });
 
 videoFile.addEventListener("change", () => setContent("#file-label", videoFile.files[0]?.name || translations[currentLanguage].selectVideo));
+sourceQuery.addEventListener("input", () => {
+  sourceSearch = null;
+  approvedSources = [];
+  sourceCandidates.innerHTML = "";
+  approveSourcesButton.hidden = true;
+  sourceError.textContent = "";
+});
+searchSourcesButton.addEventListener("click", searchAutomaticSources);
+approveSourcesButton.addEventListener("click", approveAutomaticSources);
 form.addEventListener("submit", (event) => { event.preventDefault(); prepareProject(); });
 processButton.addEventListener("click", () => startProcessing(translations[currentLanguage].demoTask, "local-simulation://guided-demo"));
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language)));

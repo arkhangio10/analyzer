@@ -15,6 +15,10 @@ def test_frontend() -> None:
     assert "APRENDIZ" in response.text
     assert 'class="language-switch"' in response.text
     assert 'id="processing-console"' in response.text
+    assert 'name="destination" value="robot"' in response.text
+    assert 'name="destination" value="computer"' in response.text
+    assert 'name="source-type" value="automatic"' in response.text
+    assert 'id="source-candidates"' in response.text
 
 
 def test_project_status() -> None:

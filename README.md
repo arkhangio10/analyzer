@@ -96,6 +96,19 @@ Current endpoints:
 - `GET /api/training/robot-motion/{session_id}`: retrieve the training outcome.
 - `POST /api/training/robot-motion/{session_id}/evaluate`: compare candidate replay data with the instructor demonstration.
 
+Project and source-intake endpoints:
+
+- `POST /api/projects`: clarify a task and create a safe computer or robot destination contract.
+- `GET /api/projects/{project_id}`: retrieve the local project draft.
+- `POST /api/sources/search`: return bounded YouTube candidates; it never approves or analyzes them automatically.
+- `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
+
+Automatic discovery is disabled by default. Enable YouTube Data API v3 in the
+Google Cloud project, create a restricted API key, and set
+`YOUTUBE_SEARCH_ENABLED=true` plus `YOUTUBE_API_KEY` only in the untracked
+`.env` file. The UI requests three results per search. Direct URLs and local
+file selection remain available without this integration.
+
 This slice is simulation-only and cannot send commands to physical hardware. Its evaluation measures imitation against instructor-provided joint trajectories; it does not yet validate collision avoidance, robot dynamics, generalization, or real-world safety.
 
 ## MVP milestones

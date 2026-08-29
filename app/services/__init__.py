@@ -15,7 +15,13 @@ from app.services.project_service import ProjectNotFoundError, ProjectService
 from app.services.pubsub_service import PubSubService
 from app.services.robot_motion_training import RobotMotionTrainingService
 from app.services.storage_service import StorageService
-from app.services.youtube_service import YouTubeService
+from app.services.youtube_service import (
+    SourceSearchNotFoundError,
+    SourceSelectionError,
+    YouTubeConfigurationError,
+    YouTubeProviderError,
+    YouTubeService,
+)
 
 __all__ = [
     "FirestoreService",
@@ -30,5 +36,9 @@ __all__ = [
     "RobotMotionProcessingService",
     "RobotMotionTrainingService",
     "StorageService",
+    "SourceSearchNotFoundError",
+    "SourceSelectionError",
+    "YouTubeConfigurationError",
+    "YouTubeProviderError",
     "YouTubeService",
 ]

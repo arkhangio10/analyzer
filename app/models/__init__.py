@@ -25,6 +25,13 @@ from app.models.robot_motion import (
     RobotMotionTrainingStatus,
 )
 from app.models.skill import Skill
+from app.models.source import (
+    SourceApprovalRequest,
+    SourceApprovalResult,
+    SourceSearchRequest,
+    SourceSearchResult,
+    VideoCandidate,
+)
 from app.models.task import TaskDefinition
 from app.models.training import TrainingExample
 from app.models.video_extraction import (
@@ -54,6 +61,11 @@ __all__ = [
     "RobotMotionTrainingResult",
     "RobotMotionTrainingStatus",
     "Skill",
+    "SourceApprovalRequest",
+    "SourceApprovalResult",
+    "SourceSearchRequest",
+    "SourceSearchResult",
+    "VideoCandidate",
     "TaskDefinition",
     "TrainingExample",
     "GeminiUsage",

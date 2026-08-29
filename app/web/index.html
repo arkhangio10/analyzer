@@ -206,8 +206,9 @@
           <fieldset class="form-step" data-step="3" hidden>
             <legend>Añade una referencia para la futura demostración</legend>
             <div class="source-options" role="radiogroup" aria-label="Tipo de fuente">
-              <label class="source-option is-selected"><input type="radio" name="source-type" value="youtube" checked> <span><b>YouTube</b><small>Referencia a un video instructivo</small></span></label>
-              <label class="source-option"><input type="radio" name="source-type" value="upload"> <span><b>Video local</b><small>El archivo no se envía todavía</small></span></label>
+              <label class="source-option is-selected" data-source-option="youtube"><input type="radio" name="source-type" value="youtube" checked> <span><b>YouTube</b><small>Referencia a un video instructivo</small></span></label>
+              <label class="source-option" data-source-option="upload"><input type="radio" name="source-type" value="upload"> <span><b>Video local</b><small>El archivo no se envía todavía</small></span></label>
+              <label class="source-option" data-source-option="automatic"><input type="radio" name="source-type" value="automatic"> <span><b>Búsqueda automática</b><small>Encuentra referencias para que las apruebes</small></span></label>
             </div>
             <div data-source-panel="youtube">
               <label for="video-url">Enlace de referencia</label>
@@ -216,6 +217,16 @@
             <div data-source-panel="upload" hidden>
               <label class="file-drop" for="video-file"><span class="file-icon" aria-hidden="true">↑</span><b id="file-label">Selecciona un video</b><small>MP4, MOV o WEBM</small></label>
               <input class="visually-hidden" id="video-file" name="video-file" type="file" accept="video/mp4,video/quicktime,video/webm">
+            </div>
+            <div class="source-search" data-source-panel="automatic" hidden>
+              <label for="source-query">¿Qué demostración debe buscar?</label>
+              <div class="search-control">
+                <input id="source-query" name="source-query" type="text" maxlength="300" placeholder="Ej.: perro corriendo vista lateral biomecánica">
+                <button class="form-button form-button-accent" id="search-sources" type="button">Buscar referencias</button>
+              </div>
+              <p class="field-help" id="search-help">La búsqueda usa una llamada acotada; ningún video se analiza hasta que lo apruebes.</p>
+              <div class="source-candidates" id="source-candidates" aria-live="polite"></div>
+              <button class="form-button form-button-ghost approve-sources" id="approve-sources" type="button" hidden>Aprobar selección</button>
             </div>
             <p class="field-error" id="source-error" role="alert"></p>
             <div class="form-actions">
