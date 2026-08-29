@@ -1,6 +1,13 @@
 """Typed data contracts for APRENDIZ."""
 
 from app.models.evaluation import EvaluationResult
+from app.models.learning import (
+    FrozenEvaluationRequest,
+    FrozenEvaluationResult,
+    ProcedureEvidence,
+    ReconciliationRequest,
+    ReconciliationResult,
+)
 from app.models.procedure import Procedure, ProcedureStep
 from app.models.processing import (
     ProcessingStatus,
@@ -42,6 +49,11 @@ from app.models.video_extraction import (
 
 __all__ = [
     "EvaluationResult",
+    "FrozenEvaluationRequest",
+    "FrozenEvaluationResult",
+    "ProcedureEvidence",
+    "ReconciliationRequest",
+    "ReconciliationResult",
     "Procedure",
     "ProcedureStep",
     "ProcessingStatus",

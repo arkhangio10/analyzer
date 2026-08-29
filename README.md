@@ -102,6 +102,8 @@ Project and source-intake endpoints:
 - `GET /api/projects/{project_id}`: retrieve the local project draft.
 - `POST /api/sources/search`: return bounded YouTube candidates; it never approves or analyzes them automatically.
 - `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
+- `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
+- `POST /api/learning/evaluate/frozen`: score a candidate against a server-side protected case without returning its expected answer.
 
 Automatic discovery is disabled by default. Enable YouTube Data API v3 in the
 Google Cloud project, create a restricted API key, and set
