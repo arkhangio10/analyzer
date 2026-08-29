@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, status
 
+from app.api.runtime import browser_execution_service, computer_execution_service
 from app.models.browser_execution import (
     ComputerBrowserExecutionRequest,
     ComputerBrowserExecutionResult,
@@ -12,19 +13,13 @@ from app.models.computer_execution import (
     ComputerSandboxExecutionRequest,
     ComputerSandboxExecutionResult,
 )
-from app.services.browser_execution_service import (
-    BrowserExecutionService,
-    ComputerBrowserExecutionNotFoundError,
-)
+from app.services.browser_execution_service import ComputerBrowserExecutionNotFoundError
 from app.services.computer_execution_service import (
     ComputerExecutionNotFoundError,
-    ComputerExecutionService,
 )
 
 
 router = APIRouter(prefix="/api/execution/computer", tags=["execution"])
-computer_execution_service = ComputerExecutionService()
-browser_execution_service = BrowserExecutionService()
 
 
 @router.post("/validate", response_model=ComputerPlanValidationResult)

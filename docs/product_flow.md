@@ -55,6 +55,14 @@ flowchart TD
 - Allowed action primitives such as mouse, keyboard, browser automation, APIs, and file operations.
 - Isolated practice environment, reversible actions, secret handling, and frozen evaluation cases.
 
+Current implemented slice: after a sufficiently clear computer project is
+created, the user can define a bounded browser rehearsal with one exact public
+hostname, preview its navigation and optional non-sensitive text action, and
+approve both the actions and external connection. The stored draft and its
+redacted execution evidence remain linked to the project. This is an explicit
+user-reviewed plan; automatic mapping from video-derived procedures is still a
+future workflow step.
+
 ### Robot execution
 
 - Robot category and exact model: arm, mobile base, humanoid, quadruped, or another supported embodiment.
@@ -71,4 +79,3 @@ A human or animal video cannot by itself produce universally safe robot code. It
 - Do not automatically download YouTube videos. Pass supported approved URLs to the provider or ask for a user-supplied file.
 - Preserve source attribution and evidence lineage inside procedural memory.
 - Keep an approved training set separate from frozen evaluation sources.
-

@@ -21,8 +21,8 @@ Before collecting evidence, APRENDIZ asks whether the learned procedure will exe
 
 - `app/agents/`: planned workflow responsibilities; no learning pipeline yet.
 - `app/models/`: initial Pydantic contracts for tasks, procedures, skills, training examples, and evaluations.
-- `app/services/`: provider boundaries for Gemini and future GCP services.
-- `app/api/`: FastAPI routes for health, robot-motion training, evaluation, and visible processing sessions.
+- `app/services/`: deterministic workflow services plus provider boundaries for Gemini and future GCP services.
+- `app/api/`: FastAPI routes for projects, reviewed practice, execution, evaluation, and visible processing sessions.
 - `data/`: local development placeholders for skills, examples, and evaluations.
 - `tests/frozen_eval/`: protected unseen cases for final validation.
 - `docs/`: architecture and learning-model notes.
@@ -83,7 +83,7 @@ they do not authorize robot hardware control or unrestricted host access.
 
 ## Development status
 
-The first responsive product interface and the simulation-only robot vertical slice are connected. Starting a processing session from the bilingual UI now creates backend state, polls five real lifecycle stages, exposes safety-checked procedural metrics, and reports a reference-replay evaluation. The response explicitly identifies `local_simulation`, reports zero cloud calls, and does not pretend to inspect the selected video. The guarded Gemini endpoint has successfully processed one approved public video and returned a typed procedure with token evidence. ADK orchestration, persistence, generalization, frozen validation, and per-user Docker-agent export are **not implemented**.
+The responsive product interface now connects both destination paths to real backend behavior. Robot projects start the simulation-only motion session. Computer projects can create a user-reviewed browser plan, show its exact public-domain allowlist, require explicit action and network approval, execute it in containerized Chromium, and display redacted action and network evidence. This browser plan is intentionally entered by the user; it is not yet generated from the selected video. Both local paths report zero cloud calls. The guarded Gemini endpoint has separately processed one approved public video and returned a typed procedure with token evidence. Integrated video-to-practice orchestration, persistence, generalization, frozen validation, and per-user Docker-agent export are **not implemented**.
 
 ## Product experience and delivery direction
 
@@ -107,6 +107,9 @@ Project and source-intake endpoints:
 
 - `POST /api/projects`: clarify a task and create a safe computer or robot destination contract.
 - `GET /api/projects/{project_id}`: retrieve the local project draft.
+- `POST /api/projects/{project_id}/computer-practices`: validate and store a user-reviewed browser plan without executing it.
+- `GET /api/projects/{project_id}/computer-practices/{practice_id}`: retrieve the plan, approval state, and latest execution reference.
+- `POST /api/projects/{project_id}/computer-practices/{practice_id}/execute`: execute the stored plan only after explicit action-review and network acknowledgements.
 - `POST /api/sources/search`: return bounded YouTube candidates; it never approves or analyzes them automatically.
 - `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
 - `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
@@ -138,6 +141,13 @@ status, request counts, and page-title hashes instead of page or typed content.
 This is a bounded browser vertical slice, not authorization for arbitrary web or
 desktop automation. Verification evidence is recorded in
 `docs/experiments/2026-08-29-container-browser.md`.
+
+The bilingual UI exposes the browser adapter through a separate rehearsal panel
+only after a sufficiently clear computer project exists. It derives the exact
+approved host from the user-entered target URL, previews every action, requires
+a review checkbox, and renders execution stages, action totals, allowed and
+blocked network requests, and cloud-call count. Sample values stay in the
+reviewed plan but are not returned in browser execution evidence.
 
 ARP-1 is an internal APRENDIZ interoperability contract, not an external robot
 standard. The initial importer supports URDF only, rejects DTD/entity

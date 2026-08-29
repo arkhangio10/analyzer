@@ -19,6 +19,9 @@ def test_frontend() -> None:
     assert 'name="destination" value="computer"' in response.text
     assert 'name="source-type" value="automatic"' in response.text
     assert 'id="source-candidates"' in response.text
+    assert 'id="computer-practice-panel"' in response.text
+    assert 'id="browser-plan-preview"' in response.text
+    assert 'id="browser-practice-approval"' in response.text
 
 
 def test_project_status() -> None:

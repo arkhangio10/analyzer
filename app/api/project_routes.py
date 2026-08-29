@@ -2,12 +2,12 @@
 
 from fastapi import APIRouter, HTTPException, status
 
+from app.api.runtime import project_service
 from app.models.project import ProjectClarificationRequest, ProjectDraft
-from app.services.project_service import ProjectNotFoundError, ProjectService
+from app.services.project_service import ProjectNotFoundError
 
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
-project_service = ProjectService()
 
 
 @router.post("", response_model=ProjectDraft, status_code=status.HTTP_201_CREATED)

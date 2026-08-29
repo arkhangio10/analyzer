@@ -108,9 +108,9 @@ Do not add TensorFlow, PyTorch, Hugging Face Transformers, LangChain, or another
 3. Candidate robot replay can be evaluated against instructor ground truth. **Done** — imitation-level only.
 4. Connect the bilingual product UI to the real training-session API. **Done** — local simulation session with backend-owned progress.
 5. Process one user-approved instructional video with Gemini 3.5 Flash Lite through the guarded experiment endpoint. **Done** — see Current Status.
-6. Add destination selection and typed computer/robot execution contracts.
-7. Add automatic YouTube reference discovery, summaries, cost preview, and explicit user approval.
-8. Extract instructor examples and structured procedure JSON from video.
+6. Add destination selection, typed computer/robot contracts, and an explicitly approved container-browser practice. **Done** — automatic video-to-action mapping remains pending.
+7. Add automatic YouTube reference discovery, summaries, cost preview, and explicit user approval. **Done** — discovery remains disabled until configured.
+8. Integrate approved video extraction, instructor examples, and structured procedure JSON into the project workflow.
 9. Execute and measure an unseen case with trustworthy expected results.
 10. Add robot simulator or hardware adapters only after selecting a target platform and defining its safety contract.
 
@@ -261,6 +261,13 @@ Do not let animation obscure controls, hide system status, delay core actions, o
 - **Alternatives:** Keep all UI actions validation-only, allow arbitrary destinations, expose screenshots/page bodies, resolve environment secrets, or merge browser and file execution into one ambiguous endpoint.
 - **Impact:** Browser runs are limited to 25 actions and bounded timeouts. Private and unapproved destinations are rejected or intercepted, downloads, service workers, WebSockets, and WebRTC are disabled, sensitive fields and environment values are blocked, and evidence redacts typed values, page content, URL queries/fragments, and page titles. Chromium has been verified as UID/GID 10001 under the read-only `application_container` boundary with all capabilities dropped and `no-new-privileges` enabled.
 
+### 2026-08-29 — Bind reviewed browser practice to computer projects
+
+- **Decision:** Store a browser rehearsal as a project-bound draft, validate its exact public-host allowlist before execution, and require separate acknowledgements that the actions were reviewed and external network access is approved.
+- **Reason:** Connect the computer project path to real execution without claiming that today’s video-reference intake already produces executable actions.
+- **Alternatives:** Call the low-level executor directly from the UI, infer actions from task text, or silently execute immediately after project creation.
+- **Impact:** The bilingual UI now previews navigation and optional non-sensitive text entry, makes approval visible, and reports backend-owned stages and redacted evidence. The workflow makes zero Gemini calls and the user must create a new draft to retry a completed or blocked rehearsal.
+
 ## Current Status
 
 The target path did not exist when initialization began, so there was no prior repository content inside it to preserve.
@@ -277,12 +284,13 @@ Currently present:
 - destination-aware project intake, guarded YouTube candidate discovery with explicit approval, cross-source reconciliation, and protected frozen evaluation;
 - validation-only computer plans plus explicitly acknowledged file reads and writes confined to per-execution managed local sandboxes with redacted evidence and an explicit host-directory or application-container isolation boundary;
 - a container-only Playwright browser executor with exact approved-host policy, private-network blocking, bounded navigation/click/text actions, and redacted execution evidence;
+- project-bound computer-practice drafts with explicit action/network approval and a bilingual UI that renders their real execution evidence;
 - an internal ARP-1 robot profile with guarded URDF normalization, simulator recommendation, explicit readiness errors, and a revolute-joint bridge to the motion trainer;
 - dependency/configuration manifests, secret-safe environment template, ignore rules, Dockerfile, Compose service, and smoke tests;
 - placeholder directories for local data, frozen evaluations, scripts, and exports;
 - a verified local environment: `.venv` on Python 3.12.10 with every declared dependency installed and the project installed editable with the `dev` extra.
 
-Verified through 2026-08-29: all 56 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker Desktop with WSL 2 builds and runs the service successfully; `/health` reports healthy, the runtime user is UID/GID 10001, the root filesystem rejects writes, and acknowledged file and browser executions complete inside the `application_container` boundary. A real Chromium form fill completed against one approved public host, a redirect to an unapproved host was blocked and reported, URL query data was redacted, and a loopback destination was rejected with zero network requests. Simulator execution remains unverified.
+Verified through 2026-08-29: all 61 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker Desktop with WSL 2 builds and runs the service successfully; `/health` reports healthy, the runtime user is UID/GID 10001, the root filesystem rejects writes, and acknowledged file and browser executions complete inside the `application_container` boundary. A project-bound rehearsal navigated to `example.com` with one completed action, one allowed request, no blocked requests, zero cloud calls, and redacted evidence. A real Chromium form fill completed against one approved public host, a redirect to an unapproved host was blocked and reported, URL query data was redacted, and a loopback destination was rejected with zero network requests. Simulator execution remains unverified.
 
 Not yet built:
 

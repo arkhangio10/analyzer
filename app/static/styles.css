@@ -273,6 +273,45 @@ h2 { margin-bottom: 0; font-size: clamp(3.5rem, 7vw, 7.8rem); line-height: 0.87;
 .form-success p { margin: 0.35rem 0 0; color: rgba(255,255,255,0.55); }
 .success-mark { display: grid; flex: 0 0 auto; width: 3rem; height: 3rem; place-items: center; border-radius: 50%; background: var(--lime); color: var(--ink); font-size: 1.3rem; font-weight: 900; }
 .form-success button { margin-left: auto; border: 0; padding: 0.8rem 1rem; background: transparent; color: var(--lime); font: inherit; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+.computer-practice { max-width: 70rem; margin: 1.5rem auto 0; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid rgba(217,255,87,0.42); border-radius: 1.5rem; background: linear-gradient(145deg, rgba(101,88,245,0.15), rgba(255,255,255,0.04) 55%), #222; }
+.practice-heading { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2rem; align-items: end; }
+.practice-heading .eyebrow { color: var(--lime); }
+.practice-heading h3 { max-width: 40rem; margin: 0.8rem 0 0; font-size: clamp(2rem, 4vw, 3.8rem); line-height: 0.95; letter-spacing: -0.055em; }
+.practice-heading > p { margin: 0; color: rgba(255,255,255,0.62); line-height: 1.6; }
+.practice-disclosure { display: flex; gap: 0.85rem; margin-top: 1.5rem; padding: 1rem; border-radius: 1rem; background: rgba(217,255,87,0.08); color: rgba(255,255,255,0.78); }
+.practice-disclosure span { display: grid; flex: 0 0 auto; width: 1.6rem; height: 1.6rem; place-items: center; border: 1px solid var(--lime); border-radius: 50%; color: var(--lime); font-weight: 800; }
+.practice-disclosure p { margin: 0; line-height: 1.5; }
+.practice-form { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1.5rem; margin-top: 1.5rem; }
+.practice-fields, .practice-plan, .practice-progress, .practice-result { padding: 1.35rem; border: 1px solid rgba(255,255,255,0.16); border-radius: 1rem; background: rgba(0,0,0,0.15); }
+.practice-fields label { display: block; margin: 0 0 0.55rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.practice-fields label:not(:first-child) { margin-top: 1.25rem; }
+.practice-fields input { width: 100%; border: 1px solid rgba(255,255,255,0.24); border-radius: 0.8rem; padding: 0.9rem 1rem; background: #171717; color: var(--white); font: inherit; }
+.practice-fields input:focus { border-color: var(--lime); outline: 2px solid transparent; box-shadow: 0 0 0 3px rgba(217,255,87,0.16); }
+.practice-label { margin: 0; color: var(--lime); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.12em; }
+.practice-plan { display: flex; flex-direction: column; }
+.practice-plan > ol, .practice-action-results { margin: 1rem 0; padding: 0; list-style: none; }
+.practice-plan > ol li { display: grid; grid-template-columns: 2rem 1fr; gap: 0.8rem; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.12); }
+.practice-plan > ol li > span { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border: 1px solid var(--lime); border-radius: 50%; color: var(--lime); font-size: 0.58rem; font-weight: 900; }
+.practice-plan > ol p { margin: 0; color: rgba(255,255,255,0.72); line-height: 1.45; overflow-wrap: anywhere; }
+.practice-approval { display: grid; grid-template-columns: auto 1fr; gap: 0.75rem; margin-top: auto; padding: 1rem 0; color: rgba(255,255,255,0.78); font-size: 0.78rem; line-height: 1.45; cursor: pointer; }
+.practice-approval input { width: 1.1rem; height: 1.1rem; accent-color: var(--lime); }
+.practice-plan .form-button { width: 100%; }
+.practice-evidence { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 1.5rem; margin-top: 1.5rem; }
+#practice-stages { display: grid; gap: 0.6rem; margin: 1rem 0 0; padding: 0; list-style: none; }
+#practice-stages li { display: grid; grid-template-columns: 2rem 1fr auto; gap: 0.75rem; align-items: center; padding: 0.8rem; border-radius: 0.75rem; color: rgba(255,255,255,0.42); background: rgba(255,255,255,0.035); }
+#practice-stages li > span { font-size: 0.62rem; font-weight: 900; }
+#practice-stages li b { font-size: 0.76rem; }
+#practice-stages li small { font-size: 0.55rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+#practice-stages li.is-active { color: var(--ink); background: var(--lime); }
+#practice-stages li.is-complete { color: rgba(255,255,255,0.82); background: rgba(101,88,245,0.3); }
+.practice-result > strong { display: block; margin-top: 1rem; font-size: clamp(1.5rem, 3vw, 2.5rem); letter-spacing: -0.04em; }
+.practice-result > p:not(.practice-label) { color: rgba(255,255,255,0.62); line-height: 1.5; }
+.practice-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin: 1.2rem 0; }
+.practice-metrics div { padding: 0.85rem; border-radius: 0.75rem; background: rgba(255,255,255,0.055); }
+.practice-metrics dt { color: rgba(255,255,255,0.48); font-size: 0.58rem; text-transform: uppercase; }
+.practice-metrics dd { margin: 0.45rem 0 0; font-size: 1.35rem; font-weight: 800; }
+.practice-action-results li { padding: 0.7rem 0; border-top: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); font-size: 0.75rem; overflow-wrap: anywhere; }
+.practice-action-results b { margin-right: 0.5rem; color: var(--white); text-transform: uppercase; }
 .privacy-note { margin: 1.5rem 0 0; text-align: center; font-size: 0.72rem; color: rgba(255,255,255,0.54); }
 .privacy-note span { color: var(--lime); }
 
@@ -336,6 +375,9 @@ footer { display: flex; justify-content: space-between; padding: 2rem clamp(1.25
   .review-list div { grid-template-columns: 1fr; gap: 0.35rem; }
   .form-success { align-items: flex-start; flex-wrap: wrap; }
   .form-success button { width: 100%; margin-left: 0; text-align: left; }
+  .practice-heading, .practice-form, .practice-evidence { grid-template-columns: 1fr; }
+  .practice-heading { align-items: start; }
+  .practice-metrics { grid-template-columns: 1fr 1fr; }
   footer { gap: 1.5rem; flex-direction: column; }
 }
 

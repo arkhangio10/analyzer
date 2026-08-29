@@ -17,6 +17,13 @@ from app.models.computer_execution import (
     ComputerSandboxExecutionRequest,
     ComputerSandboxExecutionResult,
 )
+from app.models.computer_practice import (
+    ComputerPractice,
+    ComputerPracticeApprovalRequest,
+    ComputerPracticeDraftRequest,
+    ComputerPracticeRunResult,
+    ComputerPracticeStatus,
+)
 from app.models.learning import (
     FrozenEvaluationRequest,
     FrozenEvaluationResult,
@@ -86,6 +93,11 @@ __all__ = [
     "ComputerPlanValidationResult",
     "ComputerSandboxExecutionRequest",
     "ComputerSandboxExecutionResult",
+    "ComputerPractice",
+    "ComputerPracticeApprovalRequest",
+    "ComputerPracticeDraftRequest",
+    "ComputerPracticeRunResult",
+    "ComputerPracticeStatus",
     "FrozenEvaluationRequest",
     "FrozenEvaluationResult",
     "ProcedureEvidence",

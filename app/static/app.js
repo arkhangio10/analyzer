@@ -39,11 +39,18 @@ const translations = {
     reviewLegend: "Todo listo para preparar el aprendizaje", reviewLabels: ["Tarea", "Destino", "Configuración", "Fuente", "Entrega"], dockerDelivery: "Agente versionado en Docker",
     robotReview: "Robot / simulación primero", computerReview: "Computadora / entorno aislado", robotConfig: "ARP-1 · simulador automático", computerConfig: "Sistema operativo automático · sandbox obligatorio",
     honestyRobot: "<b>Primera versión funcional.</b> El contrato del robot se crea en el backend y esta demostración procesa una trayectoria local estructurada. No controla hardware físico.",
-    honestyComputer: "<b>Contrato funcional.</b> El proyecto queda preparado para ejecución aislada. El ejecutor de tareas de computadora se implementará en la siguiente fase y hoy no simula acciones falsas.",
-    edit: "← Editar", prepareProject: "Preparar proyecto <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Proyecto {id} creado. Iniciando validación robótica local…", projectReadyComputer: "Proyecto {id} creado. Contrato de computadora listo; el ejecutor aislado es la siguiente fase.", projectError: "No se pudo preparar el proyecto. Revisa los datos e inténtalo nuevamente.",
+    honestyComputer: "<b>Ensayo funcional disponible.</b> El navegador aislado sólo ejecutará las acciones que revises y apruebes para un dominio público exacto. El plan todavía no se extrae automáticamente del video.",
+    edit: "← Editar", prepareProject: "Preparar proyecto <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Proyecto {id} creado. Iniciando validación robótica local…", projectReadyComputer: "Proyecto {id} creado. Ya puedes definir y aprobar un ensayo aislado de navegador.", projectError: "No se pudo preparar el proyecto. Revisa los datos e inténtalo nuevamente.",
     privacy: "<span aria-hidden=\"true\">●</span> Tus datos y credenciales nunca se incluyen en la imagen Docker.", footer: "ENSEÑA · VALIDA · EJECUTA",
     taskError: "Describe la tarea con al menos 12 caracteres.", robotModelError: "Indica la marca y el modelo del robot.", computerAppError: "Indica la aplicación donde se ejecutará la tarea.", urlError: "Añade un enlace de video válido.", fileError: "Selecciona un archivo de video.", automaticError: "Busca y aprueba al menos una referencia.", noSource: "Sin fuente",
     systemChecking: "Comprobando sistema", systemOnline: "Sistema disponible", systemPreview: "Vista de interfaz",
+    practiceEyebrow: "ENSAYO APROBADO", practiceTitle: "Prueba la tarea en un navegador aislado.", practiceIntro: "Define un destino público y revisa las acciones exactas antes de permitir una conexión externa.",
+    practiceDisclosure: "Este plan lo defines y apruebas tú. Todavía no se genera automáticamente desde el video y no usa Gemini.", targetLabel: "Página pública de práctica", targetPlaceholder: "https://example.com", targetHelp: "Sólo se autorizará el dominio exacto de este enlace.",
+    selectorLabel: "Campo CSS opcional", selectorPlaceholder: "input[name='display-name']", selectorHelp: "Déjalo vacío si sólo quieres comprobar la navegación.", sampleLabel: "Texto de prueba no sensible", samplePlaceholder: "Dato de ejemplo", sampleHelp: "No uses contraseñas, tokens, credenciales ni datos privados.",
+    planLabel: "PLAN A REVISAR", planEmpty: "Indica una página pública para construir el plan.", planNavigate: "Abrir {url}", planType: "Escribir texto de prueba en {selector}", approvalLabel: "Revisé estas acciones y apruebo la conexión externa únicamente a este dominio.", runPractice: "Ejecutar ensayo aprobado <span aria-hidden=\"true\">→</span>",
+    practiceProgressLabel: "EVIDENCIA DE EJECUCIÓN", practiceResultLabel: "RESULTADO", practiceStages: [["Preparando plan", "Pendiente"], ["Validando dominio", "Pendiente"], ["Ejecutando Chromium", "Pendiente"], ["Registrando resultado", "Pendiente"]], practiceActive: "Activo", practiceDone: "Listo", practiceWaiting: "Esperando aprobación", practiceRunning: "Ejecutando ensayo…",
+    practiceActionsLabel: "Acciones", practiceNetworkLabel: "Solicitudes permitidas", practiceBlockedLabel: "Bloqueadas", practiceCloudLabel: "Llamadas cloud", practiceComplete: "Ensayo completado", practicePartial: "Ensayo parcialmente completado", practiceBlocked: "Ensayo bloqueado", practiceRejected: "Ensayo rechazado", practiceSuccessSummary: "El navegador terminó dentro del dominio aprobado y devolvió evidencia redactada.", practiceFailureSummary: "La política de seguridad o el navegador impidió completar el plan. Revisa la evidencia visible.",
+    practiceUrlError: "Indica una URL pública HTTP(S) sin credenciales y usando el puerto estándar.", practicePairError: "Para escribir texto debes completar tanto el selector CSS como el texto de prueba.", practiceApprovalError: "Revisa el plan y marca la aprobación antes de ejecutarlo.", practiceGenericError: "No se pudo ejecutar el ensayo. Revisa el plan y vuelve a intentarlo.",
   },
   en: {
     pageTitle: "APRENDIZ — Teach. Validate. Run.", metaDescription: "Teach a task once. Get an agent capable of running it.",
@@ -83,11 +90,18 @@ const translations = {
     reviewLabels: ["Task", "Destination", "Configuration", "Source", "Delivery"], dockerDelivery: "Versioned agent in Docker",
     robotReview: "Robot / simulation first", computerReview: "Computer / isolated environment", robotConfig: "ARP-1 · automatic simulator", computerConfig: "Automatic OS · mandatory sandbox",
     honestyRobot: "<b>First functional version.</b> The robot contract is created by the backend and this demonstration processes a structured local trajectory. It does not control physical hardware.",
-    honestyComputer: "<b>Functional contract.</b> The project is prepared for isolated execution. The computer-task executor is the next phase and no actions are falsely simulated today.",
-    edit: "← Edit", prepareProject: "Prepare project <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Project {id} created. Starting local robot validation…", projectReadyComputer: "Project {id} created. Computer contract ready; the isolated executor is the next phase.", projectError: "The project could not be prepared. Check the data and try again.",
+    honestyComputer: "<b>Functional rehearsal available.</b> The isolated browser will run only the actions you review and approve for one exact public domain. The plan is not extracted automatically from the video yet.",
+    edit: "← Edit", prepareProject: "Prepare project <span aria-hidden=\"true\">→</span>", projectReadyRobot: "Project {id} created. Starting local robot validation…", projectReadyComputer: "Project {id} created. You can now define and approve an isolated browser rehearsal.", projectError: "The project could not be prepared. Check the data and try again.",
     privacy: "<span aria-hidden=\"true\">●</span> Your data and credentials are never included in the Docker image.", footer: "TEACH · VALIDATE · EXECUTE",
     taskError: "Describe the task using at least 12 characters.", robotModelError: "Enter the robot brand and model.", computerAppError: "Enter the application where the task will run.", urlError: "Add a valid video link.", fileError: "Select a video file.", automaticError: "Find and approve at least one reference.", noSource: "No source",
     systemChecking: "Checking system", systemOnline: "System available", systemPreview: "Interface preview",
+    practiceEyebrow: "APPROVED REHEARSAL", practiceTitle: "Test the task in an isolated browser.", practiceIntro: "Choose a public destination and review the exact actions before allowing an external connection.",
+    practiceDisclosure: "You define and approve this plan. It is not generated automatically from the video yet, and it does not use Gemini.", targetLabel: "Public practice page", targetPlaceholder: "https://example.com", targetHelp: "Only the exact domain from this URL will be approved.",
+    selectorLabel: "Optional CSS field", selectorPlaceholder: "input[name='display-name']", selectorHelp: "Leave it empty if you only want to verify navigation.", sampleLabel: "Non-sensitive sample text", samplePlaceholder: "Sample data", sampleHelp: "Do not use passwords, tokens, credentials, or private data.",
+    planLabel: "PLAN TO REVIEW", planEmpty: "Enter a public page to build the plan.", planNavigate: "Open {url}", planType: "Type sample text into {selector}", approvalLabel: "I reviewed these actions and approve the external connection only to this domain.", runPractice: "Run approved rehearsal <span aria-hidden=\"true\">→</span>",
+    practiceProgressLabel: "EXECUTION EVIDENCE", practiceResultLabel: "RESULT", practiceStages: [["Preparing plan", "Pending"], ["Validating domain", "Pending"], ["Running Chromium", "Pending"], ["Recording result", "Pending"]], practiceActive: "Active", practiceDone: "Done", practiceWaiting: "Waiting for approval", practiceRunning: "Running rehearsal…",
+    practiceActionsLabel: "Actions", practiceNetworkLabel: "Allowed requests", practiceBlockedLabel: "Blocked", practiceCloudLabel: "Cloud calls", practiceComplete: "Rehearsal completed", practicePartial: "Rehearsal partially completed", practiceBlocked: "Rehearsal blocked", practiceRejected: "Rehearsal rejected", practiceSuccessSummary: "The browser finished inside the approved domain and returned redacted evidence.", practiceFailureSummary: "The safety policy or browser prevented the plan from completing. Review the visible evidence.",
+    practiceUrlError: "Enter a public HTTP(S) URL without credentials and using the standard port.", practicePairError: "To type text, complete both the CSS selector and the sample text.", practiceApprovalError: "Review the plan and check the approval before running it.", practiceGenericError: "The rehearsal could not run. Review the plan and try again.",
   },
 };
 
@@ -113,6 +127,16 @@ const processLog = document.querySelector("#process-log");
 const processButton = document.querySelector("#demo-processing");
 const processSubmit = form.querySelector("button[type='submit']");
 const processStages = [...document.querySelectorAll("[data-process-stage]")];
+const computerPracticePanel = document.querySelector("#computer-practice-panel");
+const computerPracticeForm = document.querySelector("#computer-practice-form");
+const browserTargetUrl = document.querySelector("#browser-target-url");
+const browserTextSelector = document.querySelector("#browser-text-selector");
+const browserSampleText = document.querySelector("#browser-sample-text");
+const browserPracticeApproval = document.querySelector("#browser-practice-approval");
+const browserPracticeError = document.querySelector("#browser-practice-error");
+const runBrowserPracticeButton = document.querySelector("#run-browser-practice");
+const practiceEvidence = document.querySelector("#practice-evidence");
+const practiceStageElements = [...document.querySelectorAll("[data-practice-stage]")];
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let currentStep = 1;
 let currentLanguage = "es";
@@ -129,6 +153,10 @@ let processSession = null;
 let processErrorMessage = "";
 let sourceSearch = null;
 let approvedSources = [];
+let currentProject = null;
+let practiceActiveStage = -1;
+let practiceCompletedStages = 0;
+let practiceRunResult = null;
 
 function setContent(selector, value, useHtml = false) {
   const element = document.querySelector(selector);
@@ -232,12 +260,36 @@ function applyLanguage(language) {
   setContent(".honesty-note p", selectedDestination() === "robot" ? t.honestyRobot : t.honestyComputer, true);
   setContent('[data-step="4"] [data-back]', t.edit);
   setContent('[data-step="4"] button[type="submit"]', t.prepareProject, true);
+  setContent("#computer-practice-eyebrow", t.practiceEyebrow);
+  setContent("#computer-practice-title", t.practiceTitle);
+  setContent("#computer-practice-intro", t.practiceIntro);
+  setContent("#computer-practice-disclosure", t.practiceDisclosure);
+  setContent("#browser-target-label", t.targetLabel);
+  browserTargetUrl.placeholder = t.targetPlaceholder;
+  setContent("#browser-target-help", t.targetHelp);
+  setContent("#browser-selector-label", t.selectorLabel);
+  browserTextSelector.placeholder = t.selectorPlaceholder;
+  setContent("#browser-selector-help", t.selectorHelp);
+  setContent("#browser-sample-label", t.sampleLabel);
+  browserSampleText.placeholder = t.samplePlaceholder;
+  setContent("#browser-sample-help", t.sampleHelp);
+  setContent("#browser-plan-label", t.planLabel);
+  setContent("#browser-approval-label", t.approvalLabel);
+  setContent("#run-browser-practice", t.runPractice, true);
+  setContent("#practice-progress-label", t.practiceProgressLabel);
+  setContent("#practice-result-label", t.practiceResultLabel);
+  setContent("#practice-actions-label", t.practiceActionsLabel);
+  setContent("#practice-network-label", t.practiceNetworkLabel);
+  setContent("#practice-blocked-label", t.practiceBlockedLabel);
+  setContent("#practice-cloud-label", t.practiceCloudLabel);
   setContent(".privacy-note", t.privacy, true);
   setContent("footer span:last-child", t.footer);
   document.querySelectorAll("[data-language]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.language === currentLanguage)); });
   try { localStorage.setItem("aprendiz-language", currentLanguage); } catch (_) { /* Keep preference in memory. */ }
   updateSystemStatus();
   renderProcessState();
+  renderPracticePlan();
+  renderPracticeState();
 }
 
 function showStep(stepNumber) {
@@ -409,6 +461,185 @@ function showProjectFeedback(message, isError = false) {
   projectFeedback.classList.toggle("is-error", isError);
 }
 
+function buildPracticeActions() {
+  const actions = [{ action_id: "open-target", kind: "navigate", target: browserTargetUrl.value.trim() }];
+  const selector = browserTextSelector.value.trim();
+  const sampleText = browserSampleText.value;
+  if (selector && sampleText) {
+    actions.push({ action_id: "enter-sample", kind: "type_text", target: selector, value_template: sampleText });
+  }
+  return actions;
+}
+
+function validatedPracticeTarget() {
+  try {
+    const target = new URL(browserTargetUrl.value.trim());
+    const standardPort = !target.port
+      || (target.protocol === "http:" && target.port === "80")
+      || (target.protocol === "https:" && target.port === "443");
+    if (!["http:", "https:"].includes(target.protocol) || !target.hostname || target.username || target.password || !standardPort) return null;
+    return target;
+  } catch (_) {
+    return null;
+  }
+}
+
+function renderPracticePlan() {
+  const t = translations[currentLanguage];
+  const preview = document.querySelector("#browser-plan-preview");
+  if (!preview) return;
+  preview.innerHTML = "";
+  const target = validatedPracticeTarget();
+  const planned = target
+    ? [t.planNavigate.replace("{url}", target.href)]
+    : [t.planEmpty];
+  if (browserTextSelector?.value.trim() && browserSampleText?.value) {
+    planned.push(t.planType.replace("{selector}", browserTextSelector.value.trim()));
+  }
+  planned.forEach((description, index) => {
+    const item = document.createElement("li");
+    const number = document.createElement("span");
+    number.textContent = String(index + 1).padStart(2, "0");
+    const copy = document.createElement("p");
+    copy.textContent = description;
+    item.append(number, copy);
+    preview.append(item);
+  });
+}
+
+function localizedPracticeStatus(status) {
+  const t = translations[currentLanguage];
+  return {
+    completed: t.practiceComplete,
+    partially_completed: t.practicePartial,
+    blocked: t.practiceBlocked,
+    rejected: t.practiceRejected,
+  }[status] || t.practiceWaiting;
+}
+
+function renderPracticeState() {
+  if (!practiceStageElements.length) return;
+  const t = translations[currentLanguage];
+  practiceStageElements.forEach((item, index) => {
+    const complete = index < practiceCompletedStages;
+    const active = index === practiceActiveStage;
+    item.classList.toggle("is-complete", complete);
+    item.classList.toggle("is-active", active);
+    item.querySelector("b").textContent = t.practiceStages[index][0];
+    item.querySelector("small").textContent = complete ? t.practiceDone : active ? t.practiceActive : t.practiceStages[index][1];
+  });
+  if (runBrowserPracticeButton.disabled) setContent("#run-browser-practice", t.practiceRunning);
+  else setContent("#run-browser-practice", t.runPractice, true);
+
+  const execution = practiceRunResult?.execution;
+  setContent("#practice-result-status", execution ? localizedPracticeStatus(execution.status) : practiceActiveStage >= 0 ? t.practiceRunning : t.practiceWaiting);
+  setContent("#practice-result-summary", execution ? (execution.status === "completed" ? t.practiceSuccessSummary : t.practiceFailureSummary) : "");
+  const completedActions = execution?.actions?.filter((action) => action.status === "completed").length || 0;
+  setContent("#practice-actions-count", `${completedActions}/${execution?.actions?.length || 0}`);
+  setContent("#practice-network-count", String(execution?.external_network_requests || 0));
+  setContent("#practice-blocked-count", String(execution?.blocked_network_requests || 0));
+  setContent("#practice-cloud-count", String(execution?.cloud_calls_made || 0));
+
+  const actionResults = document.querySelector("#practice-action-results");
+  actionResults.innerHTML = "";
+  const evidenceItems = execution?.actions?.length ? execution.actions : execution?.violations || [];
+  evidenceItems.forEach((evidence) => {
+    const item = document.createElement("li");
+    if (typeof evidence === "string") {
+      item.textContent = evidence;
+    } else {
+      const state = document.createElement("b");
+      state.textContent = evidence.status;
+      const description = document.createTextNode(`${evidence.kind} · ${evidence.observed_url || evidence.target}`);
+      item.append(state, description);
+    }
+    actionResults.append(item);
+  });
+}
+
+function apiErrorMessage(payload, fallback) {
+  const detail = payload?.detail;
+  if (typeof detail === "string") return detail;
+  if (detail?.violations?.length) return detail.violations.join(" ");
+  return fallback;
+}
+
+async function nextPaint() {
+  await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+async function runComputerPractice() {
+  const t = translations[currentLanguage];
+  browserPracticeError.textContent = "";
+  const target = validatedPracticeTarget();
+  const selector = browserTextSelector.value.trim();
+  const sampleText = browserSampleText.value;
+  if (!target) {
+    browserPracticeError.textContent = t.practiceUrlError;
+    return;
+  }
+  if (Boolean(selector) !== Boolean(sampleText)) {
+    browserPracticeError.textContent = t.practicePairError;
+    return;
+  }
+  if (!browserPracticeApproval.checked || !currentProject) {
+    browserPracticeError.textContent = t.practiceApprovalError;
+    return;
+  }
+
+  practiceEvidence.hidden = false;
+  practiceRunResult = null;
+  practiceCompletedStages = 0;
+  practiceActiveStage = 0;
+  runBrowserPracticeButton.disabled = true;
+  renderPracticeState();
+  practiceEvidence.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "nearest" });
+  await nextPaint();
+
+  try {
+    const draftResponse = await fetch(`/api/projects/${encodeURIComponent(currentProject.project_id)}/computer-practices`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        procedure_name: taskInput.value.trim().slice(0, 160),
+        plan_origin: "user_reviewed",
+        actions: buildPracticeActions(),
+        approved_hosts: [target.hostname],
+      }),
+    });
+    const draftPayload = await draftResponse.json();
+    if (!draftResponse.ok) throw new Error(apiErrorMessage(draftPayload, t.practiceGenericError));
+    practiceCompletedStages = 2;
+    practiceActiveStage = 2;
+    renderPracticeState();
+    await nextPaint();
+
+    const executionResponse = await fetch(`/api/projects/${encodeURIComponent(currentProject.project_id)}/computer-practices/${encodeURIComponent(draftPayload.practice_id)}/execute`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        acknowledge_actions_reviewed: true,
+        acknowledge_external_network: true,
+        action_timeout_ms: 10000,
+      }),
+    });
+    const executionPayload = await executionResponse.json();
+    if (!executionResponse.ok) throw new Error(apiErrorMessage(executionPayload, t.practiceGenericError));
+    practiceCompletedStages = 4;
+    practiceActiveStage = -1;
+    practiceRunResult = executionPayload;
+    renderPracticeState();
+  } catch (error) {
+    practiceActiveStage = -1;
+    browserPracticeError.textContent = error.message || t.practiceGenericError;
+    renderPracticeState();
+    console.error(error);
+  } finally {
+    runBrowserPracticeButton.disabled = false;
+    renderPracticeState();
+  }
+}
+
 async function prepareProject() {
   const t = translations[currentLanguage];
   const destination = selectedDestination();
@@ -445,7 +676,20 @@ async function prepareProject() {
     const readyMessage = destination === "robot" ? t.projectReadyRobot : t.projectReadyComputer;
     showProjectFeedback(readyMessage.replace("{id}", project.project_id));
     if (destination === "robot") {
+      currentProject = null;
+      computerPracticePanel.hidden = true;
       window.setTimeout(() => startProcessing(taskInput.value.trim(), source), reducedMotion.matches ? 0 : 550);
+    } else {
+      currentProject = project;
+      computerPracticePanel.hidden = false;
+      browserPracticeApproval.checked = false;
+      practiceEvidence.hidden = true;
+      practiceRunResult = null;
+      practiceActiveStage = -1;
+      practiceCompletedStages = 0;
+      renderPracticePlan();
+      renderPracticeState();
+      window.setTimeout(() => computerPracticePanel.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "start" }), reducedMotion.matches ? 0 : 350);
     }
   } catch (error) {
     showProjectFeedback(t.projectError, true);
@@ -602,6 +846,8 @@ document.querySelectorAll("input[name='destination']").forEach((radio) => {
     document.querySelectorAll("[data-destination-panel]").forEach((panel) => { panel.hidden = panel.dataset.destinationPanel !== radio.value; });
     destinationError.textContent = "";
     projectFeedback.hidden = true;
+    currentProject = null;
+    computerPracticePanel.hidden = true;
   });
 });
 
@@ -625,6 +871,12 @@ sourceQuery.addEventListener("input", () => {
 searchSourcesButton.addEventListener("click", searchAutomaticSources);
 approveSourcesButton.addEventListener("click", approveAutomaticSources);
 form.addEventListener("submit", (event) => { event.preventDefault(); prepareProject(); });
+computerPracticeForm.addEventListener("submit", (event) => { event.preventDefault(); runComputerPractice(); });
+[browserTargetUrl, browserTextSelector, browserSampleText].forEach((input) => input.addEventListener("input", () => {
+  browserPracticeApproval.checked = false;
+  browserPracticeError.textContent = "";
+  renderPracticePlan();
+}));
 processButton.addEventListener("click", () => startProcessing(translations[currentLanguage].demoTask, "local-simulation://guided-demo"));
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language)));
 

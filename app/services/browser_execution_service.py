@@ -154,7 +154,7 @@ class BrowserExecutionService:
     ) -> ComputerBrowserExecutionResult:
         execution_id = f"brw_{uuid4().hex[:12]}"
         policy = PublicHostPolicy(request.approved_hosts)
-        violations = self._validate(request, policy)
+        violations = self.validate_plan(request.actions, request.approved_hosts)
         adapter_available = bool(self._enabled and async_playwright is not None)
         if not adapter_available:
             violations.append(
@@ -193,26 +193,36 @@ class BrowserExecutionService:
             )
         return self._store(result)
 
+    def validate_plan(
+        self,
+        actions: list[ComputerAction],
+        approved_hosts: list[str],
+    ) -> list[str]:
+        """Validate a browser plan without starting Chromium or resolving DNS."""
+        policy = PublicHostPolicy(approved_hosts)
+        return self._validate_actions(actions, approved_hosts, policy)
+
     def get_execution(self, execution_id: str) -> ComputerBrowserExecutionResult:
         try:
             return self._executions[execution_id]
         except KeyError as error:
             raise ComputerBrowserExecutionNotFoundError(execution_id) from error
 
-    def _validate(
+    def _validate_actions(
         self,
-        request: ComputerBrowserExecutionRequest,
+        actions: list[ComputerAction],
+        approved_hosts: list[str],
         policy: PublicHostPolicy,
     ) -> list[str]:
         violations: list[str] = []
-        for host in request.approved_hosts:
+        for host in approved_hosts:
             problem = policy.validate_host_syntax(host)
             if problem:
                 violations.append(f"Approved host {host}: {problem}.")
 
         has_navigated = False
         seen_ids: set[str] = set()
-        for action in request.actions:
+        for action in actions:
             if action.action_id in seen_ids:
                 violations.append(f"Duplicate action_id: {action.action_id}.")
             seen_ids.add(action.action_id)

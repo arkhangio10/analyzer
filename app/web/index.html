@@ -253,6 +253,70 @@
           </fieldset>
         </form>
 
+        <section class="computer-practice" id="computer-practice-panel" aria-labelledby="computer-practice-title" hidden>
+          <div class="practice-heading">
+            <div>
+              <p class="eyebrow" id="computer-practice-eyebrow">ENSAYO APROBADO</p>
+              <h3 id="computer-practice-title">Prueba la tarea en un navegador aislado.</h3>
+            </div>
+            <p id="computer-practice-intro">Define un destino público y revisa las acciones exactas antes de permitir una conexión externa.</p>
+          </div>
+          <div class="practice-disclosure"><span aria-hidden="true">i</span><p id="computer-practice-disclosure">Este plan lo defines y apruebas tú. Todavía no se genera automáticamente desde el video y no usa Gemini.</p></div>
+
+          <form class="practice-form" id="computer-practice-form" novalidate>
+            <div class="practice-fields">
+              <label for="browser-target-url" id="browser-target-label">Página pública de práctica</label>
+              <input id="browser-target-url" name="browser-target-url" type="url" inputmode="url" required placeholder="https://example.com">
+              <p class="field-help" id="browser-target-help">Sólo se autorizará el dominio exacto de este enlace.</p>
+
+              <label for="browser-text-selector" id="browser-selector-label">Campo CSS opcional</label>
+              <input id="browser-text-selector" name="browser-text-selector" type="text" maxlength="500" placeholder="input[name='display-name']">
+              <p class="field-help" id="browser-selector-help">Déjalo vacío si sólo quieres comprobar la navegación.</p>
+
+              <label for="browser-sample-text" id="browser-sample-label">Texto de prueba no sensible</label>
+              <input id="browser-sample-text" name="browser-sample-text" type="text" maxlength="2000" autocomplete="off" placeholder="Dato de ejemplo">
+              <p class="field-help" id="browser-sample-help">No uses contraseñas, tokens, credenciales ni datos privados.</p>
+            </div>
+
+            <aside class="practice-plan" aria-labelledby="browser-plan-label">
+              <p class="practice-label" id="browser-plan-label">PLAN A REVISAR</p>
+              <ol id="browser-plan-preview">
+                <li><span>01</span><p>Indica una página pública para construir el plan.</p></li>
+              </ol>
+              <label class="practice-approval" for="browser-practice-approval">
+                <input id="browser-practice-approval" type="checkbox">
+                <span id="browser-approval-label">Revisé estas acciones y apruebo la conexión externa únicamente a este dominio.</span>
+              </label>
+              <p class="field-error" id="browser-practice-error" role="alert"></p>
+              <button class="form-button form-button-primary" id="run-browser-practice" type="submit">Ejecutar ensayo aprobado <span aria-hidden="true">→</span></button>
+            </aside>
+          </form>
+
+          <div class="practice-evidence" id="practice-evidence" aria-live="polite" hidden>
+            <div class="practice-progress">
+              <p class="practice-label" id="practice-progress-label">EVIDENCIA DE EJECUCIÓN</p>
+              <ol id="practice-stages">
+                <li data-practice-stage="0"><span>01</span><b>Preparando plan</b><small>Pendiente</small></li>
+                <li data-practice-stage="1"><span>02</span><b>Validando dominio</b><small>Pendiente</small></li>
+                <li data-practice-stage="2"><span>03</span><b>Ejecutando Chromium</b><small>Pendiente</small></li>
+                <li data-practice-stage="3"><span>04</span><b>Registrando resultado</b><small>Pendiente</small></li>
+              </ol>
+            </div>
+            <div class="practice-result" id="practice-result">
+              <p class="practice-label" id="practice-result-label">RESULTADO</p>
+              <strong id="practice-result-status">Esperando aprobación</strong>
+              <p id="practice-result-summary"></p>
+              <dl class="practice-metrics">
+                <div><dt id="practice-actions-label">Acciones</dt><dd id="practice-actions-count">0/0</dd></div>
+                <div><dt id="practice-network-label">Solicitudes permitidas</dt><dd id="practice-network-count">0</dd></div>
+                <div><dt id="practice-blocked-label">Bloqueadas</dt><dd id="practice-blocked-count">0</dd></div>
+                <div><dt id="practice-cloud-label">Llamadas cloud</dt><dd id="practice-cloud-count">0</dd></div>
+              </dl>
+              <ol class="practice-action-results" id="practice-action-results"></ol>
+            </div>
+          </div>
+        </section>
+
         <p class="privacy-note"><span aria-hidden="true">●</span> Tus datos y credenciales nunca se incluyen en la imagen Docker.</p>
       </section>
     </main>
