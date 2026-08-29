@@ -107,6 +107,8 @@ Project and source-intake endpoints:
 - `POST /api/execution/computer/validate`: validate browser, text, and sandboxed file actions; arbitrary shell actions are not accepted.
 - `POST /api/execution/computer/execute`: execute bounded read/write actions under `.runtime/computer_sandboxes`; UI automation remains visibly blocked until a container browser adapter exists.
 - `GET /api/execution/computer/executions/{execution_id}`: retrieve redacted action evidence, hashes, and byte counts without returning file contents.
+- `POST /api/robots/profiles/arp-1/import/urdf`: normalize a bounded URDF XML document into the internal APRENDIZ Robot Profile v1.
+- `POST /api/robots/profiles/arp-1/motion-contract`: map compatible revolute joints from ARP-1 radians into the current degree-based motion trainer.
 
 The local filesystem sandbox requires explicit acknowledgement, rejects absolute
 or traversing paths, limits seeded inputs to 256 KiB and individual writes to
@@ -114,6 +116,13 @@ or traversing paths, limits seeded inputs to 256 KiB and individual writes to
 cloud actions. It is a development boundary, not an OS or Docker security
 boundary. Install Docker before enabling browser automation or treating learned
 computer procedures as isolated executables.
+
+ARP-1 is an internal APRENDIZ interoperability contract, not an external robot
+standard. The initial importer supports URDF only, rejects DTD/entity
+declarations, preserves source units, verifies one kinematic-tree root and link
+references, and requires position and velocity limits for movable joints. It
+recommends Gazebo or MuJoCo without claiming either simulator is installed.
+Hardware execution always remains disabled.
 
 Automatic discovery is disabled by default. Enable YouTube Data API v3 in the
 Google Cloud project, create a restricted API key, and set

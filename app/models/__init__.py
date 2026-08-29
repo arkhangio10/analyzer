@@ -42,6 +42,15 @@ from app.models.robot_motion import (
     RobotMotionTrainingResult,
     RobotMotionTrainingStatus,
 )
+from app.models.robot_profile import (
+    ARP1MotionContract,
+    ARP1RobotProfile,
+    RobotDescriptionFormat,
+    RobotJointProfile,
+    RobotLinkProfile,
+    SimulatorRecommendation,
+    URDFImportRequest,
+)
 from app.models.skill import Skill
 from app.models.source import (
     SourceApprovalRequest,
@@ -92,6 +101,13 @@ __all__ = [
     "RobotMotionTrainingRequest",
     "RobotMotionTrainingResult",
     "RobotMotionTrainingStatus",
+    "ARP1RobotProfile",
+    "ARP1MotionContract",
+    "RobotDescriptionFormat",
+    "RobotJointProfile",
+    "RobotLinkProfile",
+    "SimulatorRecommendation",
+    "URDFImportRequest",
     "Skill",
     "SourceApprovalRequest",
     "SourceApprovalResult",
