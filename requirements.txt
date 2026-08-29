@@ -1,0 +1,12 @@
+google-adk
+google-genai
+fastapi
+uvicorn
+python-dotenv
+pydantic
+pydantic-settings
+httpx
+python-multipart
+google-cloud-firestore
+google-cloud-pubsub
+google-cloud-storage

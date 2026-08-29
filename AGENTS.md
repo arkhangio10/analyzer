@@ -1,0 +1,20 @@
+# Operational Instructions for Coding Agents
+
+1. Read `MEMORY.md` before making significant architectural changes.
+2. Inspect existing code before modifying it.
+3. Do not delete existing functionality without an explicit, documented reason.
+4. Keep changes small, focused, and testable.
+5. Do not introduce major dependencies without justification.
+6. Never commit API keys, credentials, `.env`, or other secrets.
+7. Prefer structured outputs and typed Pydantic models.
+8. Keep Gemini-specific implementation inside service/provider layers where possible.
+9. Do not call procedural-memory acquisition "fine-tuning"; the MVP does not update model weights.
+10. Update `MEMORY.md` when an important architectural decision or current truth changes.
+11. Update `README.md` when setup or execution instructions change.
+12. Run relevant tests after modifying code.
+13. Report exactly what changed after completing each task.
+14. Do not silently ignore errors, uncertainty, contradictions, or evaluation failures.
+15. Do not implement speculative features outside the current milestone.
+16. Keep deterministic business logic independent from HTTP and provider APIs.
+17. Protect the frozen evaluation set from the learning and correction loop.
+18. Prefer the narrow, measurable vertical slice over breadth.
