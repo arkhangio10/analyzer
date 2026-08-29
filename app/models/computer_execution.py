@@ -108,3 +108,7 @@ class ComputerSandboxExecutionResult(BaseModel):
     external_host_actions_made: Literal[0] = 0
     cloud_calls_made: Literal[0] = 0
     browser_adapter_available: Literal[False] = False
+    isolation_boundary: Literal[
+        "managed_local_directory",
+        "application_container",
+    ] = "managed_local_directory"

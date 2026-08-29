@@ -247,6 +247,13 @@ Do not let animation obscure controls, hide system status, delay core actions, o
 - **Alternatives:** Ask users to enter every joint manually, couple directly to one vendor, or call one external format universal.
 - **Impact:** The first adapter supports URDF, preserves radians and meters, rejects unsafe XML constructs, verifies tree/link/limit consistency, recommends a simulator without claiming availability, and maps only compatible revolute joints into the current degree-based trainer. SDF, MJCF, collision checking, dynamics, and simulator launch remain future adapters.
 
+### 2026-08-29 — Verify a hardened application-container boundary
+
+- **Decision:** Run acknowledged computer file actions in the Compose application container as an unprivileged user with a read-only root filesystem, bounded temporary runtime mounts, all Linux capabilities dropped, `no-new-privileges`, a process limit, and a health check.
+- **Reason:** Docker Desktop and WSL 2 are now available, so the prior managed-directory boundary can be strengthened and measured without granting shell, host filesystem, browser, or hardware access.
+- **Alternatives:** Continue treating the host directory as the only boundary, run the service as root, or enable browser automation before its network and evidence controls exist.
+- **Impact:** Execution results distinguish `managed_local_directory` from `application_container`. The container can write only to its bounded runtime storage; its application root is read-only, it runs as UID/GID 10001, and the existing API still reports redacted file evidence and zero external host/cloud actions. Browser actions remain blocked pending their dedicated adapter.
+
 ## Current Status
 
 The target path did not exist when initialization began, so there was no prior repository content inside it to preserve.
@@ -261,13 +268,13 @@ Currently present:
 - agent and service module boundaries with no fabricated behavior;
 - a provider-neutral visible-processing API whose local session reports `cloud_calls_made=0`, validates a built-in six-joint trajectory, extracts nine procedure steps, and returns replay evidence;
 - destination-aware project intake, guarded YouTube candidate discovery with explicit approval, cross-source reconciliation, and protected frozen evaluation;
-- validation-only computer plans plus explicitly acknowledged file reads and writes confined to per-execution managed local sandboxes with redacted evidence;
+- validation-only computer plans plus explicitly acknowledged file reads and writes confined to per-execution managed local sandboxes with redacted evidence and an explicit host-directory or application-container isolation boundary;
 - an internal ARP-1 robot profile with guarded URDF normalization, simulator recommendation, explicit readiness errors, and a revolute-joint bridge to the motion trainer;
 - dependency/configuration manifests, secret-safe environment template, ignore rules, Dockerfile, Compose service, and smoke tests;
 - placeholder directories for local data, frozen evaluations, scripts, and exports;
 - a verified local environment: `.venv` on Python 3.12.10 with every declared dependency installed and the project installed editable with the `dev` extra.
 
-Verified on 2026-08-28: all 49 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes while browser actions remain blocked; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker configuration exists, but Docker is not installed on the current machine, so image, simulator, and container-browser execution remain unverified.
+Verified through 2026-08-29: all 49 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes while browser actions remain blocked; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker Desktop with WSL 2 now builds and runs the service successfully; `/health` reports healthy, the runtime user is UID/GID 10001, the root filesystem rejects writes, and acknowledged file execution completes inside the `application_container` boundary. Simulator and container-browser execution remain unverified.
 
 Not yet built:
 

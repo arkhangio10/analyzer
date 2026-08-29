@@ -74,6 +74,13 @@ docker compose up --build
 
 Open `http://localhost:8080`. The image does not copy `.env`, local runtimes, test data, user uploads, or credentials. Stop it with `docker compose down`.
 
+The Compose runtime has been verified on Docker Desktop with WSL 2. It runs as
+the unprivileged `aprendiz` user, keeps the image filesystem read-only, mounts
+bounded temporary storage for runtime data, drops Linux capabilities, enables
+`no-new-privileges`, limits process creation, and exposes an application health
+check. These controls establish the `application_container` execution boundary;
+they do not authorize robot hardware control or unrestricted host access.
+
 ## Development status
 
 The first responsive product interface and the simulation-only robot vertical slice are connected. Starting a processing session from the bilingual UI now creates backend state, polls five real lifecycle stages, exposes safety-checked procedural metrics, and reports a reference-replay evaluation. The response explicitly identifies `local_simulation`, reports zero cloud calls, and does not pretend to inspect the selected video. The guarded Gemini endpoint has successfully processed one approved public video and returned a typed procedure with token evidence. ADK orchestration, persistence, generalization, frozen validation, and per-user Docker-agent export are **not implemented**.
@@ -113,9 +120,10 @@ Project and source-intake endpoints:
 The local filesystem sandbox requires explicit acknowledgement, rejects absolute
 or traversing paths, limits seeded inputs to 256 KiB and individual writes to
 64 KiB, never resolves environment secrets, and reports zero external host and
-cloud actions. It is a development boundary, not an OS or Docker security
-boundary. Install Docker before enabling browser automation or treating learned
-computer procedures as isolated executables.
+cloud actions. On the host it reports the `managed_local_directory` boundary;
+under the verified Compose service it reports `application_container` and gains
+the container controls described above. Browser actions remain blocked until a
+separately guarded browser adapter is implemented and verified.
 
 ARP-1 is an internal APRENDIZ interoperability contract, not an external robot
 standard. The initial importer supports URDF only, rejects DTD/entity

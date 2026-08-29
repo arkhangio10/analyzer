@@ -5,6 +5,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 from urllib.parse import urlparse
 from uuid import uuid4
 
+from app.core.config import get_settings
 from app.models.computer_execution import (
     ComputerAction,
     ComputerActionExecution,
@@ -27,9 +28,16 @@ class ComputerExecutionService:
 
     _SENSITIVE_TARGETS = ("password", "passwd", "token", "secret", "api key", "credential")
 
-    def __init__(self, sandbox_root: Path | None = None) -> None:
+    def __init__(
+        self,
+        sandbox_root: Path | None = None,
+        isolation_boundary: str | None = None,
+    ) -> None:
         self._sandbox_root = sandbox_root or (
             Path(__file__).resolve().parents[2] / ".runtime" / "computer_sandboxes"
+        )
+        self._isolation_boundary = (
+            isolation_boundary or get_settings().computer_execution_boundary
         )
         self._executions: dict[str, ComputerSandboxExecutionResult] = {}
 
@@ -98,6 +106,7 @@ class ComputerExecutionService:
                 sandbox_uri=sandbox_uri,
                 actions=[],
                 violations=violations,
+                isolation_boundary=self._isolation_boundary,
             )
             self._executions[execution_id] = result
             return result
@@ -125,6 +134,7 @@ class ComputerExecutionService:
             status=status,
             sandbox_uri=sandbox_uri,
             actions=action_results,
+            isolation_boundary=self._isolation_boundary,
         )
         self._executions[execution_id] = result
         return result

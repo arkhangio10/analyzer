@@ -130,6 +130,7 @@ def test_file_actions_execute_only_inside_managed_sandbox(tmp_path: Path) -> Non
 
     assert result.status == "completed"
     assert result.external_host_actions_made == 0
+    assert result.isolation_boundary == "managed_local_directory"
     assert all(action.content_sha256 for action in result.actions)
     sandbox = tmp_path / "sandboxes" / result.execution_id
     assert (sandbox / "output" / "result.txt").read_text(encoding="utf-8") == "validated result"
@@ -185,6 +186,7 @@ def test_browser_actions_remain_visibly_blocked_and_retrievable() -> None:
     assert execution["status"] == "blocked"
     assert execution["browser_adapter_available"] is False
     assert execution["external_host_actions_made"] == 0
+    assert execution["isolation_boundary"] == "managed_local_directory"
 
     get_response = client.get(
         f"/api/execution/computer/executions/{execution['execution_id']}"
