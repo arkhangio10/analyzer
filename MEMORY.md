@@ -254,6 +254,13 @@ Do not let animation obscure controls, hide system status, delay core actions, o
 - **Alternatives:** Continue treating the host directory as the only boundary, run the service as root, or enable browser automation before its network and evidence controls exist.
 - **Impact:** Execution results distinguish `managed_local_directory` from `application_container`. The container can write only to its bounded runtime storage; its application root is read-only, it runs as UID/GID 10001, and the existing API still reports redacted file evidence and zero external host/cloud actions. Browser actions remain blocked pending their dedicated adapter.
 
+### 2026-08-29 — Add a guarded container-browser vertical slice
+
+- **Decision:** Add a separate Playwright/Chromium endpoint for explicitly acknowledged `navigate`, `click`, and `type_text` actions, enabled only inside the application container and constrained to exact approved public hosts.
+- **Reason:** Computer-task learning needs measurable execution, while browser access must not become unrestricted network, credential, download, shell, or host access.
+- **Alternatives:** Keep all UI actions validation-only, allow arbitrary destinations, expose screenshots/page bodies, resolve environment secrets, or merge browser and file execution into one ambiguous endpoint.
+- **Impact:** Browser runs are limited to 25 actions and bounded timeouts. Private and unapproved destinations are rejected or intercepted, downloads, service workers, WebSockets, and WebRTC are disabled, sensitive fields and environment values are blocked, and evidence redacts typed values, page content, URL queries/fragments, and page titles. Chromium has been verified as UID/GID 10001 under the read-only `application_container` boundary with all capabilities dropped and `no-new-privileges` enabled.
+
 ## Current Status
 
 The target path did not exist when initialization began, so there was no prior repository content inside it to preserve.
@@ -269,19 +276,20 @@ Currently present:
 - a provider-neutral visible-processing API whose local session reports `cloud_calls_made=0`, validates a built-in six-joint trajectory, extracts nine procedure steps, and returns replay evidence;
 - destination-aware project intake, guarded YouTube candidate discovery with explicit approval, cross-source reconciliation, and protected frozen evaluation;
 - validation-only computer plans plus explicitly acknowledged file reads and writes confined to per-execution managed local sandboxes with redacted evidence and an explicit host-directory or application-container isolation boundary;
+- a container-only Playwright browser executor with exact approved-host policy, private-network blocking, bounded navigation/click/text actions, and redacted execution evidence;
 - an internal ARP-1 robot profile with guarded URDF normalization, simulator recommendation, explicit readiness errors, and a revolute-joint bridge to the motion trainer;
 - dependency/configuration manifests, secret-safe environment template, ignore rules, Dockerfile, Compose service, and smoke tests;
 - placeholder directories for local data, frozen evaluations, scripts, and exports;
 - a verified local environment: `.venv` on Python 3.12.10 with every declared dependency installed and the project installed editable with the `dev` extra.
 
-Verified through 2026-08-29: all 49 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes while browser actions remain blocked; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker Desktop with WSL 2 now builds and runs the service successfully; `/health` reports healthy, the runtime user is UID/GID 10001, the root filesystem rejects writes, and acknowledged file execution completes inside the `application_container` boundary. Simulator and container-browser execution remain unverified.
+Verified through 2026-08-29: all 56 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a minimal direct Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint also processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. Provider calls were disabled again immediately after the experiment. Docker Desktop with WSL 2 builds and runs the service successfully; `/health` reports healthy, the runtime user is UID/GID 10001, the root filesystem rejects writes, and acknowledged file and browser executions complete inside the `application_container` boundary. A real Chromium form fill completed against one approved public host, a redirect to an unapproved host was blocked and reported, URL query data was redacted, and a loopback destination was rejected with zero network requests. Simulator execution remains unverified.
 
 Not yet built:
 
 - Google ADK hello agent and workflow orchestration;
 - durable video-session persistence and uploaded-video ingestion;
 - higher-frame-rate motion analysis for robot-ready gait extraction;
-- integrated video-to-reconciliation orchestration, reflection, retry, or general-purpose browser execution logic;
+- integrated video-to-reconciliation orchestration, reflection, retry, or general-purpose desktop execution logic;
 - Firestore, Pub/Sub, Cloud Storage, Cloud Run, or per-trained-agent export packaging.
 
 Product direction confirmed on 2026-08-28: the UI adapts the Be The Buzz fluid-box visual language, supports Spanish and English for international jurors, and visibly renders backend-owned processing stages without pretending that provider video processing is implemented. The repository application is containerized; the final per-agent export remains a one-click Docker package with runtime-injected secrets.

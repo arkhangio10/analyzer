@@ -8,14 +8,16 @@ services:
       GOOGLE_GENAI_ENABLED: "false"
       GOOGLE_GENAI_USE_VERTEXAI: "false"
       COMPUTER_EXECUTION_BOUNDARY: application_container
+      COMPUTER_BROWSER_ENABLED: "true"
     read_only: true
     tmpfs:
       - /app/.runtime:rw,noexec,nosuid,nodev,size=64m,uid=10001,gid=10001,mode=0700
-      - /tmp:rw,noexec,nosuid,nodev,size=16m,uid=10001,gid=10001,mode=0700
+      - /tmp:rw,noexec,nosuid,nodev,size=128m,uid=10001,gid=10001,mode=0700
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
     pids_limit: 128
+    shm_size: 256mb
     init: true
     restart: unless-stopped

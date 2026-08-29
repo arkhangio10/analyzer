@@ -24,6 +24,7 @@ class Settings(BaseSettings):
         "managed_local_directory",
         "application_container",
     ] = "managed_local_directory"
+    computer_browser_enabled: bool = False
     firestore_database: str | None = None
     gcs_bucket: str | None = None
     app_env: str = "development"

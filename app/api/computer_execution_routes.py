@@ -2,11 +2,19 @@
 
 from fastapi import APIRouter, HTTPException, status
 
+from app.models.browser_execution import (
+    ComputerBrowserExecutionRequest,
+    ComputerBrowserExecutionResult,
+)
 from app.models.computer_execution import (
     ComputerPlanValidationRequest,
     ComputerPlanValidationResult,
     ComputerSandboxExecutionRequest,
     ComputerSandboxExecutionResult,
+)
+from app.services.browser_execution_service import (
+    BrowserExecutionService,
+    ComputerBrowserExecutionNotFoundError,
 )
 from app.services.computer_execution_service import (
     ComputerExecutionNotFoundError,
@@ -16,6 +24,7 @@ from app.services.computer_execution_service import (
 
 router = APIRouter(prefix="/api/execution/computer", tags=["execution"])
 computer_execution_service = ComputerExecutionService()
+browser_execution_service = BrowserExecutionService()
 
 
 @router.post("/validate", response_model=ComputerPlanValidationResult)
@@ -49,4 +58,33 @@ async def get_computer_execution(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Computer execution was not found.",
+        ) from error
+
+
+@router.post(
+    "/browser/execute",
+    response_model=ComputerBrowserExecutionResult,
+    status_code=status.HTTP_201_CREATED,
+)
+async def execute_browser_plan(
+    request: ComputerBrowserExecutionRequest,
+) -> ComputerBrowserExecutionResult:
+    """Execute bounded browser actions against explicitly approved public hosts."""
+    return await browser_execution_service.execute(request)
+
+
+@router.get(
+    "/browser/executions/{execution_id}",
+    response_model=ComputerBrowserExecutionResult,
+)
+async def get_browser_execution(
+    execution_id: str,
+) -> ComputerBrowserExecutionResult:
+    """Retrieve redacted browser evidence without page or typed-value content."""
+    try:
+        return browser_execution_service.get_execution(execution_id)
+    except ComputerBrowserExecutionNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Browser execution was not found.",
         ) from error

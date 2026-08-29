@@ -18,6 +18,7 @@ dependencies = [
   "pydantic-settings",
   "httpx",
   "python-multipart",
+  "playwright==1.61.0",
   "google-cloud-firestore",
   "google-cloud-pubsub",
   "google-cloud-storage",

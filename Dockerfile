@@ -2,12 +2,15 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
     PORT=8080
 
 WORKDIR /app
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
+RUN playwright install --with-deps --only-shell chromium \
+    && chmod -R a+rX /ms-playwright
 
 RUN groupadd --system --gid 10001 aprendiz \
     && useradd --system --uid 10001 --gid 10001 --no-create-home aprendiz \

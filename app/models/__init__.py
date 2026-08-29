@@ -1,6 +1,11 @@
 """Typed data contracts for APRENDIZ."""
 
 from app.models.evaluation import EvaluationResult
+from app.models.browser_execution import (
+    ComputerBrowserActionExecution,
+    ComputerBrowserExecutionRequest,
+    ComputerBrowserExecutionResult,
+)
 from app.models.computer_execution import (
     ComputerAction,
     ComputerActionExecution,
@@ -69,6 +74,9 @@ from app.models.video_extraction import (
 
 __all__ = [
     "EvaluationResult",
+    "ComputerBrowserActionExecution",
+    "ComputerBrowserExecutionRequest",
+    "ComputerBrowserExecutionResult",
     "ComputerAction",
     "ComputerActionExecution",
     "ComputerActionKind",

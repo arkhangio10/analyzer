@@ -1,5 +1,9 @@
 """External provider and infrastructure boundaries."""
 
+from app.services.browser_execution_service import (
+    BrowserExecutionService,
+    ComputerBrowserExecutionNotFoundError,
+)
 from app.services.computer_execution_service import (
     ComputerExecutionNotFoundError,
     ComputerExecutionService,
@@ -32,6 +36,8 @@ from app.services.youtube_service import (
 )
 
 __all__ = [
+    "BrowserExecutionService",
+    "ComputerBrowserExecutionNotFoundError",
     "ComputerExecutionService",
     "ComputerExecutionNotFoundError",
     "FirestoreService",

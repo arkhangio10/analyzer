@@ -112,8 +112,10 @@ Project and source-intake endpoints:
 - `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
 - `POST /api/learning/evaluate/frozen`: score a candidate against a server-side protected case without returning its expected answer.
 - `POST /api/execution/computer/validate`: validate browser, text, and sandboxed file actions; arbitrary shell actions are not accepted.
-- `POST /api/execution/computer/execute`: execute bounded read/write actions under `.runtime/computer_sandboxes`; UI automation remains visibly blocked until a container browser adapter exists.
+- `POST /api/execution/computer/execute`: execute bounded read/write actions under `.runtime/computer_sandboxes`; browser actions remain blocked on this file-only endpoint.
 - `GET /api/execution/computer/executions/{execution_id}`: retrieve redacted action evidence, hashes, and byte counts without returning file contents.
+- `POST /api/execution/computer/browser/execute`: run up to 25 acknowledged Chromium actions against an exact list of approved public hosts inside the application container.
+- `GET /api/execution/computer/browser/executions/{execution_id}`: retrieve redacted browser evidence without typed values, page content, URL queries, or fragments.
 - `POST /api/robots/profiles/arp-1/import/urdf`: normalize a bounded URDF XML document into the internal APRENDIZ Robot Profile v1.
 - `POST /api/robots/profiles/arp-1/motion-contract`: map compatible revolute joints from ARP-1 radians into the current degree-based motion trainer.
 
@@ -122,8 +124,20 @@ or traversing paths, limits seeded inputs to 256 KiB and individual writes to
 64 KiB, never resolves environment secrets, and reports zero external host and
 cloud actions. On the host it reports the `managed_local_directory` boundary;
 under the verified Compose service it reports `application_container` and gains
-the container controls described above. Browser actions remain blocked until a
-separately guarded browser adapter is implemented and verified.
+the container controls described above.
+
+The browser adapter is disabled for direct host execution and enabled by the
+Compose service. Every run requires explicit network acknowledgement and an
+exact hostname allowlist. It rejects private, loopback, link-local, and reserved
+IP literals; resolves allowed hostnames only to public addresses; intercepts
+browser requests; blocks unapproved destinations and redirects; limits each
+action timeout; disables downloads, service workers, WebSockets, and WebRTC;
+and never resolves
+environment values or supports sensitive form fields. It returns URL paths,
+status, request counts, and page-title hashes instead of page or typed content.
+This is a bounded browser vertical slice, not authorization for arbitrary web or
+desktop automation. Verification evidence is recorded in
+`docs/experiments/2026-08-29-container-browser.md`.
 
 ARP-1 is an internal APRENDIZ interoperability contract, not an external robot
 standard. The initial importer supports URDF only, rejects DTD/entity
