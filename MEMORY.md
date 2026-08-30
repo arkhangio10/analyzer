@@ -91,7 +91,7 @@ The files for these responsibilities currently define boundaries only. They do n
 
 - Python 3.12
 - Google ADK
-- Google Gemini through the Google GenAI SDK; `gemini-3.5-flash-lite` is the selected first model and provider calls default to disabled
+- Google Gemini through the Google GenAI SDK; `gemini-3.5-flash-lite` is the general model, direct YouTube ingestion currently uses the verified `gemini-2.5-flash-lite` compatibility model, and provider calls default to disabled
 - FastAPI and Uvicorn
 - Pydantic, pydantic-settings, and python-dotenv
 - httpx and python-multipart
@@ -110,7 +110,7 @@ Do not add TensorFlow, PyTorch, Hugging Face Transformers, LangChain, or another
 5. Process one user-approved instructional video with Gemini 3.5 Flash Lite through the guarded experiment endpoint. **Done** — see Current Status.
 6. Add destination selection, typed computer/robot contracts, and an explicitly approved container-browser practice. **Done** — automatic video-to-action mapping remains pending.
 7. Add automatic YouTube reference discovery, summaries, cost preview, and explicit user approval. **Done** — discovery remains disabled until configured.
-8. Integrate approved video extraction, instructor examples, and structured procedure JSON into the project workflow. **In progress** — the project-bound extraction and review gate are implemented; the current walking video returned `provider_unavailable` and produced no procedure.
+8. Integrate approved video extraction, instructor examples, and structured procedure JSON into the project workflow. **In progress** — the project-bound extraction and review gate are implemented, and the corrected provider path now returns a typed walking procedure; a retained project/UI run and human review remain to be completed.
 9. Execute and measure an unseen case with trustworthy expected results.
 10. Add robot simulator or hardware adapters only after selecting a target platform and defining its safety contract.
 
@@ -275,6 +275,13 @@ Do not let animation obscure controls, hide system status, delay core actions, o
 - **Alternatives:** Keep the experiment endpoint disconnected, execute extracted steps immediately, or discard provider failures.
 - **Impact:** The bilingual UI now displays source, provider usage, timestamped evidence, rules, exceptions, examples, uncertainties, and review state. Share URLs are canonicalized only for the provider while original lineage is preserved. Approval records a decision only; automatic action mapping remains pending.
 
+### 2026-08-30 — Separate the direct-YouTube compatibility model
+
+- **Decision:** Keep `gemini-3.5-flash-lite` as the general model but route direct YouTube video extraction through the separately configurable `gemini-2.5-flash-lite` compatibility model.
+- **Reason:** The approved 257-second walking video returned internal errors with Gemini 3.5 Flash Lite and Gemini 3.5 Flash through both short and canonical URLs, while one bounded Gemini 2.5 Flash Lite request successfully accessed the same video and reported token usage.
+- **Alternatives:** Repeatedly retry the failing 3.5 request, adopt the unavailable experimental Interactions endpoint, or automatically download the YouTube video.
+- **Impact:** Each approved extraction still makes at most one cloud call, failures retain only safe HTTP/provider/model diagnostics, automatic downloads remain prohibited, and the compatibility model must be replaced before its published retirement.
+
 ## Current Status
 
 The target path did not exist when initialization began, so there was no prior repository content inside it to preserve.
@@ -298,7 +305,7 @@ Currently present:
 - placeholder directories for local data, frozen evaluations, scripts, and exports;
 - a verified local environment: `.venv` on Python 3.12.10 with every declared dependency installed and the project installed editable with the `dev` extra.
 
-Verified through 2026-08-30: all 67 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a prior minimal Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint previously processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. On 2026-08-30, three authorized attempts to process the public walking video `-fD2TSL2s7I` returned no structured result or usage metadata; the integrated attempt retained `provider_unavailable`, one attempted cloud call, and no procedure. Provider calls were disabled again immediately afterward. Billing impact for failed calls cannot be inferred without the Cloud Billing report. Docker Desktop was unavailable for this change's container rebuild, but the host test suite and Playwright JavaScript parser passed. Prior Docker verification remains valid: runtime UID/GID 10001, read-only root filesystem, and acknowledged file/browser execution inside `application_container`. Simulator execution remains unverified.
+Verified through 2026-08-30: all 70 tests pass; Uvicorn serves the UI and APIs; local robot-motion processing reaches 100% with safety and replay evidence; managed computer file actions remain inside a per-execution runtime directory and return redacted hashes; a representative quadruped URDF normalizes into a valid ARP-1 profile and degree-based motion contract. `.env` remains excluded from Git. Vertex AI is enabled for the configured project, local ADC and billing are active, and a prior minimal Gemini 3.5 Flash Lite connectivity probe returned `APRENDIZ_READY` using 16 total tokens. The guarded repository endpoint previously processed the approved dog-agility video with one call at low media resolution: 12,452 prompt tokens, 1,249 candidate tokens, 13,701 total tokens, 12.094 seconds, and eight evidence-backed procedure steps. On 2026-08-30, direct attempts to process the public 257-second walking video `-fD2TSL2s7I` through Gemini 3.5 Flash Lite and Gemini 3.5 Flash returned internal provider errors; the experimental Vertex Interactions route was unavailable. A bounded Gemini 2.5 Flash Lite request accessed the same URL successfully, so direct YouTube extraction now selects it through a separate compatibility setting without first calling a failing model. The corrected full structured extraction completed in 12.559 seconds with 23,653 prompt tokens, 1,565 candidate tokens, 25,218 total tokens, and 12 evidence-backed draft steps. The result remains subject to human review and is not medical advice or robot programming. Provider calls remain disabled by default. Billing impact for failed calls cannot be inferred without the Cloud Billing report. Docker Desktop was unavailable for this change's container rebuild, but the host suite passed and prior Docker verification remains valid: runtime UID/GID 10001, read-only root filesystem, and acknowledged file/browser execution inside `application_container`. Simulator execution remains unverified.
 
 Not yet built:
 

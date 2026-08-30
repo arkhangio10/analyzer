@@ -76,6 +76,9 @@ class ProjectVideoProcedureService:
                 failure_code=error.failure_code,
                 failure_message=str(error),
                 cloud_calls_made=1,
+                failure_http_status=error.http_status,
+                failure_provider_status=error.provider_status,
+                attempted_model=error.requested_model,
             )
         except GeminiResponseError:
             return self._store_failure(
@@ -160,6 +163,9 @@ class ProjectVideoProcedureService:
         failure_code: str,
         failure_message: str,
         cloud_calls_made: int,
+        failure_http_status: int | None = None,
+        failure_provider_status: str | None = None,
+        attempted_model: str | None = None,
     ) -> ProjectVideoProcedureRecord:
         record = ProjectVideoProcedureRecord(
             extraction_id=extraction_id,
@@ -169,6 +175,9 @@ class ProjectVideoProcedureService:
             cloud_calls_made=cloud_calls_made,
             failure_code=failure_code,
             failure_message=failure_message,
+            failure_http_status=failure_http_status,
+            failure_provider_status=failure_provider_status,
+            attempted_model=attempted_model,
             created_at=created_at,
         )
         self._records[extraction_id] = record

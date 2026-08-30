@@ -12,6 +12,7 @@ from app.models.video_extraction import VideoExtractionRequest
 from app.services.gemini_service import (
     GeminiConfigurationError,
     GeminiProviderError,
+    GeminiResponseError,
     GeminiService,
 )
 
@@ -32,7 +33,9 @@ def make_settings(**overrides: Any) -> Settings:
         "google_cloud_project": "test-project",
         "google_cloud_location": "global",
         "google_genai_model": "gemini-3.5-flash-lite",
+        "google_genai_youtube_model": "gemini-2.5-flash-lite",
         "google_genai_max_output_tokens": 1024,
+        "google_genai_youtube_max_output_tokens": 2048,
     }
     values.update(overrides)
     return Settings(_env_file=None, **values)
@@ -97,11 +100,12 @@ def test_extract_procedure_returns_usage_and_typed_result() -> None:
     assert result.raw_response_retained is False
     assert client_arguments["project"] == "test-project"
     assert models.request is not None
-    assert models.request["model"] == "gemini-3.5-flash-lite"
+    assert models.request["model"] == "gemini-2.5-flash-lite"
+    assert result.requested_model == "gemini-2.5-flash-lite"
     assert models.request["contents"][0].file_data.file_uri.startswith(
         "https://www.youtube.com/"
     )
-    assert models.request["config"].max_output_tokens == 1024
+    assert models.request["config"].max_output_tokens == 2048
 
 
 def test_disabled_provider_fails_before_creating_client() -> None:
@@ -143,6 +147,43 @@ def test_provider_failure_is_classified_without_returning_raw_details() -> None:
 
     assert captured.value.failure_code == "quota_exceeded"
     assert "private detail" not in str(captured.value)
+
+
+def test_provider_failure_retains_only_safe_diagnostics() -> None:
+    class InternalProviderError(RuntimeError):
+        code = 500
+        status = "INTERNAL"
+
+    models = FakeModels(error=InternalProviderError("private project detail"))
+    service = GeminiService(
+        make_settings(),
+        client_factory=lambda **kwargs: FakeClient(models),
+    )
+
+    with pytest.raises(GeminiProviderError) as captured:
+        asyncio.run(service.extract_procedure(make_request()))
+
+    error = captured.value
+    assert error.failure_code == "provider_unavailable"
+    assert error.http_status == 500
+    assert error.provider_status == "INTERNAL"
+    assert error.requested_model == "gemini-2.5-flash-lite"
+    assert "private project detail" not in str(error)
+
+
+def test_incomplete_json_is_reported_as_a_safe_response_error() -> None:
+    response = SimpleNamespace(parsed=None, text='{"task": "Walking"')
+    models = FakeModels(response=response)
+    service = GeminiService(
+        make_settings(),
+        client_factory=lambda **kwargs: FakeClient(models),
+    )
+
+    with pytest.raises(
+        GeminiResponseError,
+        match="invalid or incomplete structured procedure data",
+    ):
+        asyncio.run(service.extract_procedure(make_request()))
 
 
 def test_youtube_share_url_is_canonicalized_for_the_provider() -> None:

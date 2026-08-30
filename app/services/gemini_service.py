@@ -1,12 +1,14 @@
 """Gemini provider boundary for multimodal procedural extraction."""
 
 from collections.abc import Callable
+import re
 from time import perf_counter
 from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from google import genai
 from google.genai import types
+from pydantic import ValidationError
 
 from app.core.config import Settings, get_settings
 from app.models.procedure import Procedure
@@ -28,11 +30,21 @@ class GeminiResponseError(RuntimeError):
 class GeminiProviderError(RuntimeError):
     """Raised when the provider call fails without exposing provider internals."""
 
-    def __init__(self, failure_code: str = "provider_error") -> None:
+    def __init__(
+        self,
+        failure_code: str = "provider_error",
+        *,
+        http_status: int | None = None,
+        provider_status: str | None = None,
+        requested_model: str | None = None,
+    ) -> None:
         super().__init__(
             f"Gemini could not process the approved video ({failure_code})."
         )
         self.failure_code = failure_code
+        self.http_status = http_status
+        self.provider_status = provider_status
+        self.requested_model = requested_model
 
 
 class GeminiService:
@@ -78,10 +90,11 @@ class GeminiService:
         """Extract typed procedural memory from one approved public video."""
         client = self._create_client()
         prompt = self._build_prompt(request)
+        requested_model = self._settings.google_genai_youtube_model
         started = perf_counter()
         try:
             response = await client.aio.models.generate_content(
-                model=self._settings.google_genai_model,
+                model=requested_model,
                 contents=[
                     types.Part.from_uri(
                         file_uri=self._provider_video_url(str(request.video_url)),
@@ -91,7 +104,9 @@ class GeminiService:
                 ],
                 config=types.GenerateContentConfig(
                     temperature=0.1,
-                    max_output_tokens=self._settings.google_genai_max_output_tokens,
+                    max_output_tokens=(
+                        self._settings.google_genai_youtube_max_output_tokens
+                    ),
                     response_mime_type="application/json",
                     response_schema=Procedure,
                     media_resolution=types.MediaResolution.MEDIA_RESOLUTION_LOW,
@@ -101,7 +116,12 @@ class GeminiService:
                 ),
             )
         except Exception as error:
-            raise GeminiProviderError(self._classify_provider_error(error)) from error
+            raise GeminiProviderError(
+                self._classify_provider_error(error),
+                http_status=self._provider_http_status(error),
+                provider_status=self._provider_status(error),
+                requested_model=requested_model,
+            ) from error
         elapsed_seconds = perf_counter() - started
         procedure = self._parse_procedure(response)
 
@@ -113,7 +133,7 @@ class GeminiService:
                 if self._settings.google_genai_use_vertexai
                 else "gemini_api"
             ),
-            requested_model=self._settings.google_genai_model,
+            requested_model=requested_model,
             model_version=getattr(response, "model_version", None),
             elapsed_seconds=round(elapsed_seconds, 3),
             usage=self._extract_usage(getattr(response, "usage_metadata", None)),
@@ -131,21 +151,31 @@ class GeminiService:
             "Analyze both the visual stream and audio of this instructional video. "
             "Extract only procedures supported by the demonstration. Do not invent "
             "missing steps, rules, results, or examples. Record relevant MM:SS "
-            "timestamps and concise evidence for each step. Make uncertainty and "
-            "exceptions explicit. "
+            "timestamps and concise evidence for each step. Return no more than "
+            "12 ordered steps, use at most two timestamps per step, and keep each "
+            "action and evidence statement brief. Merge repeated demonstrations "
+            "of the same action. Exclude promotions, subscriptions, website visits, "
+            "and other calls to action that are not part of the demonstrated task. "
+            "Make uncertainty and exceptions explicit. "
             f"{task_hint}Return all natural-language fields in {language}."
         )
 
     @staticmethod
     def _parse_procedure(response: Any) -> Procedure:
-        parsed = getattr(response, "parsed", None)
-        if isinstance(parsed, Procedure):
-            return parsed
-        if parsed is not None:
-            return Procedure.model_validate(parsed)
-        text = getattr(response, "text", None)
-        if text:
-            return Procedure.model_validate_json(text)
+        try:
+            parsed = getattr(response, "parsed", None)
+            if isinstance(parsed, Procedure):
+                return parsed
+            if parsed is not None:
+                return Procedure.model_validate(parsed)
+            text = getattr(response, "text", None)
+            if text:
+                return Procedure.model_validate_json(text)
+        except (ValidationError, TypeError, ValueError) as error:
+            raise GeminiResponseError(
+                "Gemini returned invalid or incomplete structured procedure data; "
+                "no raw response was retained."
+            ) from error
         raise GeminiResponseError(
             "Gemini returned no structured procedure; no result was retained."
         )
@@ -168,7 +198,7 @@ class GeminiService:
     def _classify_provider_error(error: Exception) -> str:
         """Map provider details to a stable category without exposing raw text."""
         message = str(error).casefold()
-        code = getattr(error, "code", None) or getattr(error, "status_code", None)
+        code = GeminiService._provider_http_status(error)
         if code == 429 or "quota" in message or "resource_exhausted" in message:
             return "quota_exceeded"
         if code == 403 or "permission" in message or "permission_denied" in message:
@@ -189,6 +219,24 @@ class GeminiService:
         if code in {500, 502, 503, 504} or "unavailable" in message:
             return "provider_unavailable"
         return "provider_error"
+
+    @staticmethod
+    def _provider_http_status(error: Exception) -> int | None:
+        """Return only a safe numeric provider status code."""
+        value = getattr(error, "code", None) or getattr(error, "status_code", None)
+        try:
+            code = int(value)
+        except (TypeError, ValueError):
+            return None
+        return code if 100 <= code <= 599 else None
+
+    @staticmethod
+    def _provider_status(error: Exception) -> str | None:
+        """Retain a bounded provider status label without raw error details."""
+        value = str(getattr(error, "status", "") or "").upper()
+        if re.fullmatch(r"[A-Z][A-Z0-9_]{0,39}", value):
+            return value
+        return None
 
     @staticmethod
     def _provider_video_url(source_url: str) -> str:

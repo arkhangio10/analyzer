@@ -54,7 +54,7 @@ uvicorn app.main:app --reload
 
 Then visit `/` for the APRENDIZ interface, `/api/status` for project status, `/health` for process health, or `/docs` for the OpenAPI UI. Run tests with `pytest`.
 
-Cloud model calls are disabled by default. `GOOGLE_GENAI_ENABLED=false` and `GOOGLE_GENAI_USE_VERTEXAI=false` keep the current local simulation from generating provider usage. The selected future provider model is configured as `gemini-3.5-flash-lite`.
+Cloud model calls are disabled by default. `GOOGLE_GENAI_ENABLED=false` and `GOOGLE_GENAI_USE_VERTEXAI=false` keep the current local simulation from generating provider usage. The general provider model is configured as `gemini-3.5-flash-lite`. Direct YouTube ingestion uses the separately configurable `GOOGLE_GENAI_YOUTUBE_MODEL`, currently `gemini-2.5-flash-lite`, because that exact Vertex path was verified against the walking-video source while the 3.5 models returned internal provider errors.
 
 The controlled first-video route is `POST /api/experiments/video/extract`.
 It accepts one approved public YouTube URL, requires explicit cloud-cost
@@ -63,6 +63,8 @@ provider-reported token usage with a typed procedure. The first approved video
 experiment completed successfully; its evidence is recorded in
 `docs/experiments/2026-08-28-dog-running.md`. See
 `docs/video_experiment.md` for local Vertex AI setup and the request contract.
+The YouTube-specific model is a compatibility choice, not an automatic retry:
+one approved extraction still makes at most one cloud call.
 
 ## Run with Docker
 

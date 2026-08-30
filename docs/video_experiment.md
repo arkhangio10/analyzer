@@ -32,8 +32,19 @@ GOOGLE_CLOUD_LOCATION=global
 GOOGLE_GENAI_ENABLED=true
 GOOGLE_GENAI_USE_VERTEXAI=true
 GOOGLE_GENAI_MODEL=gemini-3.5-flash-lite
+GOOGLE_GENAI_YOUTUBE_MODEL=gemini-2.5-flash-lite
 GOOGLE_GENAI_MAX_OUTPUT_TOKENS=4096
+GOOGLE_GENAI_YOUTUBE_MAX_OUTPUT_TOKENS=8192
 ```
+
+`GOOGLE_GENAI_YOUTUBE_MODEL` is intentionally separate from the general model.
+The current compatibility model successfully ingested the approved 257-second
+walking video after both Gemini 3.5 Flash variants returned internal errors for
+that source. The service does not call a failing primary model first, so one
+approved extraction still makes at most one provider call. Revalidate and
+replace this compatibility model before its published retirement date.
+The separate YouTube output limit accommodates structured timestamp evidence;
+the extraction prompt also caps the result at 12 concise ordered steps.
 
 ## Request
 
@@ -67,5 +78,7 @@ Content-Type: application/json
 
 Successful records remain `awaiting_review` until the user approves or rejects
 them. Provider failures remain retrievable with a sanitized category and no raw
-provider response. This storage is process-local; durable persistence,
+provider response. Safe failure evidence includes the HTTP status, provider
+status label, and attempted model when available; raw error details remain
+excluded. This storage is process-local; durable persistence,
 background processing, and uploaded-video ingestion remain later milestones.

@@ -52,6 +52,9 @@ class ProjectVideoProcedureRecord(BaseModel):
     raw_response_retained: Literal[False] = False
     failure_code: str | None = Field(default=None, max_length=80)
     failure_message: str | None = Field(default=None, max_length=240)
+    failure_http_status: int | None = Field(default=None, ge=400, le=599)
+    failure_provider_status: str | None = Field(default=None, max_length=40)
+    attempted_model: str | None = Field(default=None, max_length=120)
     review_notes: str | None = Field(default=None, max_length=2000)
     created_at: datetime
     reviewed_at: datetime | None = None

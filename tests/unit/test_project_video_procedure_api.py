@@ -6,6 +6,7 @@ from app.api.runtime import project_video_procedure_service
 from app.main import app
 from app.models.procedure import Procedure, ProcedureStep
 from app.models.video_extraction import GeminiUsage, VideoExtractionResult
+from app.services.gemini_service import GeminiProviderError
 
 
 client = TestClient(app)
@@ -57,6 +58,16 @@ class SuccessfulGeminiService:
             model_version="gemini-test-001",
             elapsed_seconds=1.25,
             usage=GeminiUsage(prompt_tokens=100, candidate_tokens=25, total_tokens=125),
+        )
+
+
+class FailingGeminiService:
+    async def extract_procedure(self, request: object) -> VideoExtractionResult:
+        raise GeminiProviderError(
+            "provider_unavailable",
+            http_status=500,
+            provider_status="INTERNAL",
+            requested_model="gemini-test",
         )
 
 
@@ -131,6 +142,29 @@ def test_successful_extraction_waits_for_review_and_can_be_approved(monkeypatch)
 
     duplicate_review = client.post(review_url, json={"decision": "reject"})
     assert duplicate_review.status_code == 409
+
+
+def test_provider_failure_retains_safe_diagnostics(monkeypatch) -> None:
+    project = create_project()
+    monkeypatch.setattr(
+        project_video_procedure_service,
+        "_gemini_service",
+        FailingGeminiService(),
+    )
+
+    response = client.post(
+        f"/api/projects/{project['project_id']}/video-procedures/extract",
+        json=extraction_payload(),
+    )
+
+    assert response.status_code == 201
+    record = response.json()
+    assert record["status"] == "extraction_failed"
+    assert record["failure_code"] == "provider_unavailable"
+    assert record["failure_http_status"] == 500
+    assert record["failure_provider_status"] == "INTERNAL"
+    assert record["attempted_model"] == "gemini-test"
+    assert record["cloud_calls_made"] == 1
 
 
 def test_failed_extraction_cannot_be_approved() -> None:
