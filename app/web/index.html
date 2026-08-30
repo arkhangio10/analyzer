@@ -253,6 +253,63 @@
           </fieldset>
         </form>
 
+        <section class="video-procedure" id="video-procedure-panel" aria-labelledby="video-procedure-title" hidden>
+          <div class="video-procedure-heading">
+            <div>
+              <p class="eyebrow" id="video-procedure-eyebrow">EXTRACCIÓN CONTROLADA</p>
+              <h3 id="video-procedure-title">Convierte el video aprobado en un procedimiento revisable.</h3>
+            </div>
+            <p id="video-procedure-intro">Vertex analiza una sola fuente con resolución baja. El resultado no se ejecutará hasta que lo revises.</p>
+          </div>
+
+          <div class="video-source-card">
+            <span id="video-source-label">FUENTE APROBADA</span>
+            <a id="video-procedure-source" href="#" target="_blank" rel="noreferrer"></a>
+          </div>
+
+          <div class="video-procedure-actions">
+            <label class="practice-approval" for="video-cost-approval">
+              <input id="video-cost-approval" type="checkbox">
+              <span id="video-cost-label">Autorizo una llamada acotada a Vertex y el consumo asociado de créditos.</span>
+            </label>
+            <button class="form-button form-button-primary" id="extract-video-procedure" type="button">Extraer procedimiento <span aria-hidden="true">→</span></button>
+          </div>
+          <p class="field-error" id="video-procedure-error" role="alert"></p>
+
+          <div class="video-procedure-evidence" id="video-procedure-evidence" aria-live="polite" hidden>
+            <div class="video-procedure-status">
+              <p class="practice-label" id="video-extraction-status-label">ESTADO DE EXTRACCIÓN</p>
+              <strong id="video-extraction-status">Esperando autorización</strong>
+              <p id="video-extraction-summary"></p>
+              <dl class="practice-metrics">
+                <div><dt id="video-version-label">Versión</dt><dd id="video-version">—</dd></div>
+                <div><dt id="video-token-label">Tokens</dt><dd id="video-tokens">—</dd></div>
+                <div><dt id="video-time-label">Tiempo</dt><dd id="video-time">—</dd></div>
+                <div><dt id="video-call-label">Llamadas cloud</dt><dd id="video-calls">0</dd></div>
+              </dl>
+            </div>
+
+            <article class="procedure-review" id="procedure-review" hidden>
+              <p class="practice-label" id="procedure-review-label">PROCEDIMIENTO A REVISAR</p>
+              <h4 id="procedure-task"></h4>
+              <p id="procedure-objective"></p>
+              <ol id="procedure-steps"></ol>
+              <div class="procedure-details">
+                <section><h5 id="procedure-rules-label">Reglas</h5><ul id="procedure-rules"></ul></section>
+                <section><h5 id="procedure-exceptions-label">Excepciones</h5><ul id="procedure-exceptions"></ul></section>
+                <section><h5 id="procedure-examples-label">Ejemplos</h5><ul id="procedure-examples"></ul></section>
+                <section><h5 id="procedure-uncertainties-label">Incertidumbres</h5><ul id="procedure-uncertainties"></ul></section>
+              </div>
+              <label for="procedure-review-notes" id="procedure-notes-label">Notas de revisión opcionales</label>
+              <textarea id="procedure-review-notes" rows="3" maxlength="2000"></textarea>
+              <div class="procedure-review-actions">
+                <button class="form-button form-button-ghost" id="reject-video-procedure" type="button">Rechazar</button>
+                <button class="form-button form-button-primary" id="approve-video-procedure" type="button">Aprobar procedimiento</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
         <section class="computer-practice" id="computer-practice-panel" aria-labelledby="computer-practice-title" hidden>
           <div class="practice-heading">
             <div>

@@ -83,7 +83,7 @@ they do not authorize robot hardware control or unrestricted host access.
 
 ## Development status
 
-The responsive product interface now connects both destination paths to real backend behavior. Robot projects start the simulation-only motion session. Computer projects can create a user-reviewed browser plan, show its exact public-domain allowlist, require explicit action and network approval, execute it in containerized Chromium, and display redacted action and network evidence. This browser plan is intentionally entered by the user; it is not yet generated from the selected video. Both local paths report zero cloud calls. The guarded Gemini endpoint has separately processed one approved public video and returned a typed procedure with token evidence. Integrated video-to-practice orchestration, persistence, generalization, frozen validation, and per-user Docker-agent export are **not implemented**.
+The responsive product interface now connects both destination paths to real backend behavior. Robot projects start the simulation-only motion session. Computer projects can create a user-reviewed browser plan, show its exact public-domain allowlist, require explicit action and network approval, execute it in containerized Chromium, and display redacted action and network evidence. Approved YouTube sources can now be extracted through a project-bound Vertex call, retained as a versioned procedure awaiting human review, and explicitly approved or rejected without automatic execution. Failed provider attempts are also retained with a safe failure category. Storage remains in-process rather than durable. Automatic procedure-to-action mapping, generalization, durable persistence, and per-user Docker-agent export are **not implemented**.
 
 ## Product experience and delivery direction
 
@@ -110,6 +110,9 @@ Project and source-intake endpoints:
 - `POST /api/projects/{project_id}/computer-practices`: validate and store a user-reviewed browser plan without executing it.
 - `GET /api/projects/{project_id}/computer-practices/{practice_id}`: retrieve the plan, approval state, and latest execution reference.
 - `POST /api/projects/{project_id}/computer-practices/{practice_id}/execute`: execute the stored plan only after explicit action-review and network acknowledgements.
+- `POST /api/projects/{project_id}/video-procedures/extract`: process one explicitly approved YouTube source and retain success or safe failure evidence under the project.
+- `GET /api/projects/{project_id}/video-procedures/{extraction_id}`: retrieve the structured procedure, provider usage, failure category, and review state.
+- `POST /api/projects/{project_id}/video-procedures/{extraction_id}/review`: approve or reject a successful procedure without executing it.
 - `POST /api/sources/search`: return bounded YouTube candidates; it never approves or analyzes them automatically.
 - `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
 - `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
@@ -149,6 +152,12 @@ a review checkbox, and renders execution stages, action totals, allowed and
 blocked network requests, and cloud-call count. Sample values stay in the
 reviewed plan but are not returned in browser execution evidence.
 
+For a direct or approved YouTube source, the UI also exposes a separate Vertex
+extraction panel. It requires a fresh cost acknowledgement, displays the exact
+source, token count, elapsed time, cloud-call count, timestamped steps, rules,
+exceptions, examples, and uncertainties, and records an approve/reject decision.
+Approval changes review state only; it does not start destination execution.
+
 ARP-1 is an internal APRENDIZ interoperability contract, not an external robot
 standard. The initial importer supports URDF only, rejects DTD/entity
 declarations, preserves source units, verifies one kinematic-tree root and link
@@ -169,7 +178,7 @@ This slice is simulation-only and cannot send commands to physical hardware. Its
 1. Keep the connected local robot-motion session stable and inspectable.
 2. Run an ADK hello agent behind the provider boundary.
 3. Process one instructional video with Gemini 3.5 Flash Lite after credit coverage is verified.
-4. Produce structured procedure JSON and instructor-grounded examples.
+4. Produce project-bound structured procedure JSON and instructor-grounded examples. The guarded workflow and review gate are implemented; successful extraction must still be verified for the current walking video.
 5. Execute and measure one genuinely unseen case.
 6. Add persistence and per-agent Docker export only after the vertical slice works.
 

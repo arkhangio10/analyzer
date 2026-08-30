@@ -45,6 +45,12 @@ from app.models.project import (
     ProjectDraft,
     RobotExecutionContract,
 )
+from app.models.project_video_procedure import (
+    ProjectVideoProcedureExtractionRequest,
+    ProjectVideoProcedureRecord,
+    ProjectVideoProcedureReviewRequest,
+    ProjectVideoProcedureStatus,
+)
 from app.models.robot_motion import (
     JointLimit,
     MotionWaypoint,
@@ -114,6 +120,10 @@ __all__ = [
     "ProjectClarificationRequest",
     "ProjectDraft",
     "RobotExecutionContract",
+    "ProjectVideoProcedureExtractionRequest",
+    "ProjectVideoProcedureRecord",
+    "ProjectVideoProcedureReviewRequest",
+    "ProjectVideoProcedureStatus",
     "JointLimit",
     "MotionWaypoint",
     "RobotMotionEvaluationRequest",

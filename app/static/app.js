@@ -51,6 +51,10 @@ const translations = {
     practiceProgressLabel: "EVIDENCIA DE EJECUCIÓN", practiceResultLabel: "RESULTADO", practiceStages: [["Preparando plan", "Pendiente"], ["Validando dominio", "Pendiente"], ["Ejecutando Chromium", "Pendiente"], ["Registrando resultado", "Pendiente"]], practiceActive: "Activo", practiceDone: "Listo", practiceWaiting: "Esperando aprobación", practiceRunning: "Ejecutando ensayo…",
     practiceActionsLabel: "Acciones", practiceNetworkLabel: "Solicitudes permitidas", practiceBlockedLabel: "Bloqueadas", practiceCloudLabel: "Llamadas cloud", practiceComplete: "Ensayo completado", practicePartial: "Ensayo parcialmente completado", practiceBlocked: "Ensayo bloqueado", practiceRejected: "Ensayo rechazado", practiceSuccessSummary: "El navegador terminó dentro del dominio aprobado y devolvió evidencia redactada.", practiceFailureSummary: "La política de seguridad o el navegador impidió completar el plan. Revisa la evidencia visible.",
     practiceUrlError: "Indica una URL pública HTTP(S) sin credenciales y usando el puerto estándar.", practicePairError: "Para escribir texto debes completar tanto el selector CSS como el texto de prueba.", practiceApprovalError: "Revisa el plan y marca la aprobación antes de ejecutarlo.", practiceGenericError: "No se pudo ejecutar el ensayo. Revisa el plan y vuelve a intentarlo.",
+    videoProcedureEyebrow: "EXTRACCIÓN CONTROLADA", videoProcedureTitle: "Convierte el video aprobado en un procedimiento revisable.", videoProcedureIntro: "Vertex analiza una sola fuente con resolución baja. El resultado no se ejecutará hasta que lo revises.", videoSourceLabel: "FUENTE APROBADA",
+    videoCostLabel: "Autorizo una llamada acotada a Vertex y el consumo asociado de créditos.", extractVideo: "Extraer procedimiento <span aria-hidden=\"true\">→</span>", extractingVideo: "Analizando video…", videoCostError: "Confirma la fuente y el uso de créditos antes de iniciar.", videoExtractionError: "No se pudo registrar la extracción.",
+    videoStatusLabel: "ESTADO DE EXTRACCIÓN", videoWaiting: "Esperando autorización", videoRunning: "Vertex está analizando la fuente", videoFailed: "Extracción no completada", videoAwaitingReview: "Procedimiento pendiente de revisión", videoApproved: "Procedimiento aprobado", videoRejected: "Procedimiento rechazado", videoFailureSummary: "Vertex no devolvió un procedimiento. Código seguro: {code}.", videoReadySummary: "Revisa la evidencia antes de permitir cualquier adaptación o ejecución.", videoReviewedSummary: "La decisión humana quedó registrada; no se ejecutaron acciones.",
+    videoVersionLabel: "Versión", videoTokenLabel: "Tokens", videoTimeLabel: "Tiempo", videoCallLabel: "Llamadas cloud", procedureReviewLabel: "PROCEDIMIENTO A REVISAR", procedureRulesLabel: "Reglas", procedureExceptionsLabel: "Excepciones", procedureExamplesLabel: "Ejemplos", procedureUncertaintiesLabel: "Incertidumbres", procedureNotesLabel: "Notas de revisión opcionales", rejectProcedure: "Rechazar", approveProcedure: "Aprobar procedimiento", reviewingProcedure: "Registrando decisión…", emptyEvidence: "No declarado por la fuente.",
   },
   en: {
     pageTitle: "APRENDIZ — Teach. Validate. Run.", metaDescription: "Teach a task once. Get an agent capable of running it.",
@@ -102,6 +106,10 @@ const translations = {
     practiceProgressLabel: "EXECUTION EVIDENCE", practiceResultLabel: "RESULT", practiceStages: [["Preparing plan", "Pending"], ["Validating domain", "Pending"], ["Running Chromium", "Pending"], ["Recording result", "Pending"]], practiceActive: "Active", practiceDone: "Done", practiceWaiting: "Waiting for approval", practiceRunning: "Running rehearsal…",
     practiceActionsLabel: "Actions", practiceNetworkLabel: "Allowed requests", practiceBlockedLabel: "Blocked", practiceCloudLabel: "Cloud calls", practiceComplete: "Rehearsal completed", practicePartial: "Rehearsal partially completed", practiceBlocked: "Rehearsal blocked", practiceRejected: "Rehearsal rejected", practiceSuccessSummary: "The browser finished inside the approved domain and returned redacted evidence.", practiceFailureSummary: "The safety policy or browser prevented the plan from completing. Review the visible evidence.",
     practiceUrlError: "Enter a public HTTP(S) URL without credentials and using the standard port.", practicePairError: "To type text, complete both the CSS selector and the sample text.", practiceApprovalError: "Review the plan and check the approval before running it.", practiceGenericError: "The rehearsal could not run. Review the plan and try again.",
+    videoProcedureEyebrow: "CONTROLLED EXTRACTION", videoProcedureTitle: "Turn the approved video into a reviewable procedure.", videoProcedureIntro: "Vertex analyzes one source at low resolution. Nothing will execute until you review the result.", videoSourceLabel: "APPROVED SOURCE",
+    videoCostLabel: "I authorize one bounded Vertex call and the associated credit usage.", extractVideo: "Extract procedure <span aria-hidden=\"true\">→</span>", extractingVideo: "Analyzing video…", videoCostError: "Confirm the source and credit usage before starting.", videoExtractionError: "The extraction could not be recorded.",
+    videoStatusLabel: "EXTRACTION STATUS", videoWaiting: "Waiting for authorization", videoRunning: "Vertex is analyzing the source", videoFailed: "Extraction not completed", videoAwaitingReview: "Procedure awaiting review", videoApproved: "Procedure approved", videoRejected: "Procedure rejected", videoFailureSummary: "Vertex did not return a procedure. Safe code: {code}.", videoReadySummary: "Review the evidence before allowing any adaptation or execution.", videoReviewedSummary: "The human decision was recorded; no actions were executed.",
+    videoVersionLabel: "Version", videoTokenLabel: "Tokens", videoTimeLabel: "Time", videoCallLabel: "Cloud calls", procedureReviewLabel: "PROCEDURE TO REVIEW", procedureRulesLabel: "Rules", procedureExceptionsLabel: "Exceptions", procedureExamplesLabel: "Examples", procedureUncertaintiesLabel: "Uncertainties", procedureNotesLabel: "Optional review notes", rejectProcedure: "Reject", approveProcedure: "Approve procedure", reviewingProcedure: "Recording decision…", emptyEvidence: "Not stated by the source.",
   },
 };
 
@@ -137,6 +145,15 @@ const browserPracticeError = document.querySelector("#browser-practice-error");
 const runBrowserPracticeButton = document.querySelector("#run-browser-practice");
 const practiceEvidence = document.querySelector("#practice-evidence");
 const practiceStageElements = [...document.querySelectorAll("[data-practice-stage]")];
+const videoProcedurePanel = document.querySelector("#video-procedure-panel");
+const videoProcedureSource = document.querySelector("#video-procedure-source");
+const videoCostApproval = document.querySelector("#video-cost-approval");
+const extractVideoButton = document.querySelector("#extract-video-procedure");
+const videoProcedureError = document.querySelector("#video-procedure-error");
+const videoProcedureEvidence = document.querySelector("#video-procedure-evidence");
+const procedureReview = document.querySelector("#procedure-review");
+const approveVideoProcedureButton = document.querySelector("#approve-video-procedure");
+const rejectVideoProcedureButton = document.querySelector("#reject-video-procedure");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let currentStep = 1;
 let currentLanguage = "es";
@@ -157,6 +174,9 @@ let currentProject = null;
 let practiceActiveStage = -1;
 let practiceCompletedStages = 0;
 let practiceRunResult = null;
+let currentVideoSource = null;
+let videoProcedureRecord = null;
+let videoExtractionRunning = false;
 
 function setContent(selector, value, useHtml = false) {
   const element = document.querySelector(selector);
@@ -282,6 +302,24 @@ function applyLanguage(language) {
   setContent("#practice-network-label", t.practiceNetworkLabel);
   setContent("#practice-blocked-label", t.practiceBlockedLabel);
   setContent("#practice-cloud-label", t.practiceCloudLabel);
+  setContent("#video-procedure-eyebrow", t.videoProcedureEyebrow);
+  setContent("#video-procedure-title", t.videoProcedureTitle);
+  setContent("#video-procedure-intro", t.videoProcedureIntro);
+  setContent("#video-source-label", t.videoSourceLabel);
+  setContent("#video-cost-label", t.videoCostLabel);
+  setContent("#video-extraction-status-label", t.videoStatusLabel);
+  setContent("#video-version-label", t.videoVersionLabel);
+  setContent("#video-token-label", t.videoTokenLabel);
+  setContent("#video-time-label", t.videoTimeLabel);
+  setContent("#video-call-label", t.videoCallLabel);
+  setContent("#procedure-review-label", t.procedureReviewLabel);
+  setContent("#procedure-rules-label", t.procedureRulesLabel);
+  setContent("#procedure-exceptions-label", t.procedureExceptionsLabel);
+  setContent("#procedure-examples-label", t.procedureExamplesLabel);
+  setContent("#procedure-uncertainties-label", t.procedureUncertaintiesLabel);
+  setContent("#procedure-notes-label", t.procedureNotesLabel);
+  setContent("#reject-video-procedure", t.rejectProcedure);
+  setContent("#approve-video-procedure", t.approveProcedure);
   setContent(".privacy-note", t.privacy, true);
   setContent("footer span:last-child", t.footer);
   document.querySelectorAll("[data-language]").forEach((button) => { button.setAttribute("aria-pressed", String(button.dataset.language === currentLanguage)); });
@@ -290,6 +328,7 @@ function applyLanguage(language) {
   renderProcessState();
   renderPracticePlan();
   renderPracticeState();
+  renderVideoProcedureState();
 }
 
 function showStep(stepNumber) {
@@ -564,6 +603,170 @@ function apiErrorMessage(payload, fallback) {
   return fallback;
 }
 
+function renderProcedureList(selector, values) {
+  const t = translations[currentLanguage];
+  const list = document.querySelector(selector);
+  list.innerHTML = "";
+  (values?.length ? values : [t.emptyEvidence]).forEach((value) => {
+    const item = document.createElement("li");
+    item.textContent = value;
+    list.append(item);
+  });
+}
+
+function renderExtractedProcedure(procedure) {
+  setContent("#procedure-task", procedure.task);
+  setContent("#procedure-objective", procedure.objective);
+  const stepsList = document.querySelector("#procedure-steps");
+  stepsList.innerHTML = "";
+  procedure.steps.forEach((step) => {
+    const item = document.createElement("li");
+    const action = document.createElement("span");
+    action.textContent = step.action;
+    item.append(action);
+    const evidenceParts = [...(step.source_timestamps || [])];
+    if (step.evidence) evidenceParts.push(step.evidence);
+    if (evidenceParts.length) {
+      const evidence = document.createElement("small");
+      evidence.textContent = evidenceParts.join(" · ");
+      item.append(evidence);
+    }
+    stepsList.append(item);
+  });
+  renderProcedureList("#procedure-rules", procedure.rules);
+  renderProcedureList("#procedure-exceptions", procedure.exceptions);
+  renderProcedureList("#procedure-examples", procedure.examples);
+  renderProcedureList("#procedure-uncertainties", procedure.uncertainties);
+}
+
+function localizedVideoStatus(status) {
+  const t = translations[currentLanguage];
+  return {
+    extraction_failed: t.videoFailed,
+    awaiting_review: t.videoAwaitingReview,
+    approved: t.videoApproved,
+    rejected: t.videoRejected,
+  }[status] || (videoExtractionRunning ? t.videoRunning : t.videoWaiting);
+}
+
+function renderVideoProcedureState() {
+  if (!videoProcedurePanel) return;
+  const t = translations[currentLanguage];
+  setContent("#extract-video-procedure", videoExtractionRunning ? t.extractingVideo : t.extractVideo, !videoExtractionRunning);
+  const retryableFailure = videoProcedureRecord?.status === "extraction_failed";
+  extractVideoButton.disabled = videoExtractionRunning || Boolean(videoProcedureRecord && !retryableFailure);
+  videoProcedureEvidence.hidden = !videoExtractionRunning && !videoProcedureRecord;
+  setContent("#video-extraction-status", localizedVideoStatus(videoProcedureRecord?.status));
+
+  if (!videoProcedureRecord) {
+    setContent("#video-extraction-summary", videoExtractionRunning ? t.videoReadySummary : "");
+    setContent("#video-version", "—");
+    setContent("#video-tokens", "—");
+    setContent("#video-time", "—");
+    setContent("#video-calls", "0");
+    procedureReview.hidden = true;
+    return;
+  }
+
+  const record = videoProcedureRecord;
+  const failed = record.status === "extraction_failed";
+  const reviewed = ["approved", "rejected"].includes(record.status);
+  setContent(
+    "#video-extraction-summary",
+    failed
+      ? t.videoFailureSummary.replace("{code}", record.failure_code || "provider_error")
+      : reviewed ? t.videoReviewedSummary : t.videoReadySummary,
+  );
+  setContent("#video-version", record.procedure_version ? `V${record.procedure_version}` : "—");
+  setContent("#video-tokens", record.usage?.total_tokens ?? "—");
+  setContent("#video-time", record.elapsed_seconds == null ? "—" : `${record.elapsed_seconds}s`);
+  setContent("#video-calls", String(record.cloud_calls_made));
+  procedureReview.hidden = !record.procedure;
+  if (record.procedure) renderExtractedProcedure(record.procedure);
+  const canReview = record.status === "awaiting_review";
+  approveVideoProcedureButton.disabled = !canReview;
+  rejectVideoProcedureButton.disabled = !canReview;
+}
+
+function configureVideoProcedure(project, sourceUrl) {
+  currentProject = project;
+  currentVideoSource = sourceUrl;
+  videoProcedureRecord = null;
+  videoExtractionRunning = false;
+  videoCostApproval.checked = false;
+  videoProcedureError.textContent = "";
+  videoProcedureEvidence.hidden = true;
+  videoProcedurePanel.hidden = !sourceUrl;
+  if (sourceUrl) {
+    videoProcedureSource.href = sourceUrl;
+    videoProcedureSource.textContent = sourceUrl;
+  }
+  renderVideoProcedureState();
+}
+
+async function extractProjectVideoProcedure() {
+  const t = translations[currentLanguage];
+  videoProcedureError.textContent = "";
+  if (!currentProject || !currentVideoSource || !videoCostApproval.checked) {
+    videoProcedureError.textContent = t.videoCostError;
+    return;
+  }
+  videoExtractionRunning = true;
+  renderVideoProcedureState();
+  await nextPaint();
+  try {
+    const response = await fetch(`/api/projects/${encodeURIComponent(currentProject.project_id)}/video-procedures/extract`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        video_url: currentVideoSource,
+        task_hint: taskInput.value.trim(),
+        output_language: currentLanguage,
+        acknowledge_source_approved: true,
+        acknowledge_cloud_cost: true,
+      }),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(apiErrorMessage(payload, t.videoExtractionError));
+    videoProcedureRecord = payload;
+  } catch (error) {
+    videoProcedureError.textContent = error.message || t.videoExtractionError;
+    console.error(error);
+  } finally {
+    videoExtractionRunning = false;
+    if (videoProcedureRecord?.status === "extraction_failed") videoCostApproval.checked = false;
+    renderVideoProcedureState();
+  }
+}
+
+async function reviewProjectVideoProcedure(decision) {
+  const t = translations[currentLanguage];
+  if (!currentProject || !videoProcedureRecord) return;
+  approveVideoProcedureButton.disabled = true;
+  rejectVideoProcedureButton.disabled = true;
+  setContent(decision === "approve" ? "#approve-video-procedure" : "#reject-video-procedure", t.reviewingProcedure);
+  try {
+    const response = await fetch(`/api/projects/${encodeURIComponent(currentProject.project_id)}/video-procedures/${encodeURIComponent(videoProcedureRecord.extraction_id)}/review`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        decision,
+        notes: document.querySelector("#procedure-review-notes").value.trim() || null,
+      }),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(apiErrorMessage(payload, t.videoExtractionError));
+    videoProcedureRecord = payload;
+  } catch (error) {
+    videoProcedureError.textContent = error.message || t.videoExtractionError;
+    console.error(error);
+  } finally {
+    setContent("#approve-video-procedure", t.approveProcedure);
+    setContent("#reject-video-procedure", t.rejectProcedure);
+    renderVideoProcedureState();
+  }
+}
+
 async function nextPaint() {
   await new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
@@ -675,12 +878,14 @@ async function prepareProject() {
     }
     const readyMessage = destination === "robot" ? t.projectReadyRobot : t.projectReadyComputer;
     showProjectFeedback(readyMessage.replace("{id}", project.project_id));
+    const extractionSource = sourceType === "youtube"
+      ? videoUrl.value.trim()
+      : sourceType === "automatic" ? approvedSources[0]?.url : null;
+    configureVideoProcedure(project, extractionSource);
     if (destination === "robot") {
-      currentProject = null;
       computerPracticePanel.hidden = true;
       window.setTimeout(() => startProcessing(taskInput.value.trim(), source), reducedMotion.matches ? 0 : 550);
     } else {
-      currentProject = project;
       computerPracticePanel.hidden = false;
       browserPracticeApproval.checked = false;
       practiceEvidence.hidden = true;
@@ -848,6 +1053,7 @@ document.querySelectorAll("input[name='destination']").forEach((radio) => {
     projectFeedback.hidden = true;
     currentProject = null;
     computerPracticePanel.hidden = true;
+    videoProcedurePanel.hidden = true;
   });
 });
 
@@ -857,6 +1063,9 @@ document.querySelectorAll("input[name='source-type']").forEach((radio) => {
     document.querySelectorAll("[data-source-panel]").forEach((panel) => { panel.hidden = panel.dataset.sourcePanel !== radio.value; });
     if (radio.value === "automatic" && !sourceQuery.value.trim()) sourceQuery.value = taskInput.value.trim();
     sourceError.textContent = "";
+    currentProject = null;
+    computerPracticePanel.hidden = true;
+    videoProcedurePanel.hidden = true;
   });
 });
 
@@ -872,6 +1081,9 @@ searchSourcesButton.addEventListener("click", searchAutomaticSources);
 approveSourcesButton.addEventListener("click", approveAutomaticSources);
 form.addEventListener("submit", (event) => { event.preventDefault(); prepareProject(); });
 computerPracticeForm.addEventListener("submit", (event) => { event.preventDefault(); runComputerPractice(); });
+extractVideoButton.addEventListener("click", extractProjectVideoProcedure);
+approveVideoProcedureButton.addEventListener("click", () => reviewProjectVideoProcedure("approve"));
+rejectVideoProcedureButton.addEventListener("click", () => reviewProjectVideoProcedure("reject"));
 [browserTargetUrl, browserTextSelector, browserSampleText].forEach((input) => input.addEventListener("input", () => {
   browserPracticeApproval.checked = false;
   browserPracticeError.textContent = "";

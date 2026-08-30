@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, status
 
+from app.api.runtime import gemini_service
 from app.models.video_extraction import (
     VideoExtractionRequest,
     VideoExtractionResult,
@@ -10,12 +11,10 @@ from app.services.gemini_service import (
     GeminiConfigurationError,
     GeminiProviderError,
     GeminiResponseError,
-    GeminiService,
 )
 
 
 router = APIRouter(prefix="/api/experiments/video", tags=["experiments"])
-gemini_service = GeminiService()
 
 
 @router.post(
@@ -44,4 +43,3 @@ async def extract_video_procedure(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=str(error),
         ) from error
-

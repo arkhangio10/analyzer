@@ -273,6 +273,33 @@ h2 { margin-bottom: 0; font-size: clamp(3.5rem, 7vw, 7.8rem); line-height: 0.87;
 .form-success p { margin: 0.35rem 0 0; color: rgba(255,255,255,0.55); }
 .success-mark { display: grid; flex: 0 0 auto; width: 3rem; height: 3rem; place-items: center; border-radius: 50%; background: var(--lime); color: var(--ink); font-size: 1.3rem; font-weight: 900; }
 .form-success button { margin-left: auto; border: 0; padding: 0.8rem 1rem; background: transparent; color: var(--lime); font: inherit; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+.video-procedure { max-width: 70rem; margin: 1.5rem auto 0; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid rgba(101,88,245,0.72); border-radius: 1.5rem; background: linear-gradient(145deg, rgba(101,88,245,0.22), rgba(255,255,255,0.035) 55%), #222; }
+.video-procedure-heading { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2rem; align-items: end; }
+.video-procedure-heading .eyebrow { color: #aaa2ff; }
+.video-procedure-heading h3 { max-width: 43rem; margin: 0.8rem 0 0; font-size: clamp(2rem, 4vw, 3.8rem); line-height: 0.95; letter-spacing: -0.055em; }
+.video-procedure-heading > p { margin: 0; color: rgba(255,255,255,0.62); line-height: 1.6; }
+.video-source-card { display: grid; grid-template-columns: auto 1fr; gap: 1rem; margin-top: 1.5rem; padding: 1rem 1.2rem; border-radius: 1rem; background: rgba(0,0,0,0.2); }
+.video-source-card span { color: #aaa2ff; font-size: 0.6rem; font-weight: 900; letter-spacing: 0.1em; }
+.video-source-card a { min-width: 0; color: var(--white); font-size: 0.78rem; overflow-wrap: anywhere; }
+.video-procedure-actions { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center; margin-top: 1rem; }
+.video-procedure-actions .practice-approval { padding: 0; }
+.video-procedure-evidence { display: grid; grid-template-columns: 0.75fr 1.25fr; gap: 1.5rem; margin-top: 1.5rem; }
+.video-procedure-status, .procedure-review { padding: 1.35rem; border: 1px solid rgba(255,255,255,0.16); border-radius: 1rem; background: rgba(0,0,0,0.15); }
+.video-procedure-status > strong { display: block; margin-top: 1rem; font-size: clamp(1.5rem, 3vw, 2.5rem); letter-spacing: -0.04em; }
+.video-procedure-status > p:not(.practice-label) { color: rgba(255,255,255,0.62); line-height: 1.5; }
+.procedure-review h4 { margin: 1rem 0 0.5rem; font-size: clamp(1.45rem, 2.5vw, 2.2rem); letter-spacing: -0.035em; }
+.procedure-review > p:not(.practice-label) { color: rgba(255,255,255,0.68); line-height: 1.55; }
+#procedure-steps { margin: 1.2rem 0 0; padding: 0; list-style: none; counter-reset: procedure-step; }
+#procedure-steps li { position: relative; padding: 1rem 0 1rem 2.7rem; border-top: 1px solid rgba(255,255,255,0.13); line-height: 1.5; counter-increment: procedure-step; }
+#procedure-steps li::before { content: counter(procedure-step, decimal-leading-zero); position: absolute; left: 0; top: 1rem; color: var(--lime); font-size: 0.62rem; font-weight: 900; }
+#procedure-steps li small { display: block; margin-top: 0.4rem; color: rgba(255,255,255,0.48); }
+.procedure-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-top: 1rem; }
+.procedure-details section { padding: 1rem; border-radius: 0.8rem; background: rgba(255,255,255,0.045); }
+.procedure-details h5 { margin: 0; color: #aaa2ff; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.procedure-details ul { margin: 0.7rem 0 0; padding-left: 1.1rem; color: rgba(255,255,255,0.66); font-size: 0.75rem; line-height: 1.5; }
+.procedure-review > label { display: block; margin: 1.2rem 0 0.55rem; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.procedure-review textarea { width: 100%; border: 1px solid rgba(255,255,255,0.24); border-radius: 0.8rem; padding: 0.9rem 1rem; background: #171717; color: var(--white); font: inherit; resize: vertical; }
+.procedure-review-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem; }
 .computer-practice { max-width: 70rem; margin: 1.5rem auto 0; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid rgba(217,255,87,0.42); border-radius: 1.5rem; background: linear-gradient(145deg, rgba(101,88,245,0.15), rgba(255,255,255,0.04) 55%), #222; }
 .practice-heading { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2rem; align-items: end; }
 .practice-heading .eyebrow { color: var(--lime); }
@@ -375,7 +402,11 @@ footer { display: flex; justify-content: space-between; padding: 2rem clamp(1.25
   .review-list div { grid-template-columns: 1fr; gap: 0.35rem; }
   .form-success { align-items: flex-start; flex-wrap: wrap; }
   .form-success button { width: 100%; margin-left: 0; text-align: left; }
-  .practice-heading, .practice-form, .practice-evidence { grid-template-columns: 1fr; }
+  .video-procedure-heading, .video-procedure-evidence, .practice-heading, .practice-form, .practice-evidence { grid-template-columns: 1fr; }
+  .video-procedure-actions, .video-source-card { grid-template-columns: 1fr; }
+  .video-procedure-actions .form-button { width: 100%; }
+  .procedure-details { grid-template-columns: 1fr; }
+  .procedure-review-actions { align-items: stretch; flex-direction: column-reverse; }
   .practice-heading { align-items: start; }
   .practice-metrics { grid-template-columns: 1fr 1fr; }
   footer { gap: 1.5rem; flex-direction: column; }

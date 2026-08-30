@@ -49,5 +49,23 @@ Content-Type: application/json
 }
 ```
 
-The route is synchronous for this narrow experiment. Background processing,
-uploads, discovery, and persistence remain later milestones.
+The low-level route remains synchronous. The project workflow wraps the same
+provider boundary with in-process retention and human review:
+
+```http
+POST /api/projects/{project_id}/video-procedures/extract
+Content-Type: application/json
+
+{
+  "video_url": "https://www.youtube.com/watch?v=<video-id>",
+  "task_hint": "Extract only observable actions.",
+  "output_language": "en",
+  "acknowledge_cloud_cost": true,
+  "acknowledge_source_approved": true
+}
+```
+
+Successful records remain `awaiting_review` until the user approves or rejects
+them. Provider failures remain retrievable with a sanitized category and no raw
+provider response. This storage is process-local; durable persistence,
+background processing, and uploaded-video ingestion remain later milestones.

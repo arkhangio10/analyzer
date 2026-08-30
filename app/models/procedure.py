@@ -26,3 +26,4 @@ class Procedure(BaseModel):
     conditions: list[str] = Field(default_factory=list)
     exceptions: list[str] = Field(default_factory=list)
     examples: list[str] = Field(default_factory=list)
+    uncertainties: list[str] = Field(default_factory=list)

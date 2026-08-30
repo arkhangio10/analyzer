@@ -130,3 +130,25 @@ def test_provider_failure_is_sanitized() -> None:
     ):
         asyncio.run(service.extract_procedure(make_request()))
 
+
+def test_provider_failure_is_classified_without_returning_raw_details() -> None:
+    models = FakeModels(error=RuntimeError("429 RESOURCE_EXHAUSTED: private detail"))
+    service = GeminiService(
+        make_settings(),
+        client_factory=lambda **kwargs: FakeClient(models),
+    )
+
+    with pytest.raises(GeminiProviderError) as captured:
+        asyncio.run(service.extract_procedure(make_request()))
+
+    assert captured.value.failure_code == "quota_exceeded"
+    assert "private detail" not in str(captured.value)
+
+
+def test_youtube_share_url_is_canonicalized_for_the_provider() -> None:
+    result = GeminiService._provider_video_url(
+        "https://youtu.be/-fD2TSL2s7I?si=private-share-value"
+    )
+
+    assert result == "https://www.youtube.com/watch?v=-fD2TSL2s7I"
+    assert "private-share-value" not in result

@@ -22,6 +22,9 @@ def test_frontend() -> None:
     assert 'id="computer-practice-panel"' in response.text
     assert 'id="browser-plan-preview"' in response.text
     assert 'id="browser-practice-approval"' in response.text
+    assert 'id="video-procedure-panel"' in response.text
+    assert 'id="video-cost-approval"' in response.text
+    assert 'id="procedure-review"' in response.text
 
 
 def test_project_status() -> None:

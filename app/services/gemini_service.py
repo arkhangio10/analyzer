@@ -3,6 +3,7 @@
 from collections.abc import Callable
 from time import perf_counter
 from typing import Any
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from google import genai
 from google.genai import types
@@ -26,6 +27,12 @@ class GeminiResponseError(RuntimeError):
 
 class GeminiProviderError(RuntimeError):
     """Raised when the provider call fails without exposing provider internals."""
+
+    def __init__(self, failure_code: str = "provider_error") -> None:
+        super().__init__(
+            f"Gemini could not process the approved video ({failure_code})."
+        )
+        self.failure_code = failure_code
 
 
 class GeminiService:
@@ -77,7 +84,7 @@ class GeminiService:
                 model=self._settings.google_genai_model,
                 contents=[
                     types.Part.from_uri(
-                        file_uri=str(request.video_url),
+                        file_uri=self._provider_video_url(str(request.video_url)),
                         mime_type="video/mp4",
                     ),
                     prompt,
@@ -94,9 +101,7 @@ class GeminiService:
                 ),
             )
         except Exception as error:
-            raise GeminiProviderError(
-                "Gemini could not process the approved video."
-            ) from error
+            raise GeminiProviderError(self._classify_provider_error(error)) from error
         elapsed_seconds = perf_counter() - started
         procedure = self._parse_procedure(response)
 
@@ -157,4 +162,46 @@ class GeminiService:
                 metadata, "cached_content_token_count", None
             ),
             total_tokens=getattr(metadata, "total_token_count", None),
+        )
+
+    @staticmethod
+    def _classify_provider_error(error: Exception) -> str:
+        """Map provider details to a stable category without exposing raw text."""
+        message = str(error).casefold()
+        code = getattr(error, "code", None) or getattr(error, "status_code", None)
+        if code == 429 or "quota" in message or "resource_exhausted" in message:
+            return "quota_exceeded"
+        if code == 403 or "permission" in message or "permission_denied" in message:
+            return "permission_denied"
+        if "youtube" in message and any(
+            marker in message
+            for marker in ("invalid", "unsupported", "not accessible", "cannot access")
+        ):
+            return "youtube_source_rejected"
+        if "model" in message and any(
+            marker in message for marker in ("not found", "unsupported", "unavailable")
+        ):
+            return "model_unavailable"
+        if "safety" in message or "blocked" in message:
+            return "safety_blocked"
+        if code == 400 or "invalid_argument" in message:
+            return "invalid_request"
+        if code in {500, 502, 503, 504} or "unavailable" in message:
+            return "provider_unavailable"
+        return "provider_error"
+
+    @staticmethod
+    def _provider_video_url(source_url: str) -> str:
+        """Canonicalize YouTube share URLs while preserving the source record."""
+        parsed = urlparse(source_url)
+        host = (parsed.hostname or "").casefold()
+        video_id: str | None = None
+        if host == "youtu.be":
+            video_id = parsed.path.strip("/").split("/", maxsplit=1)[0] or None
+        elif host in {"youtube.com", "www.youtube.com", "m.youtube.com"}:
+            video_id = parse_qs(parsed.query).get("v", [None])[0]
+        if not video_id:
+            return source_url
+        return urlunparse(
+            ("https", "www.youtube.com", "/watch", "", urlencode({"v": video_id}), "")
         )
