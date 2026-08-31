@@ -15,6 +15,7 @@ from app.api.project_video_procedure_routes import router as project_video_proce
 from app.api.robot_profile_routes import router as robot_profile_router
 from app.api.source_routes import router as source_router
 from app.api.training_routes import router as training_router
+from app.api.upload_routes import router as upload_router
 from app.api.video_extraction_routes import router as video_extraction_router
 
 
@@ -36,4 +37,5 @@ app.include_router(project_video_procedure_router)
 app.include_router(robot_profile_router)
 app.include_router(source_router)
 app.include_router(training_router)
+app.include_router(upload_router)
 app.include_router(video_extraction_router)

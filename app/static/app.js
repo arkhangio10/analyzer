@@ -34,9 +34,33 @@ const translations = {
     robotModelLabel: "Marca y modelo exacto", robotModelPlaceholder: "Ej.: Unitree Go2", robotHelp: "Usaremos ARP-1 y seleccionaremos el simulador compatible automáticamente.",
     computerAppLabel: "Aplicación objetivo", computerAppPlaceholder: "Ej.: Google Chrome, Excel o Blender", computerHelp: "El sistema operativo se detectará automáticamente y la primera ejecución será aislada.",
     sourceLegend: "Añade una referencia para la futura demostración", sourceTypeLabel: "Tipo de fuente",
-    youtubeCopy: "Referencia a un video instructivo", upload: "Video local", uploadCopy: "El archivo no se envía todavía", automatic: "Búsqueda automática", automaticCopy: "Encuentra referencias para que las apruebes", videoUrlLabel: "Enlace de referencia",
+    youtubeCopy: "Referencia a un video instructivo", upload: "Video local", uploadCopy: "Se guarda aquí, nunca se envía", automatic: "Búsqueda automática", automaticCopy: "Encuentra referencias para que las apruebes", videoUrlLabel: "Enlace de referencia",
     searchLabel: "¿Qué demostración debe buscar?", searchPlaceholder: "Ej.: perro corriendo vista lateral biomecánica", searchButton: "Buscar referencias", searching: "Buscando…", searchHelp: "La búsqueda usa una llamada acotada; ningún video se analiza hasta que lo apruebes.", approveSources: "Aprobar selección", approving: "Aprobando…", sourceApproved: "{count} referencia(s) aprobada(s). El análisis aún no ha comenzado.", searchEmpty: "No se encontraron videos para esta búsqueda.", searchUnavailable: "La búsqueda automática no está configurada todavía. Puedes usar un enlace directo mientras se habilita YouTube Data API.", selectCandidate: "Selecciona al menos una referencia antes de aprobar.",
-    selectVideo: "Selecciona un video", fileTypes: "MP4, MOV o WEBM", back: "← Atrás", review: "Revisar <span aria-hidden=\"true\">→</span>",
+    selectVideo: "Selecciona un video", fileTypes: "MP4, MOV, WEBM o MKV",
+    uploadNote: "El archivo se guarda en esta máquina y nunca se envía a un modelo en la nube. Todavía no se puede extraer un procedimiento de un archivo local: para eso hace falta una URL pública de YouTube.",
+    uploadStore: "Guardar en esta máquina",
+    uploadStoring: "Guardando…",
+    uploadNeedsProject: "Crea el proyecto antes de guardar un video.",
+    uploadRemove: "Eliminar",
+    uploadMeta: "{size} · sha256 {hash} · no enviado",
+    uploadFailed: "No se pudo guardar el video: {detail}",
+    historyLabel: "HISTORIAL DE VERSIONES",
+    historyTotals: "{versions} versiones \u00b7 {calls} llamadas a la nube \u00b7 {tokens} tokens",
+    historyVersion: "V{version}",
+    historyVersionMeta: "{steps} pasos \u00b7 {status}",
+    historyDiffLabel: "V{from} \u2192 V{to}",
+    historyNoChanges: "Ninguna diferencia entre estas dos versiones.",
+    historyDiffSummary: "{changed} cambiados \u00b7 {added} a\u00f1adidos \u00b7 {removed} eliminados \u00b7 {unchanged} iguales.",
+    historySameSource: "Ambas versiones vienen del mismo video.",
+    historyCrossSource: "Estas versiones vienen de videos distintos.",
+    historyStepChanged: "Paso {step}:",
+    historyStepAdded: "Paso {step} a\u00f1adido: {after}",
+    historyStepRemoved: "Paso {step} eliminado: {before}",
+    historyListAdded: "{field} a\u00f1adido: {value}",
+    historyListRemoved: "{field} eliminado: {value}",
+    reconciliationLabel: "RECONCILIACI\u00d3N",
+    reconciliationSummary: "{sources} fuentes aprobadas \u00b7 {distinct} videos distintos \u00b7 confianza {confidence} \u00b7 {conflicts} contradicciones.",
+    reconciliationNone: "Aprueba una segunda extracci\u00f3n para poder reconciliar.", back: "← Atrás", review: "Revisar <span aria-hidden=\"true\">→</span>",
     reviewLegend: "Todo listo para preparar el aprendizaje", reviewLabels: ["Tarea", "Destino", "Configuración", "Fuente", "Entrega"], dockerDelivery: "Agente versionado en Docker",
     robotReview: "Robot / simulación primero", computerReview: "Computadora / entorno aislado", robotConfig: "ARP-1 · simulador automático", computerConfig: "Sistema operativo automático · sandbox obligatorio",
     honestyRobot: "<b>Primera versión funcional.</b> El contrato del robot se crea en el backend y esta demostración procesa una trayectoria local estructurada. No controla hardware físico.",
@@ -132,7 +156,31 @@ const translations = {
     robotModelLabel: "Exact brand and model", robotModelPlaceholder: "Example: Unitree Go2", robotHelp: "We will use ARP-1 and select a compatible simulator automatically.",
     computerAppLabel: "Target application", computerAppPlaceholder: "Example: Google Chrome, Excel, or Blender", computerHelp: "The operating system will be detected automatically and the first run will be isolated.",
     sourceLegend: "Add a reference for the future demonstration", sourceTypeLabel: "Source type", youtubeCopy: "Instructional video reference",
-    upload: "Local video", uploadCopy: "The file is not uploaded yet", automatic: "Automatic search", automaticCopy: "Find references for you to approve", videoUrlLabel: "Reference link", selectVideo: "Select a video", fileTypes: "MP4, MOV, or WEBM",
+    upload: "Local video", uploadCopy: "Kept on this machine, never sent", automatic: "Automatic search", automaticCopy: "Find references for you to approve", videoUrlLabel: "Reference link", selectVideo: "Select a video", fileTypes: "MP4, MOV, WEBM, or MKV",
+    uploadNote: "The file is kept on this machine and is never sent to a cloud model. A procedure cannot be extracted from a local file yet: that still needs a public YouTube URL.",
+    uploadStore: "Keep on this machine",
+    uploadStoring: "Keeping…",
+    uploadNeedsProject: "Create the project before keeping a video.",
+    uploadRemove: "Remove",
+    uploadMeta: "{size} · sha256 {hash} · not sent",
+    uploadFailed: "The video could not be kept: {detail}",
+    historyLabel: "VERSION HISTORY",
+    historyTotals: "{versions} versions \u00b7 {calls} cloud calls \u00b7 {tokens} tokens",
+    historyVersion: "V{version}",
+    historyVersionMeta: "{steps} steps \u00b7 {status}",
+    historyDiffLabel: "V{from} \u2192 V{to}",
+    historyNoChanges: "No difference between these two versions.",
+    historyDiffSummary: "{changed} changed \u00b7 {added} added \u00b7 {removed} removed \u00b7 {unchanged} identical.",
+    historySameSource: "Both versions came from the same video.",
+    historyCrossSource: "These versions came from different videos.",
+    historyStepChanged: "Step {step}:",
+    historyStepAdded: "Step {step} added: {after}",
+    historyStepRemoved: "Step {step} removed: {before}",
+    historyListAdded: "{field} added: {value}",
+    historyListRemoved: "{field} removed: {value}",
+    reconciliationLabel: "RECONCILIATION",
+    reconciliationSummary: "{sources} approved sources \u00b7 {distinct} distinct videos \u00b7 confidence {confidence} \u00b7 {conflicts} contradictions.",
+    reconciliationNone: "Approve a second extraction before this can reconcile.",
     searchLabel: "What demonstration should it find?", searchPlaceholder: "Example: dog running lateral view biomechanics", searchButton: "Find references", searching: "Searching…", searchHelp: "Search uses one bounded call; no video is analyzed until you approve it.", approveSources: "Approve selection", approving: "Approving…", sourceApproved: "{count} reference(s) approved. Analysis has not started yet.", searchEmpty: "No videos were found for this search.", searchUnavailable: "Automatic search is not configured yet. You can use a direct link while YouTube Data API is enabled.", selectCandidate: "Select at least one reference before approval.",
     back: "← Back", review: "Review <span aria-hidden=\"true\">→</span>", reviewLegend: "Everything is ready to prepare learning",
     reviewLabels: ["Task", "Destination", "Configuration", "Source", "Delivery"], dockerDelivery: "Versioned agent in Docker",
@@ -256,6 +304,15 @@ const recentWorkList = document.querySelector("#recent-work-list");
 const extractionActivity = document.querySelector("#extraction-activity");
 const videoNextStep = document.querySelector("#video-next-step");
 const motionEvidence = document.querySelector("#motion-evidence");
+const storeVideoFileButton = document.querySelector("#store-video-file");
+const uploadList = document.querySelector("#upload-list");
+const uploadError = document.querySelector("#upload-error");
+const evidenceHistory = document.querySelector("#evidence-history");
+const historyVersions = document.querySelector("#history-versions");
+const historyDiff = document.querySelector("#history-diff");
+const historyChanges = document.querySelector("#history-changes");
+const historyReconciliation = document.querySelector("#history-reconciliation");
+const reconciliationConflicts = document.querySelector("#reconciliation-conflicts");
 const motionCostApproval = document.querySelector("#motion-cost-approval");
 const runMotionAnalysisButton = document.querySelector("#run-motion-analysis");
 const motionResult = document.querySelector("#motion-result");
@@ -299,6 +356,10 @@ let motionLastTimestamp = 0;
 let extractionTimerId = 0;
 let videoNextStepHandler = null;
 let motionAnalysis = null;
+let storedUploads = [];
+let procedureHistory = null;
+let projectReconciliation = null;
+let uploadRunning = false;
 let motionAnalysisRunning = false;
 const MOTION_FPS = 4;
 const MOTION_WINDOW_SECONDS = 12;
@@ -401,6 +462,8 @@ function applyLanguage(language) {
   setContent('label[for="video-url"]', t.videoUrlLabel);
   if (!videoFile.files.length) setContent("#file-label", t.selectVideo);
   setContent(".file-drop small", t.fileTypes);
+  renderUploads();
+  renderEvidenceHistory();
   setContent('label[for="source-query"]', t.searchLabel);
   sourceQuery.placeholder = t.searchPlaceholder;
   setContent("#search-sources", t.searchButton);
@@ -991,6 +1054,8 @@ function openStoredProject(entry) {
   renderVideoProcedureState();
   loadAdaptationPlan();
   loadMotionAnalysis();
+  loadUploads();
+  loadProcedureHistory();
   fillReview();
   showStep(4);
   showProjectFeedback(
@@ -1054,6 +1119,7 @@ function renderVideoNextStep() {
   const [message, actionLabel, handler] = plans[status] || ["", "", null];
   const summary = status === "approved" ? adaptationSummaryText() : "";
   renderMotionEvidence();
+  renderEvidenceHistory();
   videoNextStep.hidden = !message;
   setContent("#video-next-step-text", summary ? `${summary} ${message}` : message);
   videoNextStepAction.hidden = !actionLabel;
@@ -1136,6 +1202,264 @@ function motionFindingText(finding) {
     (text, [key, value]) => text.split(`{${key}}`).join(value),
     template,
   );
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ["KB", "MB", "GB"];
+  let value = bytes / 1024;
+  let unit = 0;
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[unit]}`;
+}
+
+async function loadUploads() {
+  storedUploads = [];
+  if (currentProject) {
+    try {
+      const response = await fetch(
+        `/api/projects/${encodeURIComponent(currentProject.project_id)}/uploads`,
+      );
+      if (response.ok) storedUploads = (await response.json()).uploads || [];
+    } catch (error) {
+      console.error(error);
+    }
+  }
+  renderUploads();
+}
+
+async function storeSelectedVideo() {
+  const t = translations[currentLanguage];
+  const file = videoFile.files[0];
+  if (!file || uploadRunning) return;
+  if (!currentProject) {
+    uploadError.textContent = t.uploadNeedsProject;
+    return;
+  }
+  uploadRunning = true;
+  uploadError.textContent = "";
+  renderUploads();
+  try {
+    const body = new FormData();
+    body.append("file", file);
+    const response = await fetch(
+      `/api/projects/${encodeURIComponent(currentProject.project_id)}/uploads`,
+      { method: "POST", body },
+    );
+    const payload = await response.json();
+    if (response.ok) {
+      videoFile.value = "";
+      setContent("#file-label", t.selectVideo);
+      await loadUploads();
+    } else {
+      uploadError.textContent = t.uploadFailed.replace(
+        "{detail}",
+        payload.detail || "",
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    uploadError.textContent = t.uploadFailed.replace("{detail}", "");
+  } finally {
+    uploadRunning = false;
+    renderUploads();
+  }
+}
+
+async function removeUpload(uploadId) {
+  if (!currentProject) return;
+  try {
+    await fetch(
+      `/api/projects/${encodeURIComponent(currentProject.project_id)}`
+      + `/uploads/${encodeURIComponent(uploadId)}`,
+      { method: "DELETE" },
+    );
+  } catch (error) {
+    console.error(error);
+  }
+  loadUploads();
+}
+
+function renderUploads() {
+  if (!uploadList) return;
+  const t = translations[currentLanguage];
+  setContent("#upload-note", t.uploadNote);
+  storeVideoFileButton.textContent = uploadRunning ? t.uploadStoring : t.uploadStore;
+  storeVideoFileButton.disabled = uploadRunning || !videoFile.files.length;
+  setButtonBusy(storeVideoFileButton, uploadRunning);
+
+  uploadList.replaceChildren();
+  for (const upload of storedUploads) {
+    const item = document.createElement("li");
+    const text = document.createElement("span");
+    const name = document.createElement("b");
+    name.textContent = upload.original_filename;
+    const meta = document.createElement("small");
+    meta.textContent = t.uploadMeta
+      .replace("{size}", formatBytes(upload.size_bytes))
+      .replace("{hash}", upload.sha256.slice(0, 12));
+    text.append(name, meta);
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = t.uploadRemove;
+    remove.addEventListener("click", () => removeUpload(upload.upload_id));
+    item.append(text, remove);
+    uploadList.append(item);
+  }
+}
+
+async function loadProcedureHistory() {
+  procedureHistory = null;
+  projectReconciliation = null;
+  if (!currentProject) {
+    renderEvidenceHistory();
+    return;
+  }
+  const base = `/api/projects/${encodeURIComponent(currentProject.project_id)}`
+    + "/video-procedures/history";
+  try {
+    const [history, reconciliation] = await Promise.all([
+      fetch(`${base}/versions`),
+      fetch(`${base}/reconciliation`),
+    ]);
+    if (history.ok) procedureHistory = await history.json();
+    if (reconciliation.ok) projectReconciliation = await reconciliation.json();
+  } catch (error) {
+    console.error(error);
+  }
+  renderEvidenceHistory();
+}
+
+function appendChange(list, text) {
+  const item = document.createElement("li");
+  item.textContent = text;
+  list.append(item);
+}
+
+function renderDiffChanges(diff) {
+  const t = translations[currentLanguage];
+  historyChanges.replaceChildren();
+  for (const step of diff.steps) {
+    if (step.kind === "unchanged") continue;
+    if (step.kind === "added") {
+      appendChange(
+        historyChanges,
+        t.historyStepAdded
+          .replace("{step}", String(step.step))
+          .replace("{after}", step.after || ""),
+      );
+    } else if (step.kind === "removed") {
+      appendChange(
+        historyChanges,
+        t.historyStepRemoved
+          .replace("{step}", String(step.step))
+          .replace("{before}", step.before || ""),
+      );
+    } else {
+      const item = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = `${t.historyStepChanged.replace("{step}", String(step.step))} `;
+      const before = document.createElement("del");
+      before.textContent = step.before || "";
+      const after = document.createElement("ins");
+      after.textContent = step.after || "";
+      item.append(label, before, document.createTextNode(" \u2192 "), after);
+      historyChanges.append(item);
+    }
+  }
+  for (const list of diff.lists) {
+    for (const value of list.added) {
+      appendChange(
+        historyChanges,
+        t.historyListAdded.replace("{field}", list.field).replace("{value}", value),
+      );
+    }
+    for (const value of list.removed) {
+      appendChange(
+        historyChanges,
+        t.historyListRemoved.replace("{field}", list.field).replace("{value}", value),
+      );
+    }
+  }
+}
+
+function renderEvidenceHistory() {
+  if (!evidenceHistory) return;
+  const t = translations[currentLanguage];
+  const versions = procedureHistory?.versions || [];
+  evidenceHistory.hidden = versions.length === 0;
+  if (!versions.length) return;
+
+  setContent("#history-label", t.historyLabel);
+  setContent(
+    "#history-totals",
+    t.historyTotals
+      .replace("{versions}", String(versions.length))
+      .replace("{calls}", String(procedureHistory.total_cloud_calls))
+      .replace("{tokens}", String(procedureHistory.total_tokens)),
+  );
+
+  historyVersions.replaceChildren();
+  for (const version of versions) {
+    const item = document.createElement("li");
+    const tag = document.createElement("b");
+    tag.textContent = version.procedure_version
+      ? t.historyVersion.replace("{version}", String(version.procedure_version))
+      : "\u2014";
+    const task = document.createElement("span");
+    task.textContent = version.task || version.source_url;
+    const meta = document.createElement("small");
+    meta.textContent = t.historyVersionMeta
+      .replace("{steps}", String(version.step_count))
+      .replace("{status}", version.status.replace(/_/g, " "));
+    item.append(tag, task, meta);
+    historyVersions.append(item);
+  }
+
+  const diff = procedureHistory.latest_diff;
+  historyDiff.hidden = !diff;
+  if (diff) {
+    setContent(
+      "#history-diff-label",
+      t.historyDiffLabel
+        .replace("{from}", String(diff.from_version ?? "?"))
+        .replace("{to}", String(diff.to_version ?? "?")),
+    );
+    const source = diff.same_source ? t.historySameSource : t.historyCrossSource;
+    const summary = diff.has_changes
+      ? t.historyDiffSummary
+        .replace("{changed}", String(diff.changed_step_count))
+        .replace("{added}", String(diff.added_step_count))
+        .replace("{removed}", String(diff.removed_step_count))
+        .replace("{unchanged}", String(diff.unchanged_step_count))
+      : t.historyNoChanges;
+    setContent("#history-diff-summary", `${summary} ${source}`);
+    renderDiffChanges(diff);
+  }
+
+  historyReconciliation.hidden = !projectReconciliation;
+  if (projectReconciliation) {
+    const result = projectReconciliation.result;
+    setContent("#reconciliation-label", t.reconciliationLabel);
+    const independence = document.querySelector("#reconciliation-independence");
+    independence.dataset.cross = String(projectReconciliation.is_cross_source);
+    independence.textContent = projectReconciliation.independence_note;
+    setContent(
+      "#reconciliation-summary",
+      t.reconciliationSummary
+        .replace("{sources}", String(result.source_count))
+        .replace("{distinct}", String(projectReconciliation.distinct_source_count))
+        .replace("{confidence}", result.confidence.toFixed(2))
+        .replace("{conflicts}", String(result.conflicts.length)),
+    );
+    reconciliationConflicts.replaceChildren();
+    for (const line of [...result.conflicts, ...result.uncertainties].slice(0, 8)) {
+      appendChange(reconciliationConflicts, line);
+    }
+  }
 }
 
 function renderMotionEvidence() {
@@ -1986,6 +2310,12 @@ document.querySelectorAll("input[name='source-type']").forEach((radio) => {
     document.querySelectorAll("[data-source-panel]").forEach((panel) => { panel.hidden = panel.dataset.sourcePanel !== radio.value; });
     if (radio.value === "automatic" && !sourceQuery.value.trim()) sourceQuery.value = taskInput.value.trim();
     sourceError.textContent = "";
+    renderUploads();
+    // Choosing YouTube or automatic search redefines the source that will be
+    // extracted, so an already created project no longer matches the form.
+    // A local video is extra evidence kept beside the project, not a new
+    // source, so it must not discard the project it is being added to.
+    if (radio.value === "upload") return;
     currentProject = null;
     computerPracticePanel.hidden = true;
     videoProcedurePanel.hidden = true;
@@ -1995,7 +2325,15 @@ document.querySelectorAll("input[name='source-type']").forEach((radio) => {
   });
 });
 
-videoFile.addEventListener("change", () => setContent("#file-label", videoFile.files[0]?.name || translations[currentLanguage].selectVideo));
+videoFile.addEventListener("change", () => {
+  setContent(
+    "#file-label",
+    videoFile.files[0]?.name || translations[currentLanguage].selectVideo,
+  );
+  uploadError.textContent = "";
+  renderUploads();
+});
+storeVideoFileButton.addEventListener("click", storeSelectedVideo);
 sourceQuery.addEventListener("input", () => {
   sourceSearch = null;
   approvedSources = [];

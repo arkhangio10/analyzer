@@ -5,11 +5,14 @@ from fastapi import APIRouter, HTTPException, status
 from app.api.runtime import (
     adaptation_service,
     motion_analysis_service,
+    project_reconciliation_service,
     project_service,
     project_video_procedure_service,
 )
 from app.models.adaptation import DestinationAdaptationPlan
 from app.models.motion_analysis import MotionAnalysisRecord, MotionAnalysisRequest
+from app.models.learning import ProjectReconciliation
+from app.models.procedure_history import ProcedureHistory, ProcedureVersionDiff
 from app.models.project_video_procedure import (
     ProjectVideoProcedureExtractionRequest,
     ProjectVideoProcedureRecord,
@@ -25,6 +28,10 @@ from app.services.motion_analysis_service import (
     MotionAnalysisBudgetError,
     MotionAnalysisNotApprovedError,
     MotionAnalysisNotFoundError,
+)
+from app.services.procedure_history_service import build_history, diff_versions
+from app.services.project_reconciliation_service import (
+    NotEnoughApprovedSourcesError,
 )
 from app.services.project_service import ProjectNotFoundError
 from app.services.project_video_procedure_service import (
@@ -191,3 +198,48 @@ async def get_project_video_motion_analysis(
             status_code=404,
             detail="No motion analysis has been run for this extraction.",
         ) from error
+
+
+@router.get("/history/versions", response_model=ProcedureHistory)
+async def get_project_procedure_history(project_id: str) -> ProcedureHistory:
+    """List every retained version and diff the two most recent."""
+    try:
+        project_service.get(project_id)
+    except ProjectNotFoundError as error:
+        raise HTTPException(status_code=404, detail="Project was not found.") from error
+    return build_history(
+        project_id,
+        project_video_procedure_service.list_for_project(project_id),
+    )
+
+
+@router.get(
+    "/history/diff/{from_extraction_id}/{to_extraction_id}",
+    response_model=ProcedureVersionDiff,
+)
+async def diff_project_procedure_versions(
+    project_id: str,
+    from_extraction_id: str,
+    to_extraction_id: str,
+) -> ProcedureVersionDiff:
+    """Report what changed between two retained versions without altering them."""
+    _, earlier = _load_pair(project_id, from_extraction_id)
+    _, later = _load_pair(project_id, to_extraction_id)
+    return diff_versions(earlier, later)
+
+
+@router.get("/history/reconciliation", response_model=ProjectReconciliation)
+async def reconcile_project_procedures(project_id: str) -> ProjectReconciliation:
+    """Compare every approved procedure and report how independent they are."""
+    try:
+        project = project_service.get(project_id)
+    except ProjectNotFoundError as error:
+        raise HTTPException(status_code=404, detail="Project was not found.") from error
+    try:
+        return project_reconciliation_service.reconcile(
+            project_id,
+            project_video_procedure_service.list_for_project(project_id),
+            project.task_definition.task_name,
+        )
+    except NotEnoughApprovedSourcesError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error

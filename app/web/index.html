@@ -244,7 +244,7 @@
             <legend>Añade una referencia para la futura demostración</legend>
             <div class="source-options" role="radiogroup" aria-label="Tipo de fuente">
               <label class="source-option is-selected" data-source-option="youtube"><input type="radio" name="source-type" value="youtube" checked> <span><b>YouTube</b><small>Referencia a un video instructivo</small></span></label>
-              <label class="source-option" data-source-option="upload"><input type="radio" name="source-type" value="upload"> <span><b>Video local</b><small>El archivo no se envía todavía</small></span></label>
+              <label class="source-option" data-source-option="upload"><input type="radio" name="source-type" value="upload"> <span><b>Video local</b><small>Se guarda aquí, nunca se envía</small></span></label>
               <label class="source-option" data-source-option="automatic"><input type="radio" name="source-type" value="automatic"> <span><b>Búsqueda automática</b><small>Encuentra referencias para que las apruebes</small></span></label>
             </div>
             <div data-source-panel="youtube">
@@ -252,8 +252,12 @@
               <input id="video-url" name="video-url" type="url" inputmode="url" placeholder="https://youtube.com/watch?v=…">
             </div>
             <div data-source-panel="upload" hidden>
-              <label class="file-drop" for="video-file"><span class="file-icon" aria-hidden="true">↑</span><b id="file-label">Selecciona un video</b><small>MP4, MOV o WEBM</small></label>
-              <input class="visually-hidden" id="video-file" name="video-file" type="file" accept="video/mp4,video/quicktime,video/webm">
+              <label class="file-drop" for="video-file"><span class="file-icon" aria-hidden="true">↑</span><b id="file-label">Selecciona un video</b><small>MP4, MOV, WEBM o MKV</small></label>
+              <input class="visually-hidden" id="video-file" name="video-file" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska">
+              <p class="field-help" id="upload-note"></p>
+              <button class="form-button form-button-accent" id="store-video-file" type="button" disabled></button>
+              <ul class="upload-list" id="upload-list"></ul>
+              <p class="field-error" id="upload-error" role="alert"></p>
             </div>
             <div class="source-search" data-source-panel="automatic" hidden>
               <label for="source-query">¿Qué demostración debe buscar?</label>
@@ -348,6 +352,23 @@
                   <p class="motion-estimate" id="motion-estimate"></p>
                   <ul class="motion-findings" id="motion-findings"></ul>
                   <p class="motion-retarget" id="motion-retarget"></p>
+                </div>
+              </section>
+
+              <section class="evidence-history" id="evidence-history" hidden>
+                <p class="practice-label" id="history-label">HISTORIAL DE VERSIONES</p>
+                <p class="history-totals" id="history-totals"></p>
+                <ul class="history-versions" id="history-versions"></ul>
+                <div id="history-diff" hidden>
+                  <p class="history-sub" id="history-diff-label"></p>
+                  <p class="history-diff-summary" id="history-diff-summary"></p>
+                  <ul class="history-changes" id="history-changes"></ul>
+                </div>
+                <div id="history-reconciliation" hidden>
+                  <p class="history-sub" id="reconciliation-label"></p>
+                  <p class="reconciliation-independence" id="reconciliation-independence"></p>
+                  <p class="history-diff-summary" id="reconciliation-summary"></p>
+                  <ul class="history-changes" id="reconciliation-conflicts"></ul>
                 </div>
               </section>
             </div>

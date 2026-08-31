@@ -26,7 +26,7 @@ from app.services.robot_profile_service import (
     RobotDescriptionError,
     RobotProfileService,
 )
-from app.services.storage_service import StorageService
+from app.services.storage_service import LocalVideoStorage
 from app.services.youtube_service import (
     SourceSearchNotFoundError,
     SourceSelectionError,
@@ -53,7 +53,7 @@ __all__ = [
     "RobotMotionTrainingService",
     "RobotDescriptionError",
     "RobotProfileService",
-    "StorageService",
+    "LocalVideoStorage",
     "SourceSearchNotFoundError",
     "SourceSelectionError",
     "YouTubeConfigurationError",

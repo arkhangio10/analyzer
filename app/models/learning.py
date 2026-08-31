@@ -56,3 +56,29 @@ class FrozenEvaluationResult(BaseModel):
     expected_output_disclosed: Literal[False] = False
     expected_authored_by: Literal["human", "specification", "generated"]
     counts_as_external_validation: bool
+
+
+class ReconciledSource(BaseModel):
+    """One approved extraction that fed a reconciliation."""
+
+    extraction_id: str = Field(min_length=1, max_length=120)
+    procedure_version: int | None = Field(default=None, ge=1)
+    source_url: str = Field(min_length=1, max_length=500)
+    step_count: int = Field(ge=0)
+
+
+class ProjectReconciliation(BaseModel):
+    """A project's reconciliation, with how independent its sources really are.
+
+    Agreement between two readings of the same video is not confirmation: it
+    says the model repeated itself, not that the procedure is right. So the
+    number of distinct sources is reported alongside the result, and
+    `is_cross_source` is false until two different videos have been approved.
+    """
+
+    project_id: str = Field(min_length=1)
+    result: ReconciliationResult
+    sources: list[ReconciledSource] = Field(default_factory=list, max_length=10)
+    distinct_source_count: int = Field(ge=0)
+    is_cross_source: bool
+    independence_note: str = Field(min_length=1, max_length=400)

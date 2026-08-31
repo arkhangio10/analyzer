@@ -134,6 +134,12 @@ Project and source-intake endpoints:
 - `POST /api/projects/{project_id}/video-procedures/{extraction_id}/adapt`: report how much of an approved procedure a destination could run, naming the evidence each blocked step is missing; it executes nothing.
 - `POST /api/projects/{project_id}/video-procedures/{extraction_id}/motion-analysis`: spend one acknowledged cloud call sampling the already approved source at an explicit frame rate, and return timestamped joint angles with a plausibility audit. A request whose density would overflow the response budget is refused before any call is made.
 - `GET /api/projects/{project_id}/video-procedures/{extraction_id}/motion-analysis`: retrieve the retained analysis without spending anything.
+- `GET /api/projects/{project_id}/video-procedures/history/versions`: list every retained procedure version and diff the two most recent.
+- `GET /api/projects/{project_id}/video-procedures/history/diff/{from}/{to}`: report what changed between two versions without altering either.
+- `GET /api/projects/{project_id}/video-procedures/history/reconciliation`: compare every approved procedure and report how many distinct videos actually backed them.
+- `POST /api/projects/{project_id}/uploads`: keep one video on this machine. It is never sent to a provider, and the record says so.
+- `GET /api/projects/{project_id}/uploads`: list what this machine holds, with each file's size and hash.
+- `DELETE /api/projects/{project_id}/uploads/{upload_id}`: delete one upload from this machine.
 - `POST /api/sources/search`: return bounded YouTube candidates; it never approves or analyzes them automatically.
 - `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
 - `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
@@ -168,6 +174,25 @@ reported the same confidence and the same visibility, and every joint traced a
 single rise and fall across the window. Higher frame rate produced denser
 output, not better evidence. That result is the current honest answer to whether
 video can become a robot trajectory today.
+
+Uploaded video stays on the machine that received it. The contract makes
+that permanent rather than promising it in prose: `stored_locally` is always
+true, `sent_to_provider` is always false, and `analysis_available` is always
+false, because extraction still accepts only a public YouTube URL. An upload
+can therefore be kept and verified by its SHA-256, but the interface never
+implies it can be turned into a procedure yet.
+
+Reconciliation reports something the reconciler cannot know by itself: how many
+distinct videos actually backed the procedures being compared. Two readings of
+the same source agreeing means the model repeated itself, so `is_cross_source`
+stays false until a second, different source has been approved.
+
+Tests run in two commands. `pytest` runs the unit suite. `pytest tests/browser`
+drives a real Chrome against a live server seeded with realistic records, and
+covers what used to be checked by eye: translation, panel overflow, the cost
+acknowledgement gate, the audit verdict, version history, and the upload flow.
+The browser suite is separate because Playwright's synchronous API holds an
+event loop open, which breaks `asyncio.run` in any test that follows it.
 
 The local filesystem sandbox requires explicit acknowledgement, rejects absolute
 or traversing paths, limits seeded inputs to 256 KiB and individual writes to

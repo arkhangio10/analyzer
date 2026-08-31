@@ -20,9 +20,13 @@ from app.services.frozen_case_store import (
     load_frozen_cases,
     resolve_frozen_cases_dir,
 )
+from app.services.project_reconciliation_service import (
+    ProjectReconciliationService,
+)
 from app.services.project_service import ProjectService
 from app.services.project_video_procedure_service import ProjectVideoProcedureService
 from app.services.record_store import JsonRecordStore
+from app.services.storage_service import LocalVideoStorage
 
 
 _settings = get_settings()
@@ -37,6 +41,7 @@ project_service = ProjectService(
     store=JsonRecordStore(_records_root / "projects"),
 )
 adaptation_service = DestinationAdaptationService()
+project_reconciliation_service = ProjectReconciliationService()
 computer_execution_service = ComputerExecutionService()
 browser_execution_service = BrowserExecutionService()
 gemini_service = GeminiService()
@@ -52,4 +57,8 @@ project_video_procedure_service = ProjectVideoProcedureService(
 motion_analysis_service = MotionAnalysisService(
     gemini_service,
     store=JsonRecordStore(_records_root / "motion-analyses"),
+)
+video_storage = LocalVideoStorage(
+    _data_root / "uploads",
+    store=JsonRecordStore(_records_root / "uploads"),
 )

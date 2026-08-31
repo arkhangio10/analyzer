@@ -31,5 +31,9 @@ dev = ["pytest"]
 include = ["app*"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+# The browser suite is deliberately outside the default run. Playwright's sync
+# API keeps an event loop open for as long as its fixtures live, and that loop
+# makes `asyncio.run` fail in every test that follows it in the same process.
+# Run it on its own: `pytest tests/browser`.
+testpaths = ["tests/unit"]
 addopts = "-ra"
