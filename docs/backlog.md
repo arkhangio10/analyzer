@@ -13,8 +13,8 @@ acknowledgement authorize one bounded call only.
 | --- | --- | --- | --- |
 | P0.1 | done | Verify the host suites | 169 unit tests and 19 browser tests pass in separate processes. |
 | P0.2 | done | Verify the hardened Compose runtime | Image builds; UID/GID is 10001; root is read-only; frozen cases ship in the image; `durable_storage` is true; a project survives a container restart. |
-| P0.3 | ready | Run checks continuously | GitHub Actions runs unit, browser, Compose, identity, read-only-root, frozen-case, and durable-storage checks with every provider integration disabled. |
-| P0.4 | ready | Integrate `motion-evidence` | Review its two commits, run every check, then merge into `main` without rewriting repository identity. |
+| P0.3 | done | Run checks continuously | GitHub Actions run `33354722460` passed the Python and hardened-container jobs with every provider integration disabled. |
+| P0.4 | done | Integrate `motion-evidence` | `main` was advanced without rewriting history and includes the reviewed work through commit `6479644`. |
 
 ## P1 - External evidence for the walking procedure
 
