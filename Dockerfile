@@ -14,10 +14,13 @@ RUN playwright install --with-deps --only-shell chromium \
 
 RUN groupadd --system --gid 10001 aprendiz \
     && useradd --system --uid 10001 --gid 10001 --no-create-home aprendiz \
-    && mkdir -p /app/.runtime \
-    && chown -R 10001:10001 /app/.runtime
+    && mkdir -p /app/.runtime /data \
+    && chown -R 10001:10001 /app/.runtime /data
 
 COPY --chown=10001:10001 app ./app
+# The protected evaluation set ships with the application so a mounted
+# data volume cannot replace the answers a model is graded against.
+COPY --chown=10001:10001 data/evaluations ./data/evaluations
 
 USER 10001:10001
 

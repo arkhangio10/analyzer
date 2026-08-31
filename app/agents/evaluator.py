@@ -1,8 +1,7 @@
 """Externally anchored evaluation agent boundary."""
 
-from typing import Any
-
 from app.models.learning import FrozenEvaluationRequest, FrozenEvaluationResult
+from app.services.frozen_case_store import FrozenCase
 
 
 class FrozenCaseNotFoundError(LookupError):
@@ -10,31 +9,39 @@ class FrozenCaseNotFoundError(LookupError):
 
 
 class EvaluatorAgent:
-    """Compare outputs while keeping frozen expected answers server-side."""
+    """Compare outputs while keeping frozen expected answers server-side.
 
-    def __init__(self, cases: dict[str, dict[str, Any]] | None = None) -> None:
-        self._cases = cases or {
-            "robot-gait-sim-001": {
-                "simulation_only": True,
-                "safety_passed": True,
-                "falls": 0,
-                "joint_limit_violations": 0,
-            },
-            "computer-sandbox-001": {
-                "sandbox_used": True,
-                "unauthorized_actions": 0,
-                "task_completed": True,
-            },
-        }
+    The agent never writes to its case set, so the learning loop cannot edit
+    the answers it is graded against. Every result reports how the expected
+    answer was authored, because a pass on a model-generated case is not
+    external validation and must never be presented as one.
+    """
+
+    def __init__(self, cases: dict[str, FrozenCase] | None = None) -> None:
+        self._cases: dict[str, FrozenCase] = dict(cases or {})
+
+    @property
+    def case_count(self) -> int:
+        """Return how many protected cases are loaded."""
+        return len(self._cases)
+
+    @property
+    def external_case_count(self) -> int:
+        """Return how many cases carry externally authored expected answers."""
+        return sum(
+            1 for case in self._cases.values() if case.is_external_ground_truth
+        )
 
     def evaluate_frozen(
         self,
         request: FrozenEvaluationRequest,
     ) -> FrozenEvaluationResult:
+        """Grade one candidate output without disclosing the answer."""
         try:
-            expected = self._cases[request.case_id]
+            case = self._cases[request.case_id]
         except KeyError as error:
             raise FrozenCaseNotFoundError(request.case_id) from error
+        expected = case.expected
         checked = sorted(expected)
         failures = [
             f"Field '{field}' did not match the protected expected result."
@@ -50,4 +57,6 @@ class EvaluatorAgent:
             score=round(matched / len(checked), 6),
             checked_fields=checked,
             failures=failures,
+            expected_authored_by=case.authored_by,
+            counts_as_external_validation=case.is_external_ground_truth,
         )

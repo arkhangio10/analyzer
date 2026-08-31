@@ -5,6 +5,8 @@ from pathlib import Path
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
+from app.api.runtime import project_service
+
 
 router = APIRouter()
 WEB_DIR = Path(__file__).resolve().parents[1] / "web"
@@ -17,9 +19,13 @@ async def frontend() -> FileResponse:
 
 
 @router.get("/api/status")
-async def project_status() -> dict[str, str]:
-    """Return the project identity and implementation status."""
-    return {"project": "APRENDIZ", "status": "mvp_in_progress"}
+async def project_status() -> dict[str, str | bool]:
+    """Return the project identity, status, and whether records are durable."""
+    return {
+        "project": "APRENDIZ",
+        "status": "mvp_in_progress",
+        "durable_storage": project_service.is_durable,
+    }
 
 
 @router.get("/health")

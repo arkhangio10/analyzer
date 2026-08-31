@@ -26,6 +26,12 @@ def test_create_and_get_processing_session() -> None:
     assert created["execution_mode"] == "local_simulation"
     assert created["cloud_calls_made"] == 0
     assert created["requested_cloud_model"] == "gemini-3.5-flash-lite"
+    preview = created["motion_preview"]
+    assert preview["preview_kind"] == "schematic_planar_projection"
+    assert preview["physics_simulated"] is False
+    assert preview["collision_checked"] is False
+    assert len(preview["joints"]) == 6
+    assert preview["waypoints"][0]["joint_positions_degrees"]
 
     get_response = client.get(
         f"/api/processing/robot-motion/{created['session_id']}"

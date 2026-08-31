@@ -25,8 +25,12 @@ exports/*
 data/skills/*
 !data/skills/.gitkeep
 
-data/evaluations/*
-!data/evaluations/.gitkeep
+# The frozen evaluation set is project evidence, not user data: it stays in Git
+# so the answers a model is graded against can be reviewed and protected.
+!data/evaluations/*.json
+!data/evaluations/README.md
 
 data/examples/*
 !data/examples/.gitkeep
+
+data/records/

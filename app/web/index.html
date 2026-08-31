@@ -14,6 +14,7 @@
     <meta name="twitter:description" content="De demostración a agente validado.">
     <meta name="twitter:image" content="/static/og.png">
     <title>APRENDIZ — Enseña. Valida. Ejecuta.</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23171717'/%3E%3Cpath fill='%23d9ff57' fill-rule='evenodd' d='M16 6.5 L25.5 25.5 L20.8 25.5 L19.3 22.2 L12.7 22.2 L11.2 25.5 L6.5 25.5 Z M14.3 18.4 L17.7 18.4 L16 14.6 Z'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="../static/styles.css">
   </head>
   <body>
@@ -110,9 +111,24 @@
               <div class="monitor-screen">
                 <div class="scan-line" aria-hidden="true"></div>
                 <span class="monitor-tag">FUENTE / TRAYECTORIA</span>
-                <div class="monitor-symbol" aria-hidden="true"><span></span><span></span><span></span></div>
+                <div class="motion-preview" id="motion-preview">
+                  <svg id="motion-canvas" viewBox="0 0 240 232" role="img" aria-labelledby="motion-canvas-title motion-canvas-desc" preserveAspectRatio="xMidYMid meet">
+                    <title id="motion-canvas-title">Vista lateral esquemática del movimiento demostrado</title>
+                    <desc id="motion-canvas-desc">Sin demostración cargada.</desc>
+                  </svg>
+                </div>
                 <div class="monitor-caption"><span id="monitor-task">Recoger y colocar una pieza frágil</span><b id="monitor-time">00/05</b></div>
               </div>
+              <div class="motion-controls">
+                <button class="motion-play" id="motion-play" type="button" aria-pressed="false" aria-label="Reproducir el movimiento"><span aria-hidden="true">▶</span></button>
+                <div class="motion-track">
+                  <input id="motion-scrubber" type="range" min="0" max="1000" step="1" value="0" aria-label="Momento de la trayectoria" aria-valuetext="0.0 s">
+                  <div class="motion-ticks" id="motion-ticks"></div>
+                </div>
+                <b class="motion-clock" id="motion-clock">0.0 s</b>
+              </div>
+              <p class="motion-readout"><span id="motion-phase">—</span><span id="motion-gripper">—</span></p>
+              <p class="motion-legend" id="motion-legend">Proyección esquemática de los ángulos validados. No es simulación física, verificación de colisiones ni control de hardware.</p>
               <div class="signal-row"><span><i></i> Trayectoria estructurada</span><span id="source-name">local-simulation://guided-demo</span></div>
             </div>
 
@@ -146,19 +162,39 @@
         <p class="demo-disclosure"><span aria-hidden="true">i</span> Esta sesión consulta el backend real y procesa una trayectoria local estructurada. No llama a Gemini, no interpreta todavía el video y no controla hardware.</p>
       </section>
 
-      <section class="trainer-preview" id="entrenar" aria-labelledby="trainer-title">
+      <section class="trainer-preview" id="entrenar" role="dialog" aria-modal="true" aria-labelledby="trainer-title" data-workspace-view="setup" aria-hidden="true">
+        <div class="workspace-toolbar">
+          <div class="workspace-identity">
+            <span class="workspace-kicker" id="workspace-label">APRENDIZ / WORKSPACE</span>
+            <strong id="workspace-context">New training</strong>
+          </div>
+          <div class="workspace-actions">
+            <div class="workspace-switcher" role="group" aria-label="Workspace view">
+              <button type="button" data-workspace-target="setup" aria-pressed="true">Setup</button>
+              <button type="button" data-workspace-target="video" aria-pressed="false" hidden>Video</button>
+              <button type="button" data-workspace-target="practice" aria-pressed="false" hidden>Practice</button>
+            </div>
+            <button class="workspace-close" id="workspace-close" type="button" aria-label="Close workspace"><span aria-hidden="true">&times;</span></button>
+          </div>
+        </div>
+
         <div class="trainer-intro">
           <p class="eyebrow">NUEVO ENTRENAMIENTO</p>
           <h2 id="trainer-title">¿Qué debe aprender<br>tu agente?</h2>
-          <p>Define la tarea, comparte una demostración y revisa el plan antes de iniciar.</p>
+          <p id="trainer-intro-copy">Define la tarea, comparte una demostración y revisa el plan antes de iniciar.</p>
+          <section class="recent-work" id="recent-work" aria-labelledby="recent-work-label" hidden>
+            <p class="practice-label" id="recent-work-label">TRABAJO GUARDADO</p>
+            <ul id="recent-work-list"></ul>
+            <p class="recent-work-note" id="recent-work-note">Guardado en este equipo.</p>
+          </section>
         </div>
 
         <form class="trainer-form" id="trainer-form" novalidate>
           <ol class="step-nav" aria-label="Progreso de configuración">
-            <li class="is-active" data-step-marker="1"><span>01</span> Tarea</li>
-            <li data-step-marker="2"><span>02</span> Destino</li>
-            <li data-step-marker="3"><span>03</span> Fuente</li>
-            <li data-step-marker="4"><span>04</span> Revisar</li>
+            <li class="is-active" data-step-marker="1"><button type="button" data-step-jump="1" disabled><span>01</span> Tarea</button></li>
+            <li data-step-marker="2"><button type="button" data-step-jump="2" disabled><span>02</span> Destino</button></li>
+            <li data-step-marker="3"><button type="button" data-step-jump="3" disabled><span>03</span> Fuente</button></li>
+            <li data-step-marker="4"><button type="button" data-step-jump="4" disabled><span>04</span> Revisar</button></li>
           </ol>
 
           <fieldset class="form-step is-active" data-step="1">
@@ -167,7 +203,8 @@
             <textarea id="task-description" name="task" rows="4" required minlength="12" placeholder="Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil."></textarea>
             <p class="field-help">Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.</p>
             <p class="field-error" id="task-error" role="alert"></p>
-            <div class="form-actions form-actions-end">
+            <div class="form-actions">
+              <button class="form-button form-button-ghost" id="use-example" type="button">Usar un ejemplo</button>
               <button class="form-button form-button-primary" type="button" data-next>Continuar <span aria-hidden="true">→</span></button>
             </div>
           </fieldset>
@@ -281,12 +318,38 @@
               <p class="practice-label" id="video-extraction-status-label">ESTADO DE EXTRACCIÓN</p>
               <strong id="video-extraction-status">Esperando autorización</strong>
               <p id="video-extraction-summary"></p>
+              <div class="activity-meter" id="extraction-activity" role="status" hidden>
+                <div class="activity-track" aria-hidden="true"><span></span></div>
+                <p><b id="extraction-elapsed">0.0 s</b><span id="extraction-activity-note">Una llamada acotada a Vertex está en curso…</span></p>
+              </div>
               <dl class="practice-metrics">
                 <div><dt id="video-version-label">Versión</dt><dd id="video-version">—</dd></div>
                 <div><dt id="video-token-label">Tokens</dt><dd id="video-tokens">—</dd></div>
                 <div><dt id="video-time-label">Tiempo</dt><dd id="video-time">—</dd></div>
                 <div><dt id="video-call-label">Llamadas cloud</dt><dd id="video-calls">0</dd></div>
               </dl>
+              <div class="next-step" id="video-next-step" hidden>
+                <p class="practice-label" id="video-next-step-label">SIGUIENTE PASO</p>
+                <p id="video-next-step-text"></p>
+                <button class="form-button form-button-primary" id="video-next-step-action" type="button" hidden></button>
+              </div>
+
+              <section class="motion-evidence" id="motion-evidence" hidden>
+                <p class="practice-label" id="motion-evidence-label">EVIDENCIA DE MOVIMIENTO</p>
+                <p id="motion-evidence-intro"></p>
+                <label class="motion-ack" for="motion-cost-approval">
+                  <input id="motion-cost-approval" type="checkbox">
+                  <span id="motion-cost-approval-text"></span>
+                </label>
+                <button class="form-button" id="run-motion-analysis" type="button" disabled></button>
+                <div id="motion-result" hidden>
+                  <p class="motion-verdict" id="motion-verdict"></p>
+                  <p class="motion-stats" id="motion-stats"></p>
+                  <p class="motion-estimate" id="motion-estimate"></p>
+                  <ul class="motion-findings" id="motion-findings"></ul>
+                  <p class="motion-retarget" id="motion-retarget"></p>
+                </div>
+              </section>
             </div>
 
             <article class="procedure-review" id="procedure-review" hidden>
@@ -294,11 +357,16 @@
               <h4 id="procedure-task"></h4>
               <p id="procedure-objective"></p>
               <ol id="procedure-steps"></ol>
+              <div class="procedure-step-pager" id="procedure-step-pager" hidden>
+                <button type="button" id="procedure-step-previous" aria-label="Previous procedure step">&larr;</button>
+                <span id="procedure-step-position">1 / 1</span>
+                <button type="button" id="procedure-step-next" aria-label="Next procedure step">&rarr;</button>
+              </div>
               <div class="procedure-details">
-                <section><h5 id="procedure-rules-label">Reglas</h5><ul id="procedure-rules"></ul></section>
-                <section><h5 id="procedure-exceptions-label">Excepciones</h5><ul id="procedure-exceptions"></ul></section>
-                <section><h5 id="procedure-examples-label">Ejemplos</h5><ul id="procedure-examples"></ul></section>
-                <section><h5 id="procedure-uncertainties-label">Incertidumbres</h5><ul id="procedure-uncertainties"></ul></section>
+                <details><summary id="procedure-rules-label">Reglas</summary><ul id="procedure-rules"></ul></details>
+                <details><summary id="procedure-exceptions-label">Excepciones</summary><ul id="procedure-exceptions"></ul></details>
+                <details><summary id="procedure-examples-label">Ejemplos</summary><ul id="procedure-examples"></ul></details>
+                <details><summary id="procedure-uncertainties-label">Incertidumbres</summary><ul id="procedure-uncertainties"></ul></details>
               </div>
               <label for="procedure-review-notes" id="procedure-notes-label">Notas de revisión opcionales</label>
               <textarea id="procedure-review-notes" rows="3" maxlength="2000"></textarea>

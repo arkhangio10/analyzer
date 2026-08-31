@@ -17,6 +17,7 @@ from app.services.gemini_service import (
     GeminiService,
 )
 from app.services.project_service import ProjectService
+from app.services.record_store import JsonRecordStore
 
 
 class ProjectVideoProcedureNotFoundError(LookupError):
@@ -34,11 +35,52 @@ class ProjectVideoProcedureService:
         self,
         project_service: ProjectService,
         gemini_service: GeminiService,
+        store: JsonRecordStore | None = None,
     ) -> None:
         self._project_service = project_service
         self._gemini_service = gemini_service
-        self._records: dict[str, ProjectVideoProcedureRecord] = {}
-        self._versions: dict[str, int] = {}
+        self._store = store
+        self._records: dict[str, ProjectVideoProcedureRecord] = (
+            store.load_all(ProjectVideoProcedureRecord) if store else {}
+        )
+        self._versions = self._highest_versions()
+
+    @property
+    def is_durable(self) -> bool:
+        """Report whether extraction evidence survives a restart."""
+        return bool(self._store and self._store.is_durable)
+
+    def list_for_project(
+        self,
+        project_id: str,
+    ) -> list[ProjectVideoProcedureRecord]:
+        """Return every retained extraction for one project, newest last."""
+        records = [
+            record
+            for record in self._records.values()
+            if record.project_id == project_id
+        ]
+        return sorted(records, key=lambda record: record.created_at)
+
+    def _highest_versions(self) -> dict[str, int]:
+        """Continue version numbering from whatever was already stored."""
+        versions: dict[str, int] = {}
+        for record in self._records.values():
+            if record.procedure_version is None:
+                continue
+            current = versions.get(record.project_id, 0)
+            versions[record.project_id] = max(current, record.procedure_version)
+        return versions
+
+    def _retain(
+        self,
+        record: ProjectVideoProcedureRecord,
+    ) -> ProjectVideoProcedureRecord:
+        """Keep one record in memory and persist it when storage allows."""
+        self._records[record.extraction_id] = record
+        if self._store:
+            self._store.save(record.extraction_id, record)
+        return record
 
     async def extract(
         self,
@@ -111,8 +153,7 @@ class ProjectVideoProcedureService:
             cloud_calls_made=result.cloud_calls_made,
             created_at=created_at,
         )
-        self._records[extraction_id] = record
-        return record
+        return self._retain(record)
 
     def get(
         self,
@@ -150,8 +191,7 @@ class ProjectVideoProcedureService:
                 "reviewed_at": datetime.now(timezone.utc),
             }
         )
-        self._records[extraction_id] = updated
-        return updated
+        return self._retain(updated)
 
     def _store_failure(
         self,
@@ -180,5 +220,4 @@ class ProjectVideoProcedureService:
             attempted_model=attempted_model,
             created_at=created_at,
         )
-        self._records[extraction_id] = record
-        return record
+        return self._retain(record)

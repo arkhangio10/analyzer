@@ -1,0 +1,13 @@
+{
+  "case_id": "robot-motion-within-limits-001",
+  "skill_id": "robot-motion-safety-validation",
+  "description": "A trajectory moving 30 degrees per second against a 60 deg/s limit stays inside every stated bound, so an instructor-verified demonstration must yield an observation-level procedure.",
+  "authored_by": "specification",
+  "source": "Joint limit and velocity rules documented in RobotMotionTrainingService safety validation.",
+  "expected": {
+    "status": "procedure_extracted",
+    "safety_passed": true,
+    "validation_scope": "instructor_demonstration",
+    "learning_level": "observation"
+  }
+}

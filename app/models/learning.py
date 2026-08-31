@@ -54,3 +54,5 @@ class FrozenEvaluationResult(BaseModel):
     checked_fields: list[str]
     failures: list[str] = Field(default_factory=list)
     expected_output_disclosed: Literal[False] = False
+    expected_authored_by: Literal["human", "specification", "generated"]
+    counts_as_external_validation: bool

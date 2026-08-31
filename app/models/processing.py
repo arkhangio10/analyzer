@@ -6,7 +6,10 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from app.models.evaluation import EvaluationResult
-from app.models.robot_motion import RobotMotionTrainingResult
+from app.models.robot_motion import (
+    RobotMotionPreview,
+    RobotMotionTrainingResult,
+)
 
 
 class ProcessingStatus(StrEnum):
@@ -39,6 +42,7 @@ class RobotMotionProcessingSession(BaseModel):
     execution_mode: Literal["local_simulation"] = "local_simulation"
     cloud_calls_made: Literal[0] = 0
     requested_cloud_model: str = "gemini-3.5-flash-lite"
+    motion_preview: RobotMotionPreview | None = None
     training_result: RobotMotionTrainingResult | None = None
     evaluation_result: EvaluationResult | None = None
 

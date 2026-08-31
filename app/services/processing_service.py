@@ -17,9 +17,11 @@ from app.models.robot_motion import (
     JointLimit,
     MotionWaypoint,
     RobotMotionEvaluationRequest,
+    RobotMotionPreview,
     RobotMotionTrainingRequest,
     RobotMotionTrainingResult,
 )
+from app.services.motion_preview import SIMARM6_MODEL, build_motion_preview
 from app.services.robot_motion_training import RobotMotionTrainingService
 
 
@@ -30,6 +32,7 @@ class ProcessingSessionNotFoundError(LookupError):
 @dataclass(frozen=True)
 class _ProcessingRecord:
     started_at: float
+    motion_preview: RobotMotionPreview
     training_result: RobotMotionTrainingResult
     evaluation_result: EvaluationResult
 
@@ -77,6 +80,10 @@ class RobotMotionProcessingService:
         )
         self._records[processing_session_id] = _ProcessingRecord(
             started_at=self._clock(),
+            motion_preview=build_motion_preview(
+                robot_model=demonstration.robot_model,
+                waypoints=demonstration.waypoints,
+            ),
             training_result=training_result,
             evaluation_result=evaluation_result,
         )
@@ -111,6 +118,7 @@ class RobotMotionProcessingService:
             progress_percent=progress,
             current_stage_index=None if is_complete else completed,
             completed_stage_count=completed,
+            motion_preview=record.motion_preview,
             training_result=record.training_result if is_complete else None,
             evaluation_result=record.evaluation_result if is_complete else None,
         )
@@ -193,7 +201,7 @@ class RobotMotionProcessingService:
         return RobotMotionTrainingRequest(
             task_name=request.task_name,
             objective=request.objective,
-            robot_model="APRENDIZ SimArm-6",
+            robot_model=SIMARM6_MODEL,
             demonstration_id=f"guided-{uuid4()}",
             source=(
                 "Built-in local simulation. User-provided reference retained "

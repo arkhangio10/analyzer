@@ -78,3 +78,40 @@ class RobotMotionEvaluationRequest(BaseModel):
     waypoints: list[MotionWaypoint] = Field(min_length=2, max_length=500)
     joint_tolerance_degrees: float = Field(default=5, gt=0, le=45)
     duration_tolerance_seconds: float = Field(default=0.5, ge=0, le=30)
+
+
+class MotionPreviewRole(StrEnum):
+    """How one joint is drawn in the schematic interface preview."""
+
+    PLANAR_LINK = "planar_link"
+    BASE_YAW = "base_yaw"
+    ROLL = "roll"
+
+
+class MotionPreviewJoint(BaseModel):
+    """Drawing role of one joint inside a schematic side-view preview."""
+
+    joint_index: int = Field(ge=0)
+    label: str = Field(min_length=1, max_length=60)
+    role: MotionPreviewRole
+    length_ratio: float = Field(default=0, ge=0, le=1)
+
+
+class RobotMotionPreview(BaseModel):
+    """Schematic projection of stored joint angles for the interface.
+
+    The preview only redraws validated waypoint angles on a side view so a
+    person can see the demonstrated motion. It is not a kinematic solver, a
+    physics simulation, or a collision check, and it never describes hardware
+    behavior.
+    """
+
+    preview_kind: Literal["schematic_planar_projection"] = (
+        "schematic_planar_projection"
+    )
+    physics_simulated: Literal[False] = False
+    collision_checked: Literal[False] = False
+    robot_model: str = Field(min_length=1, max_length=120)
+    duration_seconds: float = Field(ge=0)
+    joints: list[MotionPreviewJoint] = Field(min_length=1, max_length=32)
+    waypoints: list[MotionWaypoint] = Field(min_length=2, max_length=500)

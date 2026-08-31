@@ -2,7 +2,8 @@
 
 from fastapi import APIRouter, HTTPException, status
 
-from app.agents.evaluator import EvaluatorAgent, FrozenCaseNotFoundError
+from app.agents.evaluator import FrozenCaseNotFoundError
+from app.api.runtime import evaluator
 from app.agents.reconciler import ReconcilerAgent
 from app.models.learning import (
     FrozenEvaluationRequest,
@@ -14,7 +15,6 @@ from app.models.learning import (
 
 router = APIRouter(prefix="/api/learning", tags=["learning"])
 reconciler = ReconcilerAgent()
-evaluator = EvaluatorAgent()
 
 
 @router.post("/reconcile", response_model=ReconciliationResult)

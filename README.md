@@ -54,6 +54,22 @@ uvicorn app.main:app --reload
 
 Then visit `/` for the APRENDIZ interface, `/api/status` for project status, `/health` for process health, or `/docs` for the OpenAPI UI. Run tests with `pytest`.
 
+### Where your work is stored
+
+Project drafts and video-procedure records are written as one JSON file each under `DATA_DIR/records/` (`data/records/` by default), so an approved procedure and the cloud call that produced it survive a restart. `GET /api/status` reports `durable_storage`; when the directory cannot be written the application keeps working in memory and says so rather than losing work silently. Under Docker the records live in the `aprendiz-data` named volume mounted at `/data`, which survives `docker compose down` and is removed by `docker compose down -v`.
+
+`GET /api/projects` lists retained projects and `GET /api/projects/{project_id}/video-procedures` lists their extractions; the training workspace shows the same list as saved work you can reopen after a reload.
+
+`POST /api/projects/{project_id}/video-procedures/{extraction_id}/adapt` proposes what a destination could run from an approved procedure. It refuses anything a person has not approved, marks each step actionable, needing human detail, or not representable, and names the missing evidence. A plan is a proposal: `approved_for_execution` is always false, and running anything still needs the destination's own approval gate.
+
+The protected evaluation set lives in `data/evaluations/`, ships with the application, and is version-controlled so the answers a model is graded against can be reviewed. Each case declares `authored_by`, and results report whether a pass counts as external validation. See `data/evaluations/README.md` before adding a case.
+
+These files contain your task descriptions and extracted procedures. They are excluded from Git and must never be committed. Training sessions, computer practices, and browser executions are still in-process only.
+
+In the interface, `Run local simulation` processes the built-in trajectory and animates it in the source monitor. The animation can be paused, scrubbed, and jumped waypoint by waypoint; it does not autoplay when the browser requests reduced motion. In the training workspace, `Use an example` fills a complete robot setup in one click, the numbered tabs jump back to any visited step, and Enter advances the single-line setup fields.
+
+While a bounded Vertex extraction runs, the status card shows an activity meter, the elapsed time, and a note that one call is in progress; the button carries a busy state. Every review outcome ends with a stated next action: an approved robot procedure offers local motion validation, an approved computer procedure offers the isolated browser rehearsal, and a rejected or failed extraction offers a retry that clears the cost acknowledgement first. Workspace panels scroll their own content, so no control is cut off on short screens.
+
 Cloud model calls are disabled by default. `GOOGLE_GENAI_ENABLED=false` and `GOOGLE_GENAI_USE_VERTEXAI=false` keep the current local simulation from generating provider usage. The general provider model is configured as `gemini-3.5-flash-lite`. Direct YouTube ingestion uses the separately configurable `GOOGLE_GENAI_YOUTUBE_MODEL`, currently `gemini-2.5-flash-lite`, because that exact Vertex path was verified against the walking-video source while the 3.5 models returned internal provider errors.
 
 The controlled first-video route is `POST /api/experiments/video/extract`.
@@ -99,7 +115,7 @@ APRENDIZ can now acquire an observation-level procedure from a structured robot-
 
 Current endpoints:
 
-- `POST /api/processing/robot-motion`: create the backend-driven local session used by the UI.
+- `POST /api/processing/robot-motion`: create the backend-driven local session used by the UI. The response carries a `motion_preview` describing each joint's drawing role and schematic link proportion plus the validated waypoints, so the interface can animate the demonstration. It reports `physics_simulated: false` and `collision_checked: false`; it is a drawing of stored angles, not a simulator.
 - `GET /api/processing/robot-motion/{session_id}`: poll progress and receive final procedure/evaluation evidence.
 - `POST /api/training/robot-motion`: validate a simulated demonstration and extract an inspectable procedure.
 - `GET /api/training/robot-motion/{session_id}`: retrieve the training outcome.
@@ -115,6 +131,9 @@ Project and source-intake endpoints:
 - `POST /api/projects/{project_id}/video-procedures/extract`: process one explicitly approved YouTube source and retain success or safe failure evidence under the project.
 - `GET /api/projects/{project_id}/video-procedures/{extraction_id}`: retrieve the structured procedure, provider usage, failure category, and review state.
 - `POST /api/projects/{project_id}/video-procedures/{extraction_id}/review`: approve or reject a successful procedure without executing it.
+- `POST /api/projects/{project_id}/video-procedures/{extraction_id}/adapt`: report how much of an approved procedure a destination could run, naming the evidence each blocked step is missing; it executes nothing.
+- `POST /api/projects/{project_id}/video-procedures/{extraction_id}/motion-analysis`: spend one acknowledged cloud call sampling the already approved source at an explicit frame rate, and return timestamped joint angles with a plausibility audit. A request whose density would overflow the response budget is refused before any call is made.
+- `GET /api/projects/{project_id}/video-procedures/{extraction_id}/motion-analysis`: retrieve the retained analysis without spending anything.
 - `POST /api/sources/search`: return bounded YouTube candidates; it never approves or analyzes them automatically.
 - `POST /api/sources/search/{search_id}/approve`: record the user's explicit reference selection without starting video analysis.
 - `POST /api/learning/reconcile`: compare two or more approved procedures and expose agreement, conflict, and uncertainty.
@@ -126,6 +145,29 @@ Project and source-intake endpoints:
 - `GET /api/execution/computer/browser/executions/{execution_id}`: retrieve redacted browser evidence without typed values, page content, URL queries, or fragments.
 - `POST /api/robots/profiles/arp-1/import/urdf`: normalize a bounded URDF XML document into the internal APRENDIZ Robot Profile v1.
 - `POST /api/robots/profiles/arp-1/motion-contract`: map compatible revolute joints from ARP-1 radians into the current degree-based motion trainer.
+
+Motion analysis reads an approved video as movement rather than as
+instruction, because a prose step can never become a trajectory. It pins an
+explicit frame rate over a bounded window, and it treats what comes back as an
+estimate under suspicion: `measurement_method` is permanently
+`vision_model_estimate`, `physically_measured` is permanently false, and a
+deterministic audit checks the numbers before anything downstream may use them.
+
+The audit is arithmetic, not judgement. It counts how often left and right
+carry the same angle, how many distinct confidence and visibility values were
+reported, and whether a joint that swings tens of degrees ever reverses more
+than once. Real bipedal gait is antiphase and cyclic, so any two of those
+failing means the samples were drawn rather than measured. A failed audit can
+never make an adapted step actionable, and the retarget verdict says so with
+the counts a reader can recompute.
+
+Running this against the approved 257-second walking video returned 196 samples
+across 49 timestamps at a confirmed 4.0 fps, and the audit rejected all of them:
+left and right were identical in 98 of 98 paired readings, all 196 samples
+reported the same confidence and the same visibility, and every joint traced a
+single rise and fall across the window. Higher frame rate produced denser
+output, not better evidence. That result is the current honest answer to whether
+video can become a robot trajectory today.
 
 The local filesystem sandbox requires explicit acknowledgement, rejects absolute
 or traversing paths, limits seeded inputs to 256 KiB and individual writes to

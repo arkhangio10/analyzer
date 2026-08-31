@@ -16,6 +16,12 @@ async def create_project(request: ProjectClarificationRequest) -> ProjectDraft:
     return project_service.create(request)
 
 
+@router.get("", response_model=list[ProjectDraft])
+async def list_projects() -> list[ProjectDraft]:
+    """List retained project drafts so earlier work can be reopened."""
+    return project_service.list_projects()
+
+
 @router.get("/{project_id}", response_model=ProjectDraft)
 async def get_project(project_id: str) -> ProjectDraft:
     """Retrieve an existing local project draft."""

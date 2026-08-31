@@ -1,6 +1,7 @@
 """Gemini provider boundary for multimodal procedural extraction."""
 
 from collections.abc import Callable
+import json
 import re
 from time import perf_counter
 from typing import Any
@@ -11,6 +12,7 @@ from google.genai import types
 from pydantic import ValidationError
 
 from app.core.config import Settings, get_settings
+from app.models.motion_analysis import MotionAnalysisCall, ObservedMotionReport
 from app.models.procedure import Procedure
 from app.models.video_extraction import (
     GeminiUsage,
@@ -138,6 +140,229 @@ class GeminiService:
             elapsed_seconds=round(elapsed_seconds, 3),
             usage=self._extract_usage(getattr(response, "usage_metadata", None)),
         )
+
+    async def analyze_motion(
+        self,
+        *,
+        video_url: str,
+        frames_per_second: float,
+        window_start_seconds: float,
+        window_end_seconds: float,
+        output_language: str = "es",
+    ) -> MotionAnalysisCall:
+        """Sample one approved video for movement rather than instruction.
+
+        The procedure pass reads a video at the provider's default cadence and
+        returns prose. This pass pins an explicit frame rate and a bounded
+        window so joint angles can be estimated densely enough to be compared
+        over time. The window is bounded on purpose: frame rate multiplies
+        cost, so a caller always states how much video is sampled.
+        """
+        client = self._create_client()
+        requested_model = self._settings.google_genai_youtube_model
+        started = perf_counter()
+        try:
+            response = await client.aio.models.generate_content(
+                model=requested_model,
+                contents=[
+                    types.Part(
+                        file_data=types.FileData(
+                            file_uri=self._provider_video_url(video_url),
+                            mime_type="video/mp4",
+                        ),
+                        video_metadata=types.VideoMetadata(
+                            fps=frames_per_second,
+                            start_offset=f"{window_start_seconds:.0f}s",
+                            end_offset=f"{window_end_seconds:.0f}s",
+                        ),
+                    ),
+                    self._build_motion_prompt(
+                        frames_per_second=frames_per_second,
+                        window_start_seconds=window_start_seconds,
+                        window_end_seconds=window_end_seconds,
+                        output_language=output_language,
+                    ),
+                ],
+                config=types.GenerateContentConfig(
+                    temperature=0.0,
+                    max_output_tokens=(
+                        self._settings.google_genai_motion_max_output_tokens
+                    ),
+                    response_mime_type="application/json",
+                    response_schema=ObservedMotionReport,
+                    media_resolution=types.MediaResolution.MEDIA_RESOLUTION_MEDIUM,
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                        disable=True
+                    ),
+                ),
+            )
+        except Exception as error:
+            raise GeminiProviderError(
+                self._classify_provider_error(error),
+                http_status=self._provider_http_status(error),
+                provider_status=self._provider_status(error),
+                requested_model=requested_model,
+            ) from error
+        elapsed_seconds = perf_counter() - started
+
+        return MotionAnalysisCall(
+            report=self._parse_motion_report(response),
+            provider=(
+                "vertex_ai"
+                if self._settings.google_genai_use_vertexai
+                else "gemini_api"
+            ),
+            requested_model=requested_model,
+            model_version=getattr(response, "model_version", None),
+            elapsed_seconds=round(elapsed_seconds, 3),
+            usage=self._extract_usage(getattr(response, "usage_metadata", None)),
+        )
+
+    @staticmethod
+    def _build_motion_prompt(
+        *,
+        frames_per_second: float,
+        window_start_seconds: float,
+        window_end_seconds: float,
+        output_language: str,
+    ) -> str:
+        language = "Spanish" if output_language == "es" else "English"
+        return (
+            "You are measuring movement, not explaining it. This video is "
+            f"sampled at {frames_per_second:g} frames per second between "
+            f"{window_start_seconds:g}s and {window_end_seconds:g}s. "
+            "For each sampled instant, estimate the angle of every joint you "
+            "can actually see on the moving subject, in degrees, where 0 is "
+            "the neutral standing pose and flexion is positive. "
+            "Report timestamps in seconds from the start of the video. "
+            "Never interpolate, never repeat a previous value to fill a gap, "
+            "and never report a joint you cannot see: omit it instead, and "
+            "say so in uncertainties. Mark every sample with how clearly the "
+            "joint was visible and how confident the estimate is. "
+            "Segment the movement into its natural phases with start and end "
+            "times. State plainly what the camera angle, occlusion, clothing, "
+            "or sampling rate prevented you from measuring. "
+            "Each sample is one row: t is the time in seconds, j is the joint "
+            "written as side.name such as left.knee, a is the angle in "
+            "degrees, c is your confidence from 0 to 1, and v is clear, "
+            "partial, or occluded. Emit rows compactly and spend the "
+            "response on samples rather than prose. "
+            f"Write joint identities in lowercase English. Write phase "
+            f"names, descriptions, and uncertainties in {language}."
+        )
+
+    @staticmethod
+    def _parse_motion_report(response: Any) -> ObservedMotionReport:
+        """Return the report, salvaging one that was cut off mid-sample.
+
+        A dense analysis can exhaust the output budget partway through the
+        sample array. That response was still paid for and the samples before
+        the cut are still real, so the complete prefix is recovered instead of
+        discarded. The salvage records itself as an uncertainty so a reader
+        can never mistake a truncated analysis for a complete one.
+        """
+        text: str | None = None
+        try:
+            parsed = getattr(response, "parsed", None)
+            if isinstance(parsed, ObservedMotionReport):
+                return parsed
+            if parsed is not None:
+                return ObservedMotionReport.model_validate(parsed)
+            text = getattr(response, "text", None)
+            if text:
+                return ObservedMotionReport.model_validate_json(text)
+        except (ValidationError, TypeError, ValueError) as error:
+            salvaged = (
+                GeminiService._salvage_motion_report(text) if text else None
+            )
+            if salvaged is not None:
+                return salvaged
+            raise GeminiResponseError(
+                "Gemini returned invalid or incomplete motion samples; no raw "
+                "response was retained."
+            ) from error
+        raise GeminiResponseError(
+            "Gemini returned no structured motion samples; no result was retained."
+        )
+
+    @staticmethod
+    def _salvage_motion_report(text: str) -> ObservedMotionReport | None:
+        """Rebuild a report from the complete prefix of a truncated response."""
+        samples = GeminiService._complete_objects(text, "samples")
+        if not samples:
+            return None
+        payload: dict[str, Any] = {
+            "subject_kind": GeminiService._scalar_field(text, "subject_kind") or "",
+            "kinematic_chain": (
+                GeminiService._scalar_field(text, "kinematic_chain") or ""
+            ),
+            "phases": GeminiService._complete_objects(text, "phases"),
+            "samples": samples,
+            "uncertainties": [
+                "The provider response reached its output limit and was cut "
+                f"off after {len(samples)} samples. Everything here arrived "
+                "complete before the cut; nothing was reconstructed."
+            ],
+        }
+        try:
+            return ObservedMotionReport.model_validate(payload)
+        except ValidationError:
+            return None
+
+    @staticmethod
+    def _scalar_field(text: str, name: str) -> str | None:
+        """Read one top-level JSON string field out of a partial document."""
+        pattern = '"' + name + r'"\s*:\s*"((?:[^"\\]|\\.)*)"'
+        match = re.search(pattern, text)
+        return match.group(1) if match else None
+
+    @staticmethod
+    def _complete_objects(text: str, name: str) -> list[dict[str, Any]]:
+        """Collect the balanced JSON objects of one array, ignoring a cut tail."""
+        marker = re.search('"' + name + r'"\s*:\s*\[', text)
+        if not marker:
+            return []
+        items: list[dict[str, Any]] = []
+        index = marker.end()
+        length = len(text)
+        separators = set(" \t\r\n,")
+        while index < length:
+            while index < length and text[index] in separators:
+                index += 1
+            if index >= length or text[index] != "{":
+                break
+            depth = 0
+            in_string = False
+            escaped = False
+            start = index
+            closed = False
+            while index < length:
+                character = text[index]
+                if in_string:
+                    if escaped:
+                        escaped = False
+                    elif character == "\\":
+                        escaped = True
+                    elif character == chr(34):
+                        in_string = False
+                elif character == chr(34):
+                    in_string = True
+                elif character == "{":
+                    depth += 1
+                elif character == "}":
+                    depth -= 1
+                    if depth == 0:
+                        index += 1
+                        closed = True
+                        break
+                index += 1
+            if not closed:
+                break
+            try:
+                items.append(json.loads(text[start:index]))
+            except json.JSONDecodeError:
+                break
+        return items
 
     @staticmethod
     def _build_prompt(request: VideoExtractionRequest) -> str:

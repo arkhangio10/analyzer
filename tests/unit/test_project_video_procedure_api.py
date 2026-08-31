@@ -182,3 +182,50 @@ def test_failed_extraction_cannot_be_approved() -> None:
     )
 
     assert review_response.status_code == 409
+
+
+def test_adaptation_requires_an_approved_procedure() -> None:
+    project = client.post(
+        "/api/projects",
+        json={
+            "task_description": "Teach a robot arm to place a fragile component.",
+            "destination": "robot",
+            "robot_model": "APRENDIZ SimArm-6",
+            "language": "en",
+        },
+    ).json()
+    extraction = client.post(
+        f"/api/projects/{project['project_id']}/video-procedures/extract",
+        json={
+            "video_url": "https://youtu.be/-fD2TSL2s7I",
+            "acknowledge_source_approved": True,
+            "acknowledge_cloud_cost": True,
+            "output_language": "en",
+        },
+    ).json()
+
+    response = client.post(
+        f"/api/projects/{project['project_id']}"
+        f"/video-procedures/{extraction['extraction_id']}/adapt"
+    )
+
+    assert response.status_code == 409
+    assert "approved" in response.json()["detail"]
+
+
+def test_adaptation_of_an_unknown_extraction_is_visible() -> None:
+    project = client.post(
+        "/api/projects",
+        json={
+            "task_description": "Teach a robot arm to place a fragile component.",
+            "destination": "robot",
+            "robot_model": "APRENDIZ SimArm-6",
+            "language": "en",
+        },
+    ).json()
+
+    response = client.post(
+        f"/api/projects/{project['project_id']}/video-procedures/vpr_missing/adapt"
+    )
+
+    assert response.status_code == 404

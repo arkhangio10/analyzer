@@ -26,6 +26,7 @@ const translations = {
     processLogs: ["Sesión creada; validando una trayectoria de seis articulaciones.", "Límites, tiempos y velocidades comprobados por el backend.", "Procedimiento observable extraído desde waypoints estructurados.", "Repetición comparada con la referencia; no es validación de hardware.", "Contrato Docker preparado; llamadas cloud realizadas: 0."],
     processError: "El backend no pudo completar la sesión. Revisa el estado y vuelve a intentarlo.",
     trainerEyebrow: "NUEVO ENTRENAMIENTO", trainerTitle: "¿Qué debe aprender<br>tu agente?", trainerIntro: "Define la tarea, comparte una demostración y revisa el plan antes de iniciar.",
+    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica"], workspaceClose: "Cerrar espacio de trabajo", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
     formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Destino", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
     taskPlaceholder: "Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil.", taskHelp: "Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.",
     continue: "Continuar <span aria-hidden=\"true\">→</span>", destinationLegend: "¿Dónde ejecutará lo aprendido?", destinationTypeLabel: "Destino de ejecución",
@@ -54,6 +55,48 @@ const translations = {
     videoProcedureEyebrow: "EXTRACCIÓN CONTROLADA", videoProcedureTitle: "Convierte el video aprobado en un procedimiento revisable.", videoProcedureIntro: "Vertex analiza una sola fuente con resolución baja. El resultado no se ejecutará hasta que lo revises.", videoSourceLabel: "FUENTE APROBADA",
     videoCostLabel: "Autorizo una llamada acotada a Vertex y el consumo asociado de créditos.", extractVideo: "Extraer procedimiento <span aria-hidden=\"true\">→</span>", extractingVideo: "Analizando video…", videoCostError: "Confirma la fuente y el uso de créditos antes de iniciar.", videoExtractionError: "No se pudo registrar la extracción.",
     videoStatusLabel: "ESTADO DE EXTRACCIÓN", videoWaiting: "Esperando autorización", videoRunning: "Vertex está analizando la fuente", videoFailed: "Extracción no completada", videoAwaitingReview: "Procedimiento pendiente de revisión", videoApproved: "Procedimiento aprobado", videoRejected: "Procedimiento rechazado", videoFailureSummary: "Vertex no devolvió un procedimiento. Código seguro: {code}.", videoReadySummary: "Revisa la evidencia antes de permitir cualquier adaptación o ejecución.", videoReviewedSummary: "La decisión humana quedó registrada; no se ejecutaron acciones.",
+    adaptationSummary: "{actionable} de {total} pasos podrían ejecutarse en este destino.",
+    adaptationMissing: "Falta: {missing}", adaptationBlocked: "Nada se ejecuta sin tu aprobación explícita.",
+    motionLabel: "EVIDENCIA DE MOVIMIENTO",
+    motionIntro: "Los pasos en prosa nunca se vuelven una trayectoria. Este análisis muestrea {fps} fps durante {window} s del video ya aprobado y devuelve ángulos de articulación con marca de tiempo.",
+    motionAck: "Entiendo que esto gasta una llamada a la nube sobre la fuente que ya aprobaste.",
+    motionRun: "Analizar movimiento (1 llamada)",
+    motionRunning: "Analizando movimiento…",
+    motionVerdictUsable: "Muestras utilizables",
+    motionVerdictSuspect: "Muestras sospechosas",
+    motionVerdictNotEvidence: "Esto no es evidencia",
+    motionStats: "{samples} muestras · {joints} articulaciones · {span} s observados · {rate} muestras/s · confianza media {confidence} · {tokens} tokens · {elapsed} s",
+    motionEstimate: "Ángulos estimados por un modelo de visión, no medidos.",
+    motionFinding: {
+      no_samples: "El análisis no devolvió ninguna muestra articular utilizable.",
+      mirrored_sides: "Izquierda y derecha traen exactamente el mismo ángulo en {identical} de {paired} lecturas emparejadas. Dos piernas de un cuerpo que camina no se mueven igual, así que estos lados no son observaciones independientes.",
+      uniform_confidence: "Las {samples} muestras informan la misma confianza {confidence}, así que la confianza no distingue nada y no se estimó muestra por muestra.",
+      uniform_visibility: "Las {samples} muestras informan la misma visibilidad «{visibility}», así que la oclusión no se juzgó cuadro por cuadro.",
+      acyclic_all: "Cada articulación medida ({joints}) traza una sola subida y bajada en toda la ventana de {window} s. Caminar se repite cerca de una vez por segundo, así que un solo arco es una curva dibujada, no un ciclo de marcha medido.",
+      acyclic_some: "{flagged} de {checked} articulaciones ({joints}) oscilan mucho pero cambian de dirección como máximo una vez en la ventana.",
+    },
+    motionFailed: "El análisis de movimiento falló: {detail}",
+    motionBudget: "Petición rechazada antes de gastar: {detail}",
+    recentWorkLabel: "TRABAJO GUARDADO", recentWorkNote: "Guardado en este equipo. Ábrelo para continuar donde lo dejaste.",
+    recentWorkOpen: "Abrir {task}", recentWorkRobot: "Robot", recentWorkComputer: "Computadora",
+    recentWorkApproved: "Procedimiento aprobado", recentWorkRejected: "Procedimiento rechazado", recentWorkAwaiting: "Pendiente de revisión",
+    recentWorkFailed: "Extracción fallida", recentWorkNoExtraction: "Sin extracción", recentWorkOpened: "Proyecto {id} restaurado desde el almacenamiento local.",
+    extractionActivityNote: "Una llamada acotada a Vertex sigue en curso. No cierres esta vista.",
+    nextStepLabel: "SIGUIENTE PASO", nextStepAwaitingReview: "Revisa los pasos y después aprueba o rechaza el procedimiento.",
+    nextStepApprovedRobot: "Aprobado. Ahora valida el movimiento en la simulación local. Esa simulación usa una trayectoria interna, no el video.",
+    nextStepSimulate: "Validar en simulación", nextStepApprovedComputer: "Aprobado. Define un ensayo aislado de navegador para probarlo. El plan lo escribes y lo apruebas tú.",
+    nextStepPractice: "Preparar ensayo", nextStepRejected: "El rechazo quedó registrado. Puedes extraer otra vez; sería una nueva llamada de pago.",
+    nextStepFailed: "No se extrajo ningún procedimiento. Puedes intentarlo otra vez; sería una nueva llamada de pago.", nextStepRetry: "Extraer otra vez",
+    motionTitle: "Vista lateral esquemática del movimiento demostrado",
+    motionDescription: "{robot}: {count} waypoints en {duration} s. Los ángulos validados se dibujan como una cadena articulada.",
+    motionIdleDescription: "Sin demostración cargada. Ejecuta la simulación local para ver la trayectoria validada.",
+    motionLegend: "Proyección esquemática de los ángulos validados. No es simulación física, verificación de colisiones ni control de hardware.",
+    motionPlay: "Reproducir el movimiento", motionPause: "Pausar el movimiento", motionScrubberLabel: "Momento de la trayectoria",
+    motionPhase: "Fase", motionIdlePhase: "Sin demostración cargada", motionGripper: "Pinza {percent}%", motionNoGripper: "Pinza no declarada",
+    motionJump: "Ir a {label} ({time} s)",
+    useExample: "Usar un ejemplo", exampleTask: "Enseñar a un brazo robótico a recoger y colocar una pieza frágil sin golpearla.",
+    exampleRobot: "APRENDIZ SimArm-6", exampleSource: "https://youtu.be/-fD2TSL2s7I",
+    exampleApplied: "Ejemplo cargado. Puedes editar cualquier dato antes de continuar.",
     videoVersionLabel: "Versión", videoTokenLabel: "Tokens", videoTimeLabel: "Tiempo", videoCallLabel: "Llamadas cloud", procedureReviewLabel: "PROCEDIMIENTO A REVISAR", procedureRulesLabel: "Reglas", procedureExceptionsLabel: "Excepciones", procedureExamplesLabel: "Ejemplos", procedureUncertaintiesLabel: "Incertidumbres", procedureNotesLabel: "Notas de revisión opcionales", rejectProcedure: "Rechazar", approveProcedure: "Aprobar procedimiento", reviewingProcedure: "Registrando decisión…", emptyEvidence: "No declarado por la fuente.",
   },
   en: {
@@ -81,6 +124,7 @@ const translations = {
     processLogs: ["Session created; validating a six-joint trajectory.", "Limits, timestamps, and velocities checked by the backend.", "Observable procedure extracted from structured waypoints.", "Replay compared with its reference; this is not hardware validation.", "Docker contract prepared; cloud calls made: 0."],
     processError: "The backend could not complete the session. Check its status and try again.",
     trainerEyebrow: "NEW TRAINING", trainerTitle: "What should your<br>agent learn?", trainerIntro: "Define the task, share a demonstration, and review the plan before starting.",
+    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice"], workspaceClose: "Close workspace", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice" }, procedurePrevious: "Previous step", procedureNext: "Next step",
     formProgressLabel: "Configuration progress", formMarkers: ["Task", "Destination", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
     taskPlaceholder: "Example: Teach a robot arm to pick and place a fragile component.", taskHelp: "Describe the outcome and important limits. This first session runs in simulation only.",
     continue: "Continue <span aria-hidden=\"true\">→</span>", destinationLegend: "Where will the learned behavior run?", destinationTypeLabel: "Execution destination",
@@ -109,6 +153,48 @@ const translations = {
     videoProcedureEyebrow: "CONTROLLED EXTRACTION", videoProcedureTitle: "Turn the approved video into a reviewable procedure.", videoProcedureIntro: "Vertex analyzes one source at low resolution. Nothing will execute until you review the result.", videoSourceLabel: "APPROVED SOURCE",
     videoCostLabel: "I authorize one bounded Vertex call and the associated credit usage.", extractVideo: "Extract procedure <span aria-hidden=\"true\">→</span>", extractingVideo: "Analyzing video…", videoCostError: "Confirm the source and credit usage before starting.", videoExtractionError: "The extraction could not be recorded.",
     videoStatusLabel: "EXTRACTION STATUS", videoWaiting: "Waiting for authorization", videoRunning: "Vertex is analyzing the source", videoFailed: "Extraction not completed", videoAwaitingReview: "Procedure awaiting review", videoApproved: "Procedure approved", videoRejected: "Procedure rejected", videoFailureSummary: "Vertex did not return a procedure. Safe code: {code}.", videoReadySummary: "Review the evidence before allowing any adaptation or execution.", videoReviewedSummary: "The human decision was recorded; no actions were executed.",
+    adaptationSummary: "{actionable} of {total} steps could run at this destination.",
+    adaptationMissing: "Missing: {missing}", adaptationBlocked: "Nothing runs without your explicit approval.",
+    motionLabel: "MOTION EVIDENCE",
+    motionIntro: "Prose steps never become a trajectory. This analysis samples {fps} fps across {window} s of the video you already approved and returns timestamped joint angles.",
+    motionAck: "I understand this spends one cloud call on the source you already approved.",
+    motionRun: "Analyze motion (1 call)",
+    motionRunning: "Analyzing motion…",
+    motionVerdictUsable: "Samples are usable",
+    motionVerdictSuspect: "Samples are suspect",
+    motionVerdictNotEvidence: "This is not evidence",
+    motionStats: "{samples} samples · {joints} joints · {span} s observed · {rate} samples/s · mean confidence {confidence} · {tokens} tokens · {elapsed} s",
+    motionEstimate: "Angles estimated by a vision model, not measured.",
+    motionFinding: {
+      no_samples: "The analysis returned no usable joint samples.",
+      mirrored_sides: "Left and right carry exactly the same angle in {identical} of {paired} paired readings. Two limbs of a walking body do not move identically, so these sides are not independent observations.",
+      uniform_confidence: "All {samples} samples report the identical confidence {confidence}, so confidence distinguishes nothing and was not estimated per sample.",
+      uniform_visibility: "All {samples} samples report the identical visibility “{visibility}”, so occlusion was not judged frame by frame.",
+      acyclic_all: "Every measured joint ({joints}) traces a single rise and fall across the whole {window}s window. Walking repeats about once a second, so one arc is a drawn curve rather than a measured gait cycle.",
+      acyclic_some: "{flagged} of {checked} joints ({joints}) swing widely but reverse at most once across the window.",
+    },
+    motionFailed: "Motion analysis failed: {detail}",
+    motionBudget: "Request refused before spending: {detail}",
+    recentWorkLabel: "SAVED WORK", recentWorkNote: "Stored on this machine. Open one to continue where you left off.",
+    recentWorkOpen: "Open {task}", recentWorkRobot: "Robot", recentWorkComputer: "Computer",
+    recentWorkApproved: "Procedure approved", recentWorkRejected: "Procedure rejected", recentWorkAwaiting: "Awaiting review",
+    recentWorkFailed: "Extraction failed", recentWorkNoExtraction: "No extraction", recentWorkOpened: "Project {id} restored from local storage.",
+    extractionActivityNote: "One bounded Vertex call is still running. Keep this view open.",
+    nextStepLabel: "NEXT STEP", nextStepAwaitingReview: "Read the steps, then approve or reject the procedure.",
+    nextStepApprovedRobot: "Approved. Now validate the motion in the local simulation. That simulation uses a built-in trajectory, not the video.",
+    nextStepSimulate: "Validate in simulation", nextStepApprovedComputer: "Approved. Define an isolated browser rehearsal to test it. You write and approve that plan yourself.",
+    nextStepPractice: "Set up rehearsal", nextStepRejected: "The rejection is recorded. You can extract again; that would be another paid call.",
+    nextStepFailed: "No procedure was extracted. You can try again; that would be another paid call.", nextStepRetry: "Extract again",
+    motionTitle: "Schematic side view of the demonstrated motion",
+    motionDescription: "{robot}: {count} waypoints across {duration} s. Validated angles are drawn as an articulated chain.",
+    motionIdleDescription: "No demonstration loaded. Run the local simulation to see the validated trajectory.",
+    motionLegend: "Schematic projection of validated joint angles. Not a physics simulation, a collision check, or hardware control.",
+    motionPlay: "Play the motion", motionPause: "Pause the motion", motionScrubberLabel: "Trajectory time",
+    motionPhase: "Phase", motionIdlePhase: "No demonstration loaded", motionGripper: "Gripper {percent}%", motionNoGripper: "Gripper not declared",
+    motionJump: "Jump to {label} ({time} s)",
+    useExample: "Use an example", exampleTask: "Teach a robot arm to pick and place a fragile component without knocking it over.",
+    exampleRobot: "APRENDIZ SimArm-6", exampleSource: "https://youtu.be/-fD2TSL2s7I",
+    exampleApplied: "Example loaded. You can edit any value before continuing.",
     videoVersionLabel: "Version", videoTokenLabel: "Tokens", videoTimeLabel: "Time", videoCallLabel: "Cloud calls", procedureReviewLabel: "PROCEDURE TO REVIEW", procedureRulesLabel: "Rules", procedureExceptionsLabel: "Exceptions", procedureExamplesLabel: "Examples", procedureUncertaintiesLabel: "Uncertainties", procedureNotesLabel: "Optional review notes", rejectProcedure: "Reject", approveProcedure: "Approve procedure", reviewingProcedure: "Recording decision…", emptyEvidence: "Not stated by the source.",
   },
 };
@@ -154,6 +240,28 @@ const videoProcedureEvidence = document.querySelector("#video-procedure-evidence
 const procedureReview = document.querySelector("#procedure-review");
 const approveVideoProcedureButton = document.querySelector("#approve-video-procedure");
 const rejectVideoProcedureButton = document.querySelector("#reject-video-procedure");
+const workspace = document.querySelector("#entrenar");
+const workspaceCloseButton = document.querySelector("#workspace-close");
+const workspaceViewButtons = [...document.querySelectorAll("[data-workspace-target]")];
+const procedureStepPager = document.querySelector("#procedure-step-pager");
+const procedureStepPrevious = document.querySelector("#procedure-step-previous");
+const procedureStepNext = document.querySelector("#procedure-step-next");
+const motionCanvas = document.querySelector("#motion-canvas");
+const motionPlayButton = document.querySelector("#motion-play");
+const motionScrubber = document.querySelector("#motion-scrubber");
+const motionTicks = document.querySelector("#motion-ticks");
+const useExampleButton = document.querySelector("#use-example");
+const recentWork = document.querySelector("#recent-work");
+const recentWorkList = document.querySelector("#recent-work-list");
+const extractionActivity = document.querySelector("#extraction-activity");
+const videoNextStep = document.querySelector("#video-next-step");
+const motionEvidence = document.querySelector("#motion-evidence");
+const motionCostApproval = document.querySelector("#motion-cost-approval");
+const runMotionAnalysisButton = document.querySelector("#run-motion-analysis");
+const motionResult = document.querySelector("#motion-result");
+const motionFindings = document.querySelector("#motion-findings");
+const videoNextStepAction = document.querySelector("#video-next-step-action");
+const stepJumpButtons = [...document.querySelectorAll("[data-step-jump]")];
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 let currentStep = 1;
 let currentLanguage = "es";
@@ -177,6 +285,25 @@ let practiceRunResult = null;
 let currentVideoSource = null;
 let videoProcedureRecord = null;
 let videoExtractionRunning = false;
+let currentProcedureStep = 0;
+let workspaceReturnFocus = null;
+let motionPreview = null;
+let motionPreviewKey = null;
+let motionScene = null;
+let motionTime = 0;
+let motionPlaying = false;
+let motionIntent = false;
+let motionOnScreen = true;
+let motionFrameId = 0;
+let motionLastTimestamp = 0;
+let extractionTimerId = 0;
+let videoNextStepHandler = null;
+let motionAnalysis = null;
+let motionAnalysisRunning = false;
+const MOTION_FPS = 4;
+const MOTION_WINDOW_SECONDS = 12;
+let storedProjects = [];
+let adaptationPlan = null;
 
 function setContent(selector, value, useHtml = false) {
   const element = document.querySelector(selector);
@@ -235,13 +362,20 @@ function applyLanguage(language) {
   setContent(".demo-disclosure", t.disclosure, true);
   setContent(".trainer-intro .eyebrow", t.trainerEyebrow);
   setContent("#trainer-title", t.trainerTitle, true);
-  setContent(".trainer-intro > p:last-child", t.trainerIntro);
+  setContent("#trainer-intro-copy", t.trainerIntro);
+  setContent("#workspace-label", t.workspaceLabel);
+  document.querySelector(".workspace-switcher").ariaLabel = t.workspaceViewLabel;
+  workspaceViewButtons.forEach((button, index) => { button.textContent = t.workspaceViews[index]; });
+  workspaceCloseButton.ariaLabel = t.workspaceClose;
+  procedureStepPrevious.ariaLabel = t.procedurePrevious;
+  procedureStepNext.ariaLabel = t.procedureNext;
   document.querySelector(".step-nav").ariaLabel = t.formProgressLabel;
-  markers.forEach((marker, index) => { marker.innerHTML = `<span>0${index + 1}</span> ${t.formMarkers[index]}`; });
+  markers.forEach((marker, index) => { marker.querySelector("button").innerHTML = `<span>0${index + 1}</span> ${t.formMarkers[index]}`; });
   setContent('[data-step="1"] legend', t.taskLegend);
   setContent('label[for="task-description"]', t.taskLabel);
   taskInput.placeholder = t.taskPlaceholder;
   setContent(".field-help", t.taskHelp);
+  setContent("#use-example", t.useExample);
   setContent('[data-step="1"] [data-next]', t.continue, true);
   setContent('[data-step="2"] legend', t.destinationLegend);
   document.querySelector(".destination-options").ariaLabel = t.destinationTypeLabel;
@@ -329,13 +463,67 @@ function applyLanguage(language) {
   renderPracticePlan();
   renderPracticeState();
   renderVideoProcedureState();
+  renderRecentWork();
+  renderMotionLabels();
+  drawMotionFrame(motionTime);
+  setWorkspaceView(workspace.dataset.workspaceView || "setup", false);
 }
 
 function showStep(stepNumber) {
   currentStep = stepNumber;
   steps.forEach((step) => { const active = Number(step.dataset.step) === stepNumber; step.hidden = !active; step.classList.toggle("is-active", active); });
   markers.forEach((marker) => { const markerStep = Number(marker.dataset.stepMarker); marker.classList.toggle("is-active", markerStep === stepNumber); marker.classList.toggle("is-complete", markerStep < stepNumber); });
+  stepJumpButtons.forEach((button) => { button.disabled = Number(button.dataset.stepJump) >= stepNumber; });
   steps.find((step) => Number(step.dataset.step) === stepNumber)?.querySelector("textarea, input:not([type='radio']), button")?.focus({ preventScroll: true });
+}
+
+function setWorkspaceView(view, moveFocus = true) {
+  if (!["setup", "video", "practice"].includes(view)) return;
+  const viewButton = workspaceViewButtons.find((button) => button.dataset.workspaceTarget === view);
+  if (viewButton?.hidden) return;
+  workspace.dataset.workspaceView = view;
+  workspaceViewButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.workspaceTarget === view)));
+  setContent("#workspace-context", translations[currentLanguage].workspaceContexts[view]);
+  if (!moveFocus) return;
+  const focusTarget = view === "setup"
+    ? steps.find((step) => !step.hidden)?.querySelector("textarea, input:not([type='radio']), button")
+    : view === "video"
+      ? (procedureReview.hidden ? extractVideoButton : procedureStepNext)
+      : browserTargetUrl;
+  requestAnimationFrame(() => focusTarget?.focus({ preventScroll: true }));
+}
+
+function openWorkspace(view = "setup", trigger = document.activeElement) {
+  workspaceReturnFocus = trigger instanceof HTMLElement ? trigger : null;
+  document.body.classList.add("workspace-open");
+  workspace.setAttribute("aria-hidden", "false");
+  setWorkspaceView(view);
+  syncMotionPlayback();
+  history.replaceState(null, "", `${location.pathname}${location.search}#entrenar`);
+}
+
+function closeWorkspace() {
+  document.body.classList.remove("workspace-open");
+  workspace.setAttribute("aria-hidden", "true");
+  history.replaceState(null, "", `${location.pathname}${location.search}`);
+  syncMotionPlayback();
+  workspaceReturnFocus?.focus({ preventScroll: true });
+}
+
+function trapWorkspaceFocus(event) {
+  if (event.key !== "Tab" || !document.body.classList.contains("workspace-open")) return;
+  const focusable = [...workspace.querySelectorAll("a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), summary")]
+    .filter((element) => !element.hidden && element.offsetParent !== null);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function selectedSourceType() { return form.elements["source-type"].value; }
@@ -427,6 +615,7 @@ function renderSourceCandidates(candidates) {
   });
   approveSourcesButton.hidden = false;
   approveSourcesButton.disabled = false;
+  setButtonBusy(approveSourcesButton, false);
   setContent("#approve-sources", t.approveSources);
 }
 
@@ -440,6 +629,7 @@ async function searchAutomaticSources() {
   approvedSources = [];
   sourceSearch = null;
   searchSourcesButton.disabled = true;
+  setButtonBusy(searchSourcesButton, true);
   approveSourcesButton.hidden = true;
   setContent("#search-sources", t.searching);
   renderSourceStatus(t.searching);
@@ -462,6 +652,7 @@ async function searchAutomaticSources() {
     console.error(error);
   } finally {
     searchSourcesButton.disabled = false;
+    setButtonBusy(searchSourcesButton, false);
     setContent("#search-sources", t.searchButton);
   }
 }
@@ -474,6 +665,7 @@ async function approveAutomaticSources() {
     return;
   }
   approveSourcesButton.disabled = true;
+  setButtonBusy(approveSourcesButton, true);
   setContent("#approve-sources", t.approving);
   try {
     const response = await fetch(`/api/sources/search/${encodeURIComponent(sourceSearch.search_id)}/approve`, {
@@ -619,8 +811,9 @@ function renderExtractedProcedure(procedure) {
   setContent("#procedure-objective", procedure.objective);
   const stepsList = document.querySelector("#procedure-steps");
   stepsList.innerHTML = "";
-  procedure.steps.forEach((step) => {
+  procedure.steps.forEach((step, index) => {
     const item = document.createElement("li");
+    item.hidden = index !== 0;
     const action = document.createElement("span");
     action.textContent = step.action;
     item.append(action);
@@ -633,10 +826,26 @@ function renderExtractedProcedure(procedure) {
     }
     stepsList.append(item);
   });
+  currentProcedureStep = 0;
+  renderProcedureStepPage();
   renderProcedureList("#procedure-rules", procedure.rules);
   renderProcedureList("#procedure-exceptions", procedure.exceptions);
   renderProcedureList("#procedure-examples", procedure.examples);
   renderProcedureList("#procedure-uncertainties", procedure.uncertainties);
+}
+
+function renderProcedureStepPage() {
+  const items = [...document.querySelector("#procedure-steps").children];
+  if (!items.length) {
+    procedureStepPager.hidden = true;
+    return;
+  }
+  currentProcedureStep = Math.max(0, Math.min(currentProcedureStep, items.length - 1));
+  items.forEach((item, index) => { item.hidden = index !== currentProcedureStep; });
+  procedureStepPager.hidden = items.length <= 1;
+  setContent("#procedure-step-position", `${currentProcedureStep + 1} / ${items.length}`);
+  procedureStepPrevious.disabled = currentProcedureStep === 0;
+  procedureStepNext.disabled = currentProcedureStep === items.length - 1;
 }
 
 function localizedVideoStatus(status) {
@@ -649,14 +858,350 @@ function localizedVideoStatus(status) {
   }[status] || (videoExtractionRunning ? t.videoRunning : t.videoWaiting);
 }
 
+function setButtonBusy(button, busy) {
+  if (!button) return;
+  button.classList.toggle("is-busy", busy);
+  if (busy) button.setAttribute("aria-busy", "true");
+  else button.removeAttribute("aria-busy");
+}
+
+function startExtractionTimer() {
+  const startedAt = performance.now();
+  window.clearInterval(extractionTimerId);
+  setContent("#extraction-elapsed", "0.0 s");
+  extractionTimerId = window.setInterval(() => {
+    setContent("#extraction-elapsed", `${((performance.now() - startedAt) / 1000).toFixed(1)} s`);
+  }, 100);
+}
+
+function stopExtractionTimer() {
+  window.clearInterval(extractionTimerId);
+  extractionTimerId = 0;
+}
+
+function startSimulationFromReview() {
+  closeWorkspace();
+  window.setTimeout(
+    () => startProcessing(taskInput.value.trim(), "local-simulation://guided-demo"),
+    reducedMotion.matches ? 0 : 400,
+  );
+}
+
+function restartVideoExtraction() {
+  videoProcedureRecord = null;
+  videoCostApproval.checked = false;
+  videoProcedureError.textContent = "";
+  videoProcedureEvidence.hidden = true;
+  renderVideoProcedureState();
+  videoCostApproval.focus({ preventScroll: true });
+}
+
+/* Retained work: durable records are only useful if they can be reopened. */
+function storedStatusLabel(status) {
+  const t = translations[currentLanguage];
+  const labels = {
+    approved: t.recentWorkApproved,
+    rejected: t.recentWorkRejected,
+    awaiting_review: t.recentWorkAwaiting,
+    extraction_failed: t.recentWorkFailed,
+  };
+  return labels[status] || t.recentWorkNoExtraction;
+}
+
+function renderRecentWork() {
+  const t = translations[currentLanguage];
+  setContent("#recent-work-label", t.recentWorkLabel);
+  setContent("#recent-work-note", t.recentWorkNote);
+  recentWork.hidden = storedProjects.length === 0;
+  recentWorkList.textContent = "";
+  storedProjects.forEach((entry) => {
+    const task = entry.project.task_definition?.name
+      || entry.project.task_definition?.objective
+      || entry.project.project_id;
+    const destination = entry.project.destination_contract?.destination === "computer"
+      ? t.recentWorkComputer
+      : t.recentWorkRobot;
+    const item = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.setAttribute("aria-label", t.recentWorkOpen.replace("{task}", task));
+    const title = document.createElement("b");
+    title.textContent = task;
+    const meta = document.createElement("small");
+    const left = document.createElement("span");
+    left.textContent = destination;
+    const right = document.createElement("span");
+    right.textContent = storedStatusLabel(entry.latest?.status);
+    meta.append(left, right);
+    button.append(title, meta);
+    button.addEventListener("click", () => openStoredProject(entry));
+    item.append(button);
+    recentWorkList.append(item);
+  });
+}
+
+async function loadRecentWork() {
+  try {
+    const response = await fetch("/api/projects");
+    if (!response.ok) throw new Error(`Project list failed: ${response.status}`);
+    const projects = await response.json();
+    const entries = await Promise.all(projects.map(async (project) => {
+      const records = await fetch(
+        `/api/projects/${encodeURIComponent(project.project_id)}/video-procedures`,
+      ).then((result) => (result.ok ? result.json() : []));
+      return { project, records, latest: records[records.length - 1] || null };
+    }));
+    storedProjects = entries.reverse();
+    renderRecentWork();
+  } catch (error) {
+    storedProjects = [];
+    recentWork.hidden = true;
+    console.error(error);
+  }
+}
+
+function openStoredProject(entry) {
+  const project = entry.project;
+  const contract = project.destination_contract || {};
+  const destination = contract.destination === "computer" ? "computer" : "robot";
+  taskInput.value = project.task_definition?.objective || "";
+  const radio = document.querySelector(
+    `input[name="destination"][value="${destination}"]`,
+  );
+  if (radio && !radio.checked) {
+    radio.checked = true;
+    radio.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  if (destination === "robot") robotModel.value = contract.robot_model || "";
+  else computerApplication.value = contract.application || "";
+
+  const latest = entry.latest;
+  videoUrl.value = latest?.source_url || "";
+  configureVideoProcedure(project, latest?.source_url || null);
+  videoProcedureRecord = latest;
+  const practiceViewButton = workspaceViewButtons.find(
+    (button) => button.dataset.workspaceTarget === "practice",
+  );
+  practiceViewButton.hidden = destination !== "computer";
+  computerPracticePanel.hidden = destination !== "computer";
+  if (latest) {
+    videoProcedureEvidence.hidden = false;
+    videoCostApproval.checked = false;
+  }
+  renderVideoProcedureState();
+  loadAdaptationPlan();
+  loadMotionAnalysis();
+  fillReview();
+  showStep(4);
+  showProjectFeedback(
+    translations[currentLanguage].recentWorkOpened.replace("{id}", project.project_id),
+  );
+  setWorkspaceView(latest ? "video" : "setup");
+}
+
+async function loadAdaptationPlan() {
+  adaptationPlan = null;
+  if (!currentProject || videoProcedureRecord?.status !== "approved") return;
+  try {
+    const response = await fetch(
+      `/api/projects/${encodeURIComponent(currentProject.project_id)}`
+      + `/video-procedures/${encodeURIComponent(videoProcedureRecord.extraction_id)}/adapt`,
+      { method: "POST" },
+    );
+    if (!response.ok) return;
+    adaptationPlan = await response.json();
+    renderVideoNextStep();
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function adaptationSummaryText() {
+  const t = translations[currentLanguage];
+  if (!adaptationPlan) return "";
+  const lines = [
+    t.adaptationSummary
+      .replace("{actionable}", String(adaptationPlan.actionable_step_count))
+      .replace("{total}", String(adaptationPlan.steps.length)),
+  ];
+  if (adaptationPlan.missing_evidence.length) {
+    lines.push(
+      t.adaptationMissing.replace("{missing}", adaptationPlan.missing_evidence[0]),
+    );
+  }
+  lines.push(t.adaptationBlocked);
+  return lines.join(" ");
+}
+
+function renderVideoNextStep() {
+  const t = translations[currentLanguage];
+  const status = videoProcedureRecord?.status;
+  setContent("#video-next-step-label", t.nextStepLabel);
+  if (videoExtractionRunning || !status) {
+    videoNextStep.hidden = true;
+    videoNextStepHandler = null;
+    return;
+  }
+  const isComputer = selectedDestination() === "computer";
+  const plans = {
+    awaiting_review: [t.nextStepAwaitingReview, "", null],
+    approved: isComputer
+      ? [t.nextStepApprovedComputer, t.nextStepPractice, () => setWorkspaceView("practice")]
+      : [t.nextStepApprovedRobot, t.nextStepSimulate, startSimulationFromReview],
+    rejected: [t.nextStepRejected, t.nextStepRetry, restartVideoExtraction],
+    extraction_failed: [t.nextStepFailed, t.nextStepRetry, restartVideoExtraction],
+  };
+  const [message, actionLabel, handler] = plans[status] || ["", "", null];
+  const summary = status === "approved" ? adaptationSummaryText() : "";
+  renderMotionEvidence();
+  videoNextStep.hidden = !message;
+  setContent("#video-next-step-text", summary ? `${summary} ${message}` : message);
+  videoNextStepAction.hidden = !actionLabel;
+  videoNextStepAction.textContent = actionLabel;
+  videoNextStepHandler = handler;
+}
+
+function motionAnalysisUrl() {
+  return `/api/projects/${encodeURIComponent(currentProject.project_id)}`
+    + `/video-procedures/${encodeURIComponent(videoProcedureRecord.extraction_id)}`
+    + "/motion-analysis";
+}
+
+async function loadMotionAnalysis() {
+  motionAnalysis = null;
+  if (!currentProject || videoProcedureRecord?.status !== "approved") {
+    renderMotionEvidence();
+    return;
+  }
+  try {
+    const response = await fetch(motionAnalysisUrl());
+    if (response.ok) motionAnalysis = await response.json();
+  } catch (error) {
+    console.error(error);
+  }
+  renderMotionEvidence();
+}
+
+async function runMotionAnalysis() {
+  if (motionAnalysisRunning || !motionCostApproval.checked) return;
+  motionAnalysisRunning = true;
+  renderMotionEvidence();
+  try {
+    const response = await fetch(motionAnalysisUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        frames_per_second: MOTION_FPS,
+        window_seconds: MOTION_WINDOW_SECONDS,
+        window_start_seconds: 0,
+        output_language: currentLanguage,
+        acknowledge_cloud_cost: true,
+      }),
+    });
+    videoProcedureError.textContent = "";
+    const body = await response.json();
+    if (response.ok) {
+      motionAnalysis = body;
+      motionCostApproval.checked = false;
+      loadAdaptationPlan();
+    } else {
+      const t = translations[currentLanguage];
+      const template = response.status === 422 ? t.motionBudget : t.motionFailed;
+      videoProcedureError.textContent = template.replace(
+        "{detail}",
+        body.detail || "",
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    videoProcedureError.textContent = translations[currentLanguage]
+      .motionFailed.replace("{detail}", "");
+  } finally {
+    motionAnalysisRunning = false;
+    renderMotionEvidence();
+  }
+}
+
+function motionVerdictLabel(verdict) {
+  const t = translations[currentLanguage];
+  if (verdict === "usable") return t.motionVerdictUsable;
+  if (verdict === "suspect") return t.motionVerdictSuspect;
+  return t.motionVerdictNotEvidence;
+}
+
+function motionFindingText(finding) {
+  const template = translations[currentLanguage].motionFinding?.[finding.code];
+  if (!template) return finding.message;
+  return Object.entries(finding.values || {}).reduce(
+    (text, [key, value]) => text.split(`{${key}}`).join(value),
+    template,
+  );
+}
+
+function renderMotionEvidence() {
+  if (!motionEvidence) return;
+  const t = translations[currentLanguage];
+  const eligible = videoProcedureRecord?.status === "approved"
+    && selectedDestination() === "robot";
+  motionEvidence.hidden = !eligible;
+  if (!eligible) return;
+
+  setContent("#motion-evidence-label", t.motionLabel);
+  setContent(
+    "#motion-evidence-intro",
+    t.motionIntro
+      .replace("{fps}", String(MOTION_FPS))
+      .replace("{window}", String(MOTION_WINDOW_SECONDS)),
+  );
+  setContent("#motion-cost-approval-text", t.motionAck);
+  runMotionAnalysisButton.textContent = motionAnalysisRunning
+    ? t.motionRunning
+    : t.motionRun;
+  runMotionAnalysisButton.disabled = motionAnalysisRunning
+    || !motionCostApproval.checked;
+  setButtonBusy(runMotionAnalysisButton, motionAnalysisRunning);
+
+  motionResult.hidden = !motionAnalysis;
+  motionFindings.replaceChildren();
+  if (!motionAnalysis) return;
+
+  const verdict = motionAnalysis.audit.verdict;
+  const verdictNode = document.querySelector("#motion-verdict");
+  verdictNode.dataset.verdict = verdict;
+  verdictNode.textContent = motionVerdictLabel(verdict);
+  setContent(
+    "#motion-stats",
+    t.motionStats
+      .replace("{samples}", String(motionAnalysis.sample_count))
+      .replace("{joints}", String(motionAnalysis.distinct_joint_count))
+      .replace("{span}", motionAnalysis.observed_span_seconds.toFixed(1))
+      .replace("{rate}", motionAnalysis.samples_per_second.toFixed(1))
+      .replace("{confidence}", motionAnalysis.mean_confidence.toFixed(2))
+      .replace("{tokens}", String(motionAnalysis.usage?.total_tokens ?? 0))
+      .replace("{elapsed}", motionAnalysis.elapsed_seconds.toFixed(1)),
+  );
+  setContent("#motion-estimate", t.motionEstimate);
+  for (const finding of motionAnalysis.audit.findings) {
+    const item = document.createElement("li");
+    item.textContent = motionFindingText(finding);
+    motionFindings.append(item);
+  }
+  setContent("#motion-retarget", motionAnalysis.retarget.reason);
+}
+
 function renderVideoProcedureState() {
   if (!videoProcedurePanel) return;
   const t = translations[currentLanguage];
+  videoProcedurePanel.classList.toggle("has-procedure", Boolean(videoProcedureRecord?.procedure));
   setContent("#extract-video-procedure", videoExtractionRunning ? t.extractingVideo : t.extractVideo, !videoExtractionRunning);
   const retryableFailure = videoProcedureRecord?.status === "extraction_failed";
   extractVideoButton.disabled = videoExtractionRunning || Boolean(videoProcedureRecord && !retryableFailure);
+  setButtonBusy(extractVideoButton, videoExtractionRunning);
   videoProcedureEvidence.hidden = !videoExtractionRunning && !videoProcedureRecord;
+  extractionActivity.hidden = !videoExtractionRunning;
+  setContent("#extraction-activity-note", t.extractionActivityNote);
   setContent("#video-extraction-status", localizedVideoStatus(videoProcedureRecord?.status));
+  renderVideoNextStep();
 
   if (!videoProcedureRecord) {
     setContent("#video-extraction-summary", videoExtractionRunning ? t.videoReadySummary : "");
@@ -669,6 +1214,8 @@ function renderVideoProcedureState() {
   }
 
   const record = videoProcedureRecord;
+  setButtonBusy(approveVideoProcedureButton, false);
+  setButtonBusy(rejectVideoProcedureButton, false);
   const failed = record.status === "extraction_failed";
   const reviewed = ["approved", "rejected"].includes(record.status);
   setContent(
@@ -697,6 +1244,8 @@ function configureVideoProcedure(project, sourceUrl) {
   videoProcedureError.textContent = "";
   videoProcedureEvidence.hidden = true;
   videoProcedurePanel.hidden = !sourceUrl;
+  const videoViewButton = workspaceViewButtons.find((button) => button.dataset.workspaceTarget === "video");
+  videoViewButton.hidden = !sourceUrl;
   if (sourceUrl) {
     videoProcedureSource.href = sourceUrl;
     videoProcedureSource.textContent = sourceUrl;
@@ -712,6 +1261,7 @@ async function extractProjectVideoProcedure() {
     return;
   }
   videoExtractionRunning = true;
+  startExtractionTimer();
   renderVideoProcedureState();
   await nextPaint();
   try {
@@ -734,6 +1284,7 @@ async function extractProjectVideoProcedure() {
     console.error(error);
   } finally {
     videoExtractionRunning = false;
+    stopExtractionTimer();
     if (videoProcedureRecord?.status === "extraction_failed") videoCostApproval.checked = false;
     renderVideoProcedureState();
   }
@@ -744,6 +1295,8 @@ async function reviewProjectVideoProcedure(decision) {
   if (!currentProject || !videoProcedureRecord) return;
   approveVideoProcedureButton.disabled = true;
   rejectVideoProcedureButton.disabled = true;
+  const decisionButton = decision === "approve" ? approveVideoProcedureButton : rejectVideoProcedureButton;
+  setButtonBusy(decisionButton, true);
   setContent(decision === "approve" ? "#approve-video-procedure" : "#reject-video-procedure", t.reviewingProcedure);
   try {
     const response = await fetch(`/api/projects/${encodeURIComponent(currentProject.project_id)}/video-procedures/${encodeURIComponent(videoProcedureRecord.extraction_id)}/review`, {
@@ -761,6 +1314,9 @@ async function reviewProjectVideoProcedure(decision) {
     videoProcedureError.textContent = error.message || t.videoExtractionError;
     console.error(error);
   } finally {
+    loadRecentWork();
+    loadAdaptationPlan();
+    setButtonBusy(decisionButton, false);
     setContent("#approve-video-procedure", t.approveProcedure);
     setContent("#reject-video-procedure", t.rejectProcedure);
     renderVideoProcedureState();
@@ -795,8 +1351,8 @@ async function runComputerPractice() {
   practiceCompletedStages = 0;
   practiceActiveStage = 0;
   runBrowserPracticeButton.disabled = true;
+  setButtonBusy(runBrowserPracticeButton, true);
   renderPracticeState();
-  practiceEvidence.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "nearest" });
   await nextPaint();
 
   try {
@@ -839,6 +1395,7 @@ async function runComputerPractice() {
     console.error(error);
   } finally {
     runBrowserPracticeButton.disabled = false;
+    setButtonBusy(runBrowserPracticeButton, false);
     renderPracticeState();
   }
 }
@@ -854,6 +1411,7 @@ async function prepareProject() {
       : approvedSources.map((item) => item.url).join(", ");
   projectFeedback.hidden = true;
   processSubmit.disabled = true;
+  setButtonBusy(processSubmit, true);
   try {
     const payload = {
       task_description: taskInput.value.trim(),
@@ -882,9 +1440,17 @@ async function prepareProject() {
       ? videoUrl.value.trim()
       : sourceType === "automatic" ? approvedSources[0]?.url : null;
     configureVideoProcedure(project, extractionSource);
+    loadRecentWork();
+    const practiceViewButton = workspaceViewButtons.find((button) => button.dataset.workspaceTarget === "practice");
+    practiceViewButton.hidden = destination !== "computer";
     if (destination === "robot") {
       computerPracticePanel.hidden = true;
-      window.setTimeout(() => startProcessing(taskInput.value.trim(), source), reducedMotion.matches ? 0 : 550);
+      if (extractionSource) {
+        setWorkspaceView("video");
+      } else {
+        closeWorkspace();
+        window.setTimeout(() => startProcessing(taskInput.value.trim(), source), reducedMotion.matches ? 0 : 550);
+      }
     } else {
       computerPracticePanel.hidden = false;
       browserPracticeApproval.checked = false;
@@ -894,13 +1460,14 @@ async function prepareProject() {
       practiceCompletedStages = 0;
       renderPracticePlan();
       renderPracticeState();
-      window.setTimeout(() => computerPracticePanel.scrollIntoView({ behavior: reducedMotion.matches ? "auto" : "smooth", block: "start" }), reducedMotion.matches ? 0 : 350);
+      setWorkspaceView(extractionSource ? "video" : "practice");
     }
   } catch (error) {
     showProjectFeedback(t.projectError, true);
     console.error(error);
   } finally {
     processSubmit.disabled = false;
+    setButtonBusy(processSubmit, false);
   }
 }
 
@@ -974,6 +1541,7 @@ function applyProcessingSession(session) {
   processCompletedStages = session.completed_stage_count;
   processStage = session.current_stage_index ?? processStages.length;
   processErrorMessage = "";
+  setMotionPreview(session.motion_preview || null);
   renderProcessState();
 }
 
@@ -1004,6 +1572,9 @@ async function startProcessing(task, source, immediate = false) {
   processStage = 0;
   processSession = null;
   processErrorMessage = "";
+  motionTime = 0;
+  drawMotionFrame(motionTime);
+  if (motionPreview && !reducedMotion.matches) setMotionPlaying(true);
   renderProcessState();
   const processingSection = document.querySelector("#procesamiento");
   if (immediate) {
@@ -1038,6 +1609,355 @@ async function startProcessing(task, source, immediate = false) {
   }
 }
 
+
+/* Motion preview: redraws validated joint angles as a schematic projection.
+   It draws stored waypoints; it is not a physics or collision simulation. */
+const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+const MOTION_VIEW = { width: 240, height: 232, baseX: 132, baseY: 196, scale: 230, samples: 150 };
+const MOTION_CAMERA = { azimuth: (24 * Math.PI) / 180, tilt: (20 * Math.PI) / 180 };
+const MOTION_IDLE_PREVIEW = {
+  robot_model: "",
+  duration_seconds: 0,
+  joints: [
+    { joint_index: 0, label: "base", role: "base_yaw", length_ratio: 0 },
+    { joint_index: 1, label: "shoulder", role: "planar_link", length_ratio: 0.42 },
+    { joint_index: 2, label: "elbow", role: "planar_link", length_ratio: 0.28 },
+    { joint_index: 3, label: "wrist", role: "planar_link", length_ratio: 0.16 },
+  ],
+  waypoints: [
+    { timestamp_seconds: 0, joint_positions_degrees: [0, -14, 26, 40], gripper_percent: 100, label: "" },
+    { timestamp_seconds: 0, joint_positions_degrees: [0, -14, 26, 40], gripper_percent: 100, label: "" },
+  ],
+};
+
+function svgElement(tag, attributes = {}) {
+  const element = document.createElementNS(SVG_NAMESPACE, tag);
+  Object.entries(attributes).forEach(([name, value]) => element.setAttribute(name, String(value)));
+  return element;
+}
+
+function rotateFrameZ(frame, degrees) {
+  const radians = (degrees * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const [x, y, z] = frame;
+  return [x.map((value, axis) => value * cos + y[axis] * sin), x.map((value, axis) => -value * sin + y[axis] * cos), z];
+}
+
+function rotateFrameY(frame, degrees) {
+  const radians = (degrees * Math.PI) / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  const [x, y, z] = frame;
+  return [x.map((value, axis) => value * cos - z[axis] * sin), y, x.map((value, axis) => value * sin + z[axis] * cos)];
+}
+
+function projectMotionPoint(point) {
+  const [x, y, z] = point;
+  const horizontal = x * Math.cos(MOTION_CAMERA.azimuth) + y * Math.sin(MOTION_CAMERA.azimuth);
+  const depth = -x * Math.sin(MOTION_CAMERA.azimuth) + y * Math.cos(MOTION_CAMERA.azimuth);
+  return {
+    x: MOTION_VIEW.baseX + horizontal,
+    y: MOTION_VIEW.baseY - (z * Math.cos(MOTION_CAMERA.tilt) + depth * Math.sin(MOTION_CAMERA.tilt)),
+  };
+}
+
+function motionPose(preview, angles) {
+  let frame = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  let point = [0, 0, 0];
+  const chain = [point];
+  preview.joints.forEach((joint) => {
+    const angle = Number(angles[joint.joint_index] ?? 0);
+    if (joint.role === "planar_link") {
+      frame = rotateFrameY(frame, angle);
+      const length = joint.length_ratio * MOTION_VIEW.scale;
+      point = point.map((value, axis) => value + frame[2][axis] * length);
+      chain.push(point);
+    } else {
+      frame = rotateFrameZ(frame, angle);
+    }
+  });
+  return { chain: chain.map(projectMotionPoint), frame };
+}
+
+function motionStateAt(preview, time) {
+  const waypoints = preview.waypoints;
+  if (!waypoints.length) return { angles: [], gripper: null, waypointIndex: -1, label: "", time: 0 };
+  const clamped = Math.min(Math.max(time, 0), preview.duration_seconds);
+  let index = 0;
+  while (index < waypoints.length - 2 && waypoints[index + 1].timestamp_seconds <= clamped) index += 1;
+  const from = waypoints[index];
+  const to = waypoints[Math.min(index + 1, waypoints.length - 1)];
+  const span = to.timestamp_seconds - from.timestamp_seconds;
+  const ratio = span > 0 ? Math.min(1, Math.max(0, (clamped - from.timestamp_seconds) / span)) : 0;
+  const angles = from.joint_positions_degrees.map((value, joint) => value + ((to.joint_positions_degrees[joint] ?? value) - value) * ratio);
+  const startGripper = from.gripper_percent;
+  const gripper = startGripper === null || startGripper === undefined
+    ? null
+    : startGripper + ((to.gripper_percent ?? startGripper) - startGripper) * ratio;
+  const waypointIndex = ratio < 0.5 ? index : Math.min(waypoints.length - 1, index + 1);
+  return { angles, gripper, waypointIndex, label: waypoints[waypointIndex].label || "", time: clamped };
+}
+
+function buildMotionSamples(preview) {
+  if (!preview.waypoints.length || preview.duration_seconds <= 0) return [];
+  const samples = [];
+  for (let index = 0; index <= MOTION_VIEW.samples; index += 1) {
+    const time = (preview.duration_seconds * index) / MOTION_VIEW.samples;
+    const pose = motionPose(preview, motionStateAt(preview, time).angles);
+    samples.push({ time, point: pose.chain[pose.chain.length - 1] });
+  }
+  return samples;
+}
+
+function pointsAttribute(points) {
+  return points.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+}
+
+function buildMotionScene(preview) {
+  motionCanvas.textContent = "";
+  motionCanvas.setAttribute("viewBox", `0 0 ${MOTION_VIEW.width} ${MOTION_VIEW.height}`);
+  const title = svgElement("title", { id: "motion-canvas-title" });
+  const description = svgElement("desc", { id: "motion-canvas-desc" });
+  motionCanvas.append(title, description);
+  motionCanvas.append(
+    svgElement("line", { class: "motion-floor", x1: 16, y1: MOTION_VIEW.baseY, x2: MOTION_VIEW.width - 16, y2: MOTION_VIEW.baseY }),
+    svgElement("ellipse", { class: "motion-pedestal", cx: MOTION_VIEW.baseX, cy: MOTION_VIEW.baseY, rx: 30, ry: 9 }),
+  );
+
+  const samples = buildMotionSamples(preview);
+  const trailFull = svgElement("polyline", { class: "motion-trail-full", points: pointsAttribute(samples.map((sample) => sample.point)) });
+  const trailLive = svgElement("polyline", { class: "motion-trail-live", points: "" });
+  motionCanvas.append(trailFull, trailLive);
+
+  const waypointDots = preview.waypoints.map((waypoint) => {
+    const pose = motionPose(preview, waypoint.joint_positions_degrees);
+    const tool = pose.chain[pose.chain.length - 1];
+    const dot = svgElement("circle", { class: "motion-waypoint-dot", cx: tool.x.toFixed(1), cy: tool.y.toFixed(1), r: 2.4 });
+    motionCanvas.append(dot);
+    return dot;
+  });
+
+  const arm = svgElement("g");
+  const linkCount = preview.joints.filter((joint) => joint.role === "planar_link").length;
+  const shadows = [];
+  const links = [];
+  const joints = [];
+  for (let index = 0; index < linkCount; index += 1) {
+    shadows.push(svgElement("line", { class: "motion-link-shadow" }));
+    links.push(svgElement("line", { class: "motion-link" }));
+  }
+  shadows.forEach((shadow) => arm.append(shadow));
+  links.forEach((link) => arm.append(link));
+  for (let index = 0; index <= linkCount; index += 1) {
+    const joint = svgElement("circle", { class: "motion-joint", r: index === 0 ? 5.5 : 4 });
+    joints.push(joint);
+    arm.append(joint);
+  }
+  const gripper = svgElement("path", { class: "motion-gripper", d: "" });
+  arm.append(gripper);
+  motionCanvas.append(arm);
+
+  const dials = [];
+  const addDial = (joint, cx, cy, radius) => {
+    const group = svgElement("g");
+    const dialTitle = svgElement("title");
+    dialTitle.textContent = joint.label;
+    const needle = svgElement("line", { class: "motion-dial-needle", x1: cx, y1: cy, x2: cx, y2: cy - radius * 0.82 });
+    const value = svgElement("text", { class: "motion-dial-value", x: cx, y: cy + radius + 9 });
+    const name = svgElement("text", { class: "motion-dial-label", x: cx, y: cy - radius - 4 });
+    name.textContent = `J${joint.joint_index}`;
+    group.append(dialTitle, svgElement("circle", { class: "motion-dial-ring", cx, cy, r: radius }), needle, value, name);
+    motionCanvas.append(group);
+    dials.push({ joint, cx, cy, radius, needle, value });
+  };
+  const yawJoint = preview.joints.find((joint) => joint.role === "base_yaw");
+  if (yawJoint) addDial(yawJoint, 40, 150, 22);
+  preview.joints.filter((joint) => joint.role === "roll").slice(0, 3).forEach((joint, index) => {
+    addDial(joint, MOTION_VIEW.width - 24, 42 + index * 54, 15);
+  });
+
+  motionScene = { preview, samples, title, description, trailLive, waypointDots, shadows, links, joints, gripper, dials };
+}
+
+function drawMotionFrame(time) {
+  if (!motionScene) return;
+  const preview = motionScene.preview;
+  const state = motionStateAt(preview, time);
+  const pose = motionPose(preview, state.angles);
+
+  motionScene.shadows.forEach((shadow, index) => {
+    const from = pose.chain[index];
+    const to = pose.chain[index + 1];
+    [shadow, motionScene.links[index]].forEach((line) => {
+      line.setAttribute("x1", from.x.toFixed(1));
+      line.setAttribute("y1", from.y.toFixed(1));
+      line.setAttribute("x2", to.x.toFixed(1));
+      line.setAttribute("y2", to.y.toFixed(1));
+    });
+  });
+  motionScene.joints.forEach((joint, index) => {
+    const point = pose.chain[index];
+    if (!point) return;
+    joint.setAttribute("cx", point.x.toFixed(1));
+    joint.setAttribute("cy", point.y.toFixed(1));
+  });
+
+  const tool = pose.chain[pose.chain.length - 1];
+  const previous = pose.chain[pose.chain.length - 2] || { x: tool.x, y: tool.y - 1 };
+  const axisLength = Math.hypot(tool.x - previous.x, tool.y - previous.y) || 1;
+  const axis = { x: (tool.x - previous.x) / axisLength, y: (tool.y - previous.y) / axisLength };
+  const fingerPlane = projectMotionPoint(pose.frame[0].map((value) => value * 12));
+  const spreadX = fingerPlane.x - MOTION_VIEW.baseX;
+  const spreadY = fingerPlane.y - MOTION_VIEW.baseY;
+  const spreadLength = Math.hypot(spreadX, spreadY) || 1;
+  const opening = 2 + ((state.gripper ?? 100) / 100) * 5;
+  motionScene.gripper.setAttribute("d", [1, -1].map((side) => {
+    const originX = tool.x + (spreadX / spreadLength) * opening * side;
+    const originY = tool.y + (spreadY / spreadLength) * opening * side;
+    return `M ${originX.toFixed(1)} ${originY.toFixed(1)} l ${(axis.x * 9).toFixed(1)} ${(axis.y * 9).toFixed(1)}`;
+  }).join(" "));
+
+  const livePoints = motionScene.samples.filter((sample) => sample.time <= state.time).map((sample) => sample.point);
+  livePoints.push(tool);
+  motionScene.trailLive.setAttribute("points", pointsAttribute(livePoints));
+  motionScene.waypointDots.forEach((dot, index) => dot.classList.toggle("is-current", index === state.waypointIndex));
+
+  motionScene.dials.forEach((dial) => {
+    const angle = Number(state.angles[dial.joint.joint_index] ?? 0);
+    const radians = (angle * Math.PI) / 180;
+    dial.needle.setAttribute("x2", (dial.cx + Math.sin(radians) * dial.radius * 0.82).toFixed(1));
+    dial.needle.setAttribute("y2", (dial.cy - Math.cos(radians) * dial.radius * 0.82).toFixed(1));
+    dial.value.textContent = `${Math.round(angle)}°`;
+  });
+
+  renderMotionReadout(state);
+}
+
+function renderMotionReadout(state) {
+  const t = translations[currentLanguage];
+  const hasPreview = Boolean(motionPreview);
+  const clock = `${state.time.toFixed(1)} s`;
+  setContent("#motion-clock", hasPreview ? clock : "0.0 s");
+  const phase = hasPreview
+    ? `${t.motionPhase} ${state.waypointIndex + 1}/${motionPreview.waypoints.length}${state.label ? ` · ${state.label}` : ""}`
+    : t.motionIdlePhase;
+  setContent("#motion-phase", phase);
+  const gripper = !hasPreview || state.gripper === null || state.gripper === undefined
+    ? t.motionNoGripper
+    : t.motionGripper.replace("{percent}", String(Math.round(state.gripper)));
+  setContent("#motion-gripper", gripper);
+  if (hasPreview && motionPreview.duration_seconds > 0) {
+    const position = Math.round((state.time / motionPreview.duration_seconds) * 1000);
+    if (String(position) !== motionScrubber.value) motionScrubber.value = String(position);
+    if (motionScrubber.getAttribute("aria-valuetext") !== clock) motionScrubber.setAttribute("aria-valuetext", clock);
+  }
+  motionTicks.querySelectorAll("button").forEach((tick, index) => tick.classList.toggle("is-current", index === state.waypointIndex));
+}
+
+function renderMotionLabels() {
+  const t = translations[currentLanguage];
+  motionPlayButton.setAttribute("aria-label", motionIntent ? t.motionPause : t.motionPlay);
+  motionPlayButton.querySelector("span").textContent = motionIntent ? "❚❚" : "▶";
+  motionScrubber.setAttribute("aria-label", t.motionScrubberLabel);
+  setContent("#motion-legend", t.motionLegend);
+  if (!motionScene) return;
+  motionScene.title.textContent = t.motionTitle;
+  motionScene.description.textContent = motionPreview
+    ? t.motionDescription
+        .replace("{robot}", motionPreview.robot_model)
+        .replace("{count}", String(motionPreview.waypoints.length))
+        .replace("{duration}", motionPreview.duration_seconds.toFixed(1))
+    : t.motionIdleDescription;
+  motionTicks.querySelectorAll("button").forEach((tick, index) => {
+    const waypoint = motionPreview?.waypoints[index];
+    if (!waypoint) return;
+    tick.setAttribute("aria-label", t.motionJump.replace("{label}", waypoint.label || `${index + 1}`).replace("{time}", waypoint.timestamp_seconds.toFixed(1)));
+  });
+}
+
+function renderMotionTicks() {
+  motionTicks.textContent = "";
+  if (!motionPreview || motionPreview.duration_seconds <= 0) return;
+  motionPreview.waypoints.forEach((waypoint, index) => {
+    const tick = document.createElement("button");
+    tick.type = "button";
+    tick.style.left = `${(waypoint.timestamp_seconds / motionPreview.duration_seconds) * 100}%`;
+    tick.addEventListener("click", () => {
+      setMotionPlaying(false);
+      motionTime = waypoint.timestamp_seconds;
+      drawMotionFrame(motionTime);
+    });
+    motionTicks.append(tick);
+  });
+}
+
+function motionFrameLoop(timestamp) {
+  if (!motionPlaying || !motionPreview) return;
+  const delta = motionLastTimestamp ? Math.min(0.25, (timestamp - motionLastTimestamp) / 1000) : 0;
+  motionLastTimestamp = timestamp;
+  motionTime += delta;
+  if (motionTime >= motionPreview.duration_seconds) motionTime = 0;
+  drawMotionFrame(motionTime);
+  motionFrameId = requestAnimationFrame(motionFrameLoop);
+}
+
+function syncMotionPlayback() {
+  const visible = motionOnScreen && !document.body.classList.contains("workspace-open");
+  const shouldRun = motionIntent && Boolean(motionPreview) && visible;
+  if (shouldRun === motionPlaying) return;
+  motionPlaying = shouldRun;
+  cancelAnimationFrame(motionFrameId);
+  motionLastTimestamp = 0;
+  if (motionPlaying) motionFrameId = requestAnimationFrame(motionFrameLoop);
+}
+
+function setMotionPlaying(playing) {
+  const canPlay = Boolean(motionPreview) && motionPreview.duration_seconds > 0;
+  motionIntent = playing && canPlay;
+  motionPlayButton.setAttribute("aria-pressed", String(motionIntent));
+  syncMotionPlayback();
+  renderMotionLabels();
+}
+
+function setMotionPreview(preview) {
+  const key = preview ? JSON.stringify(preview) : "";
+  if (key === motionPreviewKey) return;
+  motionPreviewKey = key;
+  motionPreview = preview;
+  motionTime = 0;
+  buildMotionScene(preview || MOTION_IDLE_PREVIEW);
+  document.querySelector("#motion-preview").classList.toggle("is-idle", !preview);
+  motionPlayButton.disabled = !preview;
+  motionScrubber.disabled = !preview;
+  renderMotionTicks();
+  renderMotionLabels();
+  drawMotionFrame(0);
+  setMotionPlaying(Boolean(preview) && !reducedMotion.matches);
+}
+
+
+function applyExample() {
+  const t = translations[currentLanguage];
+  const selectRadio = (name, value) => {
+    const radio = document.querySelector(`input[name="${name}"][value="${value}"]`);
+    if (!radio || radio.checked) return;
+    radio.checked = true;
+    radio.dispatchEvent(new Event("change", { bubbles: true }));
+  };
+  taskInput.value = t.exampleTask;
+  selectRadio("destination", "robot");
+  robotModel.value = t.exampleRobot;
+  selectRadio("source-type", "youtube");
+  videoUrl.value = t.exampleSource;
+  taskError.textContent = "";
+  destinationError.textContent = "";
+  sourceError.textContent = "";
+  fillReview();
+  showStep(4);
+  showProjectFeedback(t.exampleApplied);
+}
+
 form.addEventListener("click", (event) => {
   const nextButton = event.target.closest("[data-next]");
   const backButton = event.target.closest("[data-back]");
@@ -1054,6 +1974,9 @@ document.querySelectorAll("input[name='destination']").forEach((radio) => {
     currentProject = null;
     computerPracticePanel.hidden = true;
     videoProcedurePanel.hidden = true;
+    workspaceViewButtons.find((button) => button.dataset.workspaceTarget === "video").hidden = true;
+    workspaceViewButtons.find((button) => button.dataset.workspaceTarget === "practice").hidden = true;
+    setWorkspaceView("setup", false);
   });
 });
 
@@ -1066,6 +1989,9 @@ document.querySelectorAll("input[name='source-type']").forEach((radio) => {
     currentProject = null;
     computerPracticePanel.hidden = true;
     videoProcedurePanel.hidden = true;
+    workspaceViewButtons.find((button) => button.dataset.workspaceTarget === "video").hidden = true;
+    workspaceViewButtons.find((button) => button.dataset.workspaceTarget === "practice").hidden = true;
+    setWorkspaceView("setup", false);
   });
 });
 
@@ -1084,11 +2010,54 @@ computerPracticeForm.addEventListener("submit", (event) => { event.preventDefaul
 extractVideoButton.addEventListener("click", extractProjectVideoProcedure);
 approveVideoProcedureButton.addEventListener("click", () => reviewProjectVideoProcedure("approve"));
 rejectVideoProcedureButton.addEventListener("click", () => reviewProjectVideoProcedure("reject"));
+procedureStepPrevious.addEventListener("click", () => { currentProcedureStep -= 1; renderProcedureStepPage(); });
+procedureStepNext.addEventListener("click", () => { currentProcedureStep += 1; renderProcedureStepPage(); });
+document.querySelectorAll('a[href="#entrenar"]').forEach((anchor) => anchor.addEventListener("click", (event) => {
+  event.preventDefault();
+  openWorkspace("setup", anchor);
+}));
+workspaceCloseButton.addEventListener("click", closeWorkspace);
+workspaceViewButtons.forEach((button) => button.addEventListener("click", () => setWorkspaceView(button.dataset.workspaceTarget)));
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && document.body.classList.contains("workspace-open")) closeWorkspace();
+  trapWorkspaceFocus(event);
+});
 [browserTargetUrl, browserTextSelector, browserSampleText].forEach((input) => input.addEventListener("input", () => {
   browserPracticeApproval.checked = false;
   browserPracticeError.textContent = "";
   renderPracticePlan();
 }));
+
+motionPlayButton.addEventListener("click", () => setMotionPlaying(!motionIntent));
+if (typeof IntersectionObserver === "function") {
+  new IntersectionObserver((entries) => {
+    motionOnScreen = entries.some((entry) => entry.isIntersecting);
+    syncMotionPlayback();
+  }, { threshold: 0.15 }).observe(document.querySelector(".source-monitor"));
+}
+motionScrubber.addEventListener("input", () => {
+  if (!motionPreview) return;
+  setMotionPlaying(false);
+  motionTime = (Number(motionScrubber.value) / 1000) * motionPreview.duration_seconds;
+  drawMotionFrame(motionTime);
+});
+useExampleButton.addEventListener("click", applyExample);
+videoNextStepAction.addEventListener("click", () => videoNextStepHandler?.());
+motionCostApproval.addEventListener("change", renderMotionEvidence);
+runMotionAnalysisButton.addEventListener("click", runMotionAnalysis);
+stepJumpButtons.forEach((button) => button.addEventListener("click", () => { if (!button.disabled) showStep(Number(button.dataset.stepJump)); }));
+[robotModel, computerApplication, videoUrl].forEach((input) => input.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  if (!validateCurrentStep()) return;
+  if (currentStep === 3) fillReview();
+  showStep(Math.min(4, currentStep + 1));
+}));
+sourceQuery.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  searchAutomaticSources();
+});
 processButton.addEventListener("click", () => startProcessing(translations[currentLanguage].demoTask, "local-simulation://guided-demo"));
 document.querySelectorAll("[data-language]").forEach((button) => button.addEventListener("click", () => applyLanguage(button.dataset.language)));
 
@@ -1114,5 +2083,8 @@ const pageParameters = new URLSearchParams(window.location.search);
 let preferredLanguage = navigator.language.toLowerCase().startsWith("es") ? "es" : "en";
 try { preferredLanguage = localStorage.getItem("aprendiz-language") || preferredLanguage; } catch (_) { /* Use browser language. */ }
 if (translations[pageParameters.get("lang")]) preferredLanguage = pageParameters.get("lang");
+setMotionPreview(null);
 applyLanguage(preferredLanguage);
+loadRecentWork();
+if (location.hash === "#entrenar") openWorkspace("setup", null);
 fetch("/health").then((response) => { if (!response.ok) throw new Error("Health check failed"); return response.json(); }).then(() => { systemChecked = true; systemOnline = true; updateSystemStatus(); }).catch(() => { systemChecked = true; systemOnline = false; updateSystemStatus(); });

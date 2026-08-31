@@ -70,13 +70,13 @@ def test_frozen_evaluation_passes_without_disclosing_expected_values() -> None:
         "/api/learning/evaluate/frozen",
         json={
             "evaluation_id": "eval-001",
-            "skill_id": "dog-gait-v1",
-            "case_id": "robot-gait-sim-001",
+            "skill_id": "robot-motion-safety-validation",
+            "case_id": "robot-motion-velocity-limit-001",
             "actual_output": {
-                "simulation_only": True,
-                "safety_passed": True,
-                "falls": 0,
-                "joint_limit_violations": 0,
+                "status": "rejected",
+                "safety_passed": False,
+                "validation_scope": "not_validated",
+                "learning_level": "observation",
             },
         },
     )
@@ -87,6 +87,8 @@ def test_frozen_evaluation_passes_without_disclosing_expected_values() -> None:
     assert result["score"] == 1.0
     assert result["expected_output_disclosed"] is False
     assert "expected_output" not in result
+    assert result["expected_authored_by"] == "specification"
+    assert result["counts_as_external_validation"] is True
 
 
 def test_frozen_evaluation_reports_field_failure_without_answer() -> None:
@@ -94,13 +96,13 @@ def test_frozen_evaluation_reports_field_failure_without_answer() -> None:
         "/api/learning/evaluate/frozen",
         json={
             "evaluation_id": "eval-002",
-            "skill_id": "dog-gait-v1",
-            "case_id": "robot-gait-sim-001",
+            "skill_id": "robot-motion-safety-validation",
+            "case_id": "robot-motion-velocity-limit-001",
             "actual_output": {
-                "simulation_only": True,
+                "status": "procedure_extracted",
                 "safety_passed": False,
-                "falls": 1,
-                "joint_limit_violations": 0,
+                "validation_scope": "not_validated",
+                "learning_level": "observation",
             },
         },
     )
@@ -108,8 +110,9 @@ def test_frozen_evaluation_reports_field_failure_without_answer() -> None:
     assert response.status_code == 200
     result = response.json()
     assert result["passed"] is False
-    assert result["score"] == 0.5
+    assert result["score"] == 0.75
     assert all("expected result" in failure for failure in result["failures"])
+    assert "procedure_extracted" not in " ".join(result["failures"])
 
 
 def test_unknown_frozen_case_returns_not_found() -> None:

@@ -1,0 +1,13 @@
+{
+  "case_id": "robot-motion-velocity-limit-001",
+  "skill_id": "robot-motion-safety-validation",
+  "description": "A single joint commanded from 0 to 90 degrees in one second against a stated 60 deg/s limit must be rejected. 90 / 1 = 90, which exceeds 60, so the outcome follows from the limit alone and can be checked by hand.",
+  "authored_by": "specification",
+  "source": "Joint velocity rule documented in RobotMotionTrainingService safety validation.",
+  "expected": {
+    "status": "rejected",
+    "safety_passed": false,
+    "validation_scope": "not_validated",
+    "learning_level": "observation"
+  }
+}

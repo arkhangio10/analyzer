@@ -33,6 +33,10 @@ def test_processing_session_advances_and_exposes_real_results() -> None:
     assert created.current_stage_index == 0
     assert created.cloud_calls_made == 0
     assert created.training_result is None
+    assert created.motion_preview is not None
+    assert created.motion_preview.physics_simulated is False
+    assert created.motion_preview.duration_seconds == 11
+    assert len(created.motion_preview.waypoints) == 10
 
     now[0] = 102.2
     processing = service.get(created.session_id)
@@ -49,6 +53,7 @@ def test_processing_session_advances_and_exposes_real_results() -> None:
     assert completed.training_result.safety_passed is True
     assert completed.training_result.metrics is not None
     assert completed.training_result.metrics.joint_count == 6
+    assert completed.motion_preview is not None
     assert completed.evaluation_result is not None
     assert completed.evaluation_result.passed is True
     assert completed.evaluation_result.score == 1

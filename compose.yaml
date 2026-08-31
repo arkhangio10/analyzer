@@ -9,6 +9,9 @@ services:
       GOOGLE_GENAI_USE_VERTEXAI: "false"
       COMPUTER_EXECUTION_BOUNDARY: application_container
       COMPUTER_BROWSER_ENABLED: "true"
+      DATA_DIR: /data
+    volumes:
+      - aprendiz-data:/data
     read_only: true
     tmpfs:
       - /app/.runtime:rw,noexec,nosuid,nodev,size=64m,uid=10001,gid=10001,mode=0700
@@ -21,3 +24,6 @@ services:
     shm_size: 256mb
     init: true
     restart: unless-stopped
+
+volumes:
+  aprendiz-data:
