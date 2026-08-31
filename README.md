@@ -92,6 +92,28 @@ docker compose up --build
 
 Open `http://localhost:8080`. The image does not copy `.env`, local runtimes, test data, user uploads, or credentials. Stop it with `docker compose down`.
 
+If port 8080 is already used by another local service, choose a different host
+port without changing the container contract:
+
+```powershell
+$env:APP_PORT = "8081"
+docker compose up --build
+```
+
+The corresponding address is then `http://localhost:8081`.
+
+The test suites intentionally run separately:
+
+```powershell
+python -m pytest
+python -m pytest tests/browser
+```
+
+The first command runs deterministic unit and API coverage. The second starts a
+temporary local server and drives an installed Chrome through the real
+workspace. The GitHub Actions workflow runs both suites with all provider calls
+disabled, then independently builds and checks the hardened Compose runtime.
+
 The Compose runtime has been verified on Docker Desktop with WSL 2. It runs as
 the unprivileged `aprendiz` user, keeps the image filesystem read-only, mounts
 bounded temporary storage for runtime data, drops Linux capabilities, enables

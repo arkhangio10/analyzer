@@ -1,0 +1,71 @@
+name: Test
+
+on:
+  push:
+    branches: [main, motion-evidence]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GOOGLE_GENAI_ENABLED: "false"
+  GOOGLE_GENAI_USE_VERTEXAI: "false"
+  YOUTUBE_SEARCH_ENABLED: "false"
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Run unit tests
+        run: python -m pytest
+      - name: Verify browser runtime
+        run: test -x /usr/bin/google-chrome
+      - name: Run browser tests
+        run: python -m pytest tests/browser
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+      - name: Build and start the hardened application
+        run: docker compose up --build -d
+      - name: Verify runtime boundaries
+        run: |
+          for attempt in $(seq 1 45); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then
+              break
+            fi
+            if [ "$attempt" -eq 45 ]; then
+              docker compose logs
+              exit 1
+            fi
+            sleep 1
+          done
+          test "$(docker compose exec -T aprendiz id -u)" = "10001"
+          docker compose exec -T aprendiz python -c "import json, urllib.request; status=json.load(urllib.request.urlopen('http://127.0.0.1:8080/api/status')); assert status['durable_storage'] is True"
+          docker compose exec -T aprendiz test -f /app/data/evaluations/robot-motion-within-limits-001.json
+          docker compose exec -T aprendiz test -f /app/data/evaluations/robot-motion-velocity-limit-001.json
+          if docker compose exec -T aprendiz touch /app/root-must-stay-read-only; then
+            echo "The application root unexpectedly accepted a write."
+            exit 1
+          fi
+      - name: Show container logs after a failure
+        if: failure()
+        run: docker compose logs
+      - name: Stop the ephemeral CI stack
+        if: always()
+        run: docker compose down -v
