@@ -1,5 +1,7 @@
 """Routes for approved project-video extraction and human review."""
 
+from typing import Literal
+
 from fastapi import APIRouter, HTTPException, status
 
 from app.api.runtime import (
@@ -115,6 +117,7 @@ async def review_project_video_procedure(
 async def adapt_project_video_procedure(
     project_id: str,
     extraction_id: str,
+    language: Literal["es", "en"] = "en",
 ) -> DestinationAdaptationPlan:
     """Propose a destination plan for an approved procedure without running it."""
     try:
@@ -132,7 +135,7 @@ async def adapt_project_video_procedure(
     except MotionAnalysisNotFoundError:
         analysis = None
     try:
-        return adaptation_service.adapt(project, record, analysis)
+        return adaptation_service.adapt(project, record, analysis, language)
     except AdaptationNotApprovedError as error:
         raise HTTPException(status_code=409, detail=str(error)) from error
 

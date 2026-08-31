@@ -56,7 +56,17 @@ Then visit `/` for the APRENDIZ interface, `/api/status` for project status, `/h
 
 ### Where your work is stored
 
-Project drafts and video-procedure records are written as one JSON file each under `DATA_DIR/records/` (`data/records/` by default), so an approved procedure and the cloud call that produced it survive a restart. `GET /api/status` reports `durable_storage`; when the directory cannot be written the application keeps working in memory and says so rather than losing work silently. Under Docker the records live in the `aprendiz-data` named volume mounted at `/data`, which survives `docker compose down` and is removed by `docker compose down -v`.
+Project drafts, video procedures, robot-motion sessions and evaluations,
+computer practices, sandbox executions, and browser executions are written as
+versioned JSON records under `DATA_DIR/records/` (`data/records/` by default).
+Browser and file evidence contains hashes, counts, statuses, and redacted
+targets rather than typed values or file contents. A pending browser draft that
+required redaction reloads blocked and must be created and approved again.
+`GET /api/status` reports both `durable_storage` and
+`workflow_evidence_durable`; when a record directory cannot be written the
+application keeps working in memory and reports that limitation. Under Docker
+the records live in the `aprendiz-data` named volume mounted at `/data`, which
+survives `docker compose down` and is removed by `docker compose down -v`.
 
 `GET /api/projects` lists retained projects and `GET /api/projects/{project_id}/video-procedures` lists their extractions; the training workspace shows the same list as saved work you can reopen after a reload.
 
@@ -64,7 +74,8 @@ Project drafts and video-procedure records are written as one JSON file each und
 
 The protected evaluation set lives in `data/evaluations/`, ships with the application, and is version-controlled so the answers a model is graded against can be reviewed. Each case declares `authored_by`, and results report whether a pass counts as external validation. See `data/evaluations/README.md` before adding a case.
 
-These files contain your task descriptions and extracted procedures. They are excluded from Git and must never be committed. Training sessions, computer practices, and browser executions are still in-process only.
+These files contain user task descriptions and workflow evidence. They are
+excluded from Git and must never be committed.
 
 In the interface, `Run local simulation` processes the built-in trajectory and animates it in the source monitor. The animation can be paused, scrubbed, and jumped waypoint by waypoint; it does not autoplay when the browser requests reduced motion. In the training workspace, `Use an example` fills a complete robot setup in one click, the numbered tabs jump back to any visited step, and Enter advances the single-line setup fields.
 
@@ -123,7 +134,7 @@ they do not authorize robot hardware control or unrestricted host access.
 
 ## Development status
 
-The responsive product interface now connects both destination paths to real backend behavior. Robot projects start the simulation-only motion session. Computer projects can create a user-reviewed browser plan, show its exact public-domain allowlist, require explicit action and network approval, execute it in containerized Chromium, and display redacted action and network evidence. Approved YouTube sources can now be extracted through a project-bound Vertex call, retained as a versioned procedure awaiting human review, and explicitly approved or rejected without automatic execution. Failed provider attempts are also retained with a safe failure category. Storage remains in-process rather than durable. Automatic procedure-to-action mapping, generalization, durable persistence, and per-user Docker-agent export are **not implemented**.
+The responsive product interface now connects both destination paths to real backend behavior. Robot projects start the simulation-only motion session. Computer projects can create a user-reviewed browser plan, show its exact public-domain allowlist, require explicit action and network approval, execute it in containerized Chromium, and display redacted action and network evidence. Approved YouTube sources can now be extracted through a project-bound Vertex call, retained as a versioned procedure awaiting human review, and explicitly approved or rejected without automatic execution. Failed provider attempts are also retained with a safe failure category. Workflow evidence is durable under the configured data directory, and adaptation and retarget explanations follow the requested Spanish or English language. Automatic procedure-to-action mapping, generalization, and per-user Docker-agent export are **not implemented**.
 
 ## Product experience and delivery direction
 

@@ -15,8 +15,10 @@ from app.models.computer_execution import (
     ComputerPlanValidationRequest,
     ComputerPlanValidationResult,
     ComputerSandboxExecutionRequest,
+    ComputerSandboxExecutionRecord,
     ComputerSandboxExecutionResult,
 )
+from app.services.record_store import JsonRecordStore
 
 
 class ComputerExecutionNotFoundError(LookupError):
@@ -32,6 +34,7 @@ class ComputerExecutionService:
         self,
         sandbox_root: Path | None = None,
         isolation_boundary: str | None = None,
+        store: JsonRecordStore | None = None,
     ) -> None:
         self._sandbox_root = sandbox_root or (
             Path(__file__).resolve().parents[2] / ".runtime" / "computer_sandboxes"
@@ -39,7 +42,29 @@ class ComputerExecutionService:
         self._isolation_boundary = (
             isolation_boundary or get_settings().computer_execution_boundary
         )
-        self._executions: dict[str, ComputerSandboxExecutionResult] = {}
+        self._record_store = store
+        records = store.load_all(ComputerSandboxExecutionRecord) if store else {}
+        self._executions = {
+            execution_id: record.execution
+            for execution_id, record in records.items()
+        }
+
+    @property
+    def is_durable(self) -> bool:
+        """Report whether redacted execution evidence survives a restart."""
+        return bool(self._record_store and self._record_store.is_durable)
+
+    def _retain(
+        self,
+        result: ComputerSandboxExecutionResult,
+    ) -> ComputerSandboxExecutionResult:
+        self._executions[result.execution_id] = result
+        if self._record_store:
+            self._record_store.save(
+                result.execution_id,
+                ComputerSandboxExecutionRecord(execution=result),
+            )
+        return result
 
     def validate(
         self,
@@ -108,8 +133,7 @@ class ComputerExecutionService:
                 violations=violations,
                 isolation_boundary=self._isolation_boundary,
             )
-            self._executions[execution_id] = result
-            return result
+            return self._retain(result)
 
         sandbox = (self._sandbox_root / execution_id).resolve()
         sandbox.mkdir(parents=True, exist_ok=False)
@@ -136,8 +160,7 @@ class ComputerExecutionService:
             actions=action_results,
             isolation_boundary=self._isolation_boundary,
         )
-        self._executions[execution_id] = result
-        return result
+        return self._retain(result)
 
     def get_execution(self, execution_id: str) -> ComputerSandboxExecutionResult:
         """Retrieve redacted execution evidence without reading sandbox contents."""

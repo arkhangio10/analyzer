@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, status
 
+from app.api.runtime import robot_motion_training_service as training_service
 from app.models.evaluation import EvaluationResult
 from app.models.robot_motion import (
     RobotMotionEvaluationRequest,
@@ -11,12 +12,10 @@ from app.models.robot_motion import (
 from app.services.robot_motion_training import (
     RobotMotionSessionNotFoundError,
     RobotMotionSessionRejectedError,
-    RobotMotionTrainingService,
 )
 
 
 router = APIRouter(prefix="/api/training/robot-motion", tags=["training"])
-training_service = RobotMotionTrainingService()
 
 
 @router.post(

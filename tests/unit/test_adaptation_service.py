@@ -149,6 +149,18 @@ def test_a_vague_computer_step_names_what_is_missing() -> None:
     assert any("CSS selector" in item for item in step.missing_evidence)
 
 
+def test_spanish_adaptation_localizes_missing_evidence_and_block_reason() -> None:
+    plan = DestinationAdaptationService().adapt(
+        project("robot"),
+        record(["Empuja el cuerpo hacia adelante."]),
+        language="es",
+    )
+
+    assert any("Trayectoria articular" in item for item in plan.missing_evidence)
+    assert any("simulador" in item for item in plan.missing_evidence)
+    assert "no código para el robot" in (plan.execution_blocked_reason or "")
+
+
 def test_execution_stays_blocked_for_every_destination() -> None:
     service = DestinationAdaptationService()
 
@@ -320,6 +332,30 @@ def test_usable_samples_without_a_retarget_still_need_a_person() -> None:
     assert step.readiness is AdaptationReadiness.NEEDS_HUMAN_DETAIL
     assert plan.actionable_step_count == 0
     assert plan.requires_human_completion is True
+
+    spanish_motion = analysis(usable=True, retarget_supported=False)
+    spanish_motion = spanish_motion.model_copy(
+        update={
+            "retarget": spanish_motion.retarget.model_copy(
+                update={
+                    "missing_evidence": [
+                        "Un simulador seleccionado, más validación de colisiones y dinámica.",
+                    ]
+                }
+            )
+        }
+    )
+    relocalized = DestinationAdaptationService().adapt(
+        project("robot"),
+        timed_record([["01:05"]]),
+        spanish_motion,
+        language="en",
+    )
+    assert any("selected simulator" in item for item in relocalized.missing_evidence)
+    assert not any(
+        "simulador seleccionado" in item
+        for item in relocalized.missing_evidence
+    )
 
 
 def test_an_analysis_of_a_different_extraction_is_ignored() -> None:

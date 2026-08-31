@@ -15,8 +15,10 @@ from app.models.robot_motion import (
     RobotMotionMetrics,
     RobotMotionTrainingRequest,
     RobotMotionTrainingResult,
+    RobotMotionSessionRecord,
     RobotMotionTrainingStatus,
 )
+from app.services.record_store import JsonRecordStore
 
 
 class RobotMotionSessionNotFoundError(LookupError):
@@ -35,9 +37,29 @@ class RobotMotionTrainingService:
     data against the stored external reference.
     """
 
-    def __init__(self) -> None:
-        self._requests: dict[str, RobotMotionTrainingRequest] = {}
-        self._results: dict[str, RobotMotionTrainingResult] = {}
+    def __init__(self, store: JsonRecordStore | None = None) -> None:
+        self._store = store
+        records = store.load_all(RobotMotionSessionRecord) if store else {}
+        self._records: dict[str, RobotMotionSessionRecord] = records
+        self._requests = {
+            session_id: record.request for session_id, record in records.items()
+        }
+        self._results = {
+            session_id: record.result for session_id, record in records.items()
+        }
+
+    @property
+    def is_durable(self) -> bool:
+        """Report whether sessions and evaluations survive a restart."""
+        return bool(self._store and self._store.is_durable)
+
+    def _retain(self, record: RobotMotionSessionRecord) -> None:
+        session_id = record.result.session_id
+        self._records[session_id] = record
+        self._requests[session_id] = record.request
+        self._results[session_id] = record.result
+        if self._store:
+            self._store.save(session_id, record)
 
     def train(self, request: RobotMotionTrainingRequest) -> RobotMotionTrainingResult:
         """Validate one demonstration and convert it into a procedure."""
@@ -78,8 +100,7 @@ class RobotMotionTrainingService:
                 ),
             )
 
-        self._requests[session_id] = request
-        self._results[session_id] = result
+        self._retain(RobotMotionSessionRecord(request=request, result=result))
         return result
 
     def get_result(self, session_id: str) -> RobotMotionTrainingResult:
@@ -121,7 +142,7 @@ class RobotMotionTrainingService:
             )
 
         if failures:
-            return EvaluationResult(
+            evaluation = EvaluationResult(
                 evaluation_id=request.execution_id,
                 skill_id=session_id,
                 passed=False,
@@ -139,6 +160,8 @@ class RobotMotionTrainingService:
                 failures=failures,
                 notes=self._evaluation_note(),
             )
+            self._retain_evaluation(session_id, evaluation)
+            return evaluation
 
         joint_errors = [
             abs(actual - expected)
@@ -185,7 +208,7 @@ class RobotMotionTrainingService:
             )
         score = round(position_score * 0.85 + duration_score * 0.15, 6)
 
-        return EvaluationResult(
+        evaluation = EvaluationResult(
             evaluation_id=request.execution_id,
             skill_id=session_id,
             passed=not failures,
@@ -206,6 +229,17 @@ class RobotMotionTrainingService:
             failures=failures,
             notes=self._evaluation_note(),
         )
+        self._retain_evaluation(session_id, evaluation)
+        return evaluation
+
+    def _retain_evaluation(
+        self,
+        session_id: str,
+        evaluation: EvaluationResult,
+    ) -> None:
+        record = self._records[session_id]
+        evaluations = [*record.evaluations, evaluation][-100:]
+        self._retain(record.model_copy(update={"evaluations": evaluations}))
 
     @staticmethod
     def _validate_demonstration(

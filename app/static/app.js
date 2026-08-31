@@ -530,6 +530,9 @@ function applyLanguage(language) {
   renderMotionLabels();
   drawMotionFrame(motionTime);
   setWorkspaceView(workspace.dataset.workspaceView || "setup", false);
+  if (currentProject && videoProcedureRecord?.status === "approved") {
+    void loadAdaptationPlan();
+  }
 }
 
 function showStep(stepNumber) {
@@ -1070,7 +1073,8 @@ async function loadAdaptationPlan() {
   try {
     const response = await fetch(
       `/api/projects/${encodeURIComponent(currentProject.project_id)}`
-      + `/video-procedures/${encodeURIComponent(videoProcedureRecord.extraction_id)}/adapt`,
+      + `/video-procedures/${encodeURIComponent(videoProcedureRecord.extraction_id)}`
+      + `/adapt?language=${encodeURIComponent(currentLanguage)}`,
       { method: "POST" },
     );
     if (!response.ok) return;

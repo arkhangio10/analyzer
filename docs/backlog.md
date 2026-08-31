@@ -11,7 +11,7 @@ acknowledgement authorize one bounded call only.
 
 | ID | Status | Work | Acceptance evidence |
 | --- | --- | --- | --- |
-| P0.1 | done | Verify the host suites | 169 unit tests and 19 browser tests pass in separate processes. |
+| P0.1 | done | Verify the host suites | 175 unit tests and 19 browser tests pass in separate processes. |
 | P0.2 | done | Verify the hardened Compose runtime | Image builds; UID/GID is 10001; root is read-only; frozen cases ship in the image; `durable_storage` is true; a project survives a container restart. |
 | P0.3 | done | Run checks continuously | GitHub Actions run `33354722460` passed the Python and hardened-container jobs with every provider integration disabled. |
 | P0.4 | done | Integrate `motion-evidence` | `main` was advanced without rewriting history and includes the reviewed work through commit `6479644`. |
@@ -36,7 +36,7 @@ creating an API key is not on the critical path.
 | P2.2 | blocked | Convert an approved procedure into an inert browser-practice draft | Every action and exact host are visible; the draft cannot execute and never implies approval. |
 | P2.3 | blocked | Generate progressive variations | Variations are admitted only when an external evaluator exists; model-authored answers never count as proof. |
 | P2.4 | blocked | Add bounded reflection, correction, and retry | A failure creates a new procedure version, preserves the old version, shows a diff, limits retries, and requires renewed human approval. |
-| P2.5 | ready | Persist remaining workflow evidence | Training sessions, computer practices, and browser executions survive restart with redacted evidence and schema versions. |
+| P2.5 | done | Persist remaining workflow evidence | Robot sessions and evaluations, computer practices, sandbox executions, and browser executions reload from schema-versioned records; typed values, URL queries, and file contents do not reach those evidence files. |
 | P2.6 | blocked | Prove one unseen case end to end | The protected expected result is external to the learning loop and the complete execution evidence is retained. |
 
 ## P3 - Robot evidence and simulation
@@ -65,8 +65,8 @@ audit. More frames or another prose extraction do not make them measurements.
 
 ## Cross-cutting work
 
-- Localize server-owned adaptation and retarget explanations instead of showing
-  English strings in both interface languages.
+- Done: adaptation and retarget explanations use the requested Spanish or
+  English language; changing the interface language refreshes adaptation text.
 - Keep provider, browser, simulator, and hardware boundaries explicit.
 - Preserve failures and uncertainty in every result.
 - Never mutate frozen expected answers from a learning or retry path.

@@ -66,3 +66,10 @@ class ComputerBrowserExecutionResult(BaseModel):
         "managed_local_directory",
         "application_container",
     ]
+
+
+class ComputerBrowserExecutionRecord(BaseModel):
+    """Versioned durable envelope for redacted browser evidence."""
+
+    schema_version: Literal[1] = 1
+    execution: ComputerBrowserExecutionResult

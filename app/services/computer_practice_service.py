@@ -3,17 +3,19 @@
 from uuid import uuid4
 
 from app.models.browser_execution import ComputerBrowserExecutionRequest
-from app.models.computer_execution import ComputerExecutionStatus
+from app.models.computer_execution import ComputerActionKind, ComputerExecutionStatus
 from app.models.computer_practice import (
     ComputerPractice,
     ComputerPracticeApprovalRequest,
     ComputerPracticeDraftRequest,
+    ComputerPracticeRecord,
     ComputerPracticeRunResult,
     ComputerPracticeStatus,
 )
 from app.models.project import ComputerExecutionContract
 from app.services.browser_execution_service import BrowserExecutionService
 from app.services.project_service import ProjectNotFoundError, ProjectService
+from app.services.record_store import JsonRecordStore
 
 
 class ComputerPracticeNotFoundError(LookupError):
@@ -39,10 +41,72 @@ class ComputerPracticeService:
         self,
         project_service: ProjectService,
         browser_execution_service: BrowserExecutionService,
+        store: JsonRecordStore | None = None,
     ) -> None:
         self._project_service = project_service
         self._browser_execution_service = browser_execution_service
-        self._practices: dict[str, ComputerPractice] = {}
+        self._record_store = store
+        records = store.load_all(ComputerPracticeRecord) if store else {}
+        self._practices = {
+            practice_id: record.practice
+            for practice_id, record in records.items()
+        }
+
+    @property
+    def is_durable(self) -> bool:
+        """Report whether redacted practice evidence survives a restart."""
+        return bool(self._record_store and self._record_store.is_durable)
+
+    def _retain(self, practice: ComputerPractice) -> ComputerPractice:
+        self._practices[practice.practice_id] = practice
+        if self._record_store:
+            self._record_store.save(
+                practice.practice_id,
+                self._persistence_record(practice),
+            )
+        return practice
+
+    @staticmethod
+    def _persistence_record(practice: ComputerPractice) -> ComputerPracticeRecord:
+        """Remove typed values and URL queries before a practice reaches disk."""
+        actions = []
+        redacted_ids: list[str] = []
+        for action in practice.actions:
+            updates: dict[str, str | None] = {}
+            if (
+                action.kind is ComputerActionKind.TYPE_TEXT
+                and action.value_template is not None
+            ):
+                updates["value_template"] = None
+            if action.kind is ComputerActionKind.NAVIGATE:
+                redacted_url = BrowserExecutionService._redact_url(action.target)
+                if redacted_url and redacted_url != action.target:
+                    updates["target"] = redacted_url
+            if updates:
+                redacted_ids.append(action.action_id)
+                actions.append(action.model_copy(update=updates))
+            else:
+                actions.append(action)
+
+        safe_practice = practice.model_copy(update={"actions": actions})
+        if (
+            redacted_ids
+            and safe_practice.status is ComputerPracticeStatus.AWAITING_APPROVAL
+        ):
+            safe_practice = safe_practice.model_copy(
+                update={
+                    "status": ComputerPracticeStatus.BLOCKED,
+                    "violations": [
+                        *safe_practice.violations,
+                        "Private action values were redacted at rest; create and "
+                        "approve a new draft before execution.",
+                    ],
+                }
+            )
+        return ComputerPracticeRecord(
+            practice=safe_practice,
+            redacted_action_ids=redacted_ids,
+        )
 
     def create(
         self,
@@ -75,8 +139,7 @@ class ComputerPracticeService:
             actions=request.actions,
             approved_hosts=request.approved_hosts,
         )
-        self._practices[practice.practice_id] = practice
-        return practice
+        return self._retain(practice)
 
     def get(self, project_id: str, practice_id: str) -> ComputerPractice:
         try:
@@ -124,5 +187,5 @@ class ComputerPracticeService:
                 "latest_execution_id": execution.execution_id,
             }
         )
-        self._practices[practice_id] = updated
+        self._retain(updated)
         return ComputerPracticeRunResult(practice=updated, execution=execution)

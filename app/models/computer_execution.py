@@ -112,3 +112,10 @@ class ComputerSandboxExecutionResult(BaseModel):
         "managed_local_directory",
         "application_container",
     ] = "managed_local_directory"
+
+
+class ComputerSandboxExecutionRecord(BaseModel):
+    """Versioned durable envelope for already-redacted file evidence."""
+
+    schema_version: Literal[1] = 1
+    execution: ComputerSandboxExecutionResult

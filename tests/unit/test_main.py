@@ -51,6 +51,7 @@ def test_project_status() -> None:
     assert payload["project"] == "APRENDIZ"
     assert payload["status"] == "mvp_in_progress"
     assert isinstance(payload["durable_storage"], bool)
+    assert payload["workflow_evidence_durable"] is True
 
 
 def test_health() -> None:

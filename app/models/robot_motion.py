@@ -5,6 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from app.models.evaluation import EvaluationResult
 from app.models.procedure import Procedure
 
 
@@ -78,6 +79,15 @@ class RobotMotionEvaluationRequest(BaseModel):
     waypoints: list[MotionWaypoint] = Field(min_length=2, max_length=500)
     joint_tolerance_degrees: float = Field(default=5, gt=0, le=45)
     duration_tolerance_seconds: float = Field(default=0.5, ge=0, le=30)
+
+
+class RobotMotionSessionRecord(BaseModel):
+    """Versioned training state required to evaluate again after a restart."""
+
+    schema_version: Literal[1] = 1
+    request: RobotMotionTrainingRequest
+    result: RobotMotionTrainingResult
+    evaluations: list[EvaluationResult] = Field(default_factory=list, max_length=100)
 
 
 class MotionPreviewRole(StrEnum):

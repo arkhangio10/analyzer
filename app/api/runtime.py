@@ -26,6 +26,7 @@ from app.services.project_reconciliation_service import (
 from app.services.project_service import ProjectService
 from app.services.project_video_procedure_service import ProjectVideoProcedureService
 from app.services.record_store import JsonRecordStore
+from app.services.robot_motion_training import RobotMotionTrainingService
 from app.services.storage_service import LocalVideoStorage
 
 
@@ -42,12 +43,20 @@ project_service = ProjectService(
 )
 adaptation_service = DestinationAdaptationService()
 project_reconciliation_service = ProjectReconciliationService()
-computer_execution_service = ComputerExecutionService()
-browser_execution_service = BrowserExecutionService()
+computer_execution_service = ComputerExecutionService(
+    store=JsonRecordStore(_records_root / "computer-executions"),
+)
+browser_execution_service = BrowserExecutionService(
+    store=JsonRecordStore(_records_root / "browser-executions"),
+)
 gemini_service = GeminiService()
 computer_practice_service = ComputerPracticeService(
     project_service,
     browser_execution_service,
+    store=JsonRecordStore(_records_root / "computer-practices"),
+)
+robot_motion_training_service = RobotMotionTrainingService(
+    store=JsonRecordStore(_records_root / "robot-motion-sessions"),
 )
 project_video_procedure_service = ProjectVideoProcedureService(
     project_service,

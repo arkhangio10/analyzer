@@ -114,7 +114,10 @@ def record(
 
 
 def request(**overrides: object) -> MotionAnalysisRequest:
-    values: dict[str, object] = {"acknowledge_cloud_cost": True}
+    values: dict[str, object] = {
+        "acknowledge_cloud_cost": True,
+        "output_language": "en",
+    }
     values.update(overrides)
     return MotionAnalysisRequest(**values)
 
@@ -237,6 +240,22 @@ def test_a_computer_project_gets_no_retarget_claim() -> None:
     assert analysis.retarget.retarget_supported is False
     assert analysis.retarget.destination_robot_model is None
     assert "nothing to drive" in analysis.retarget.reason
+
+
+def test_retarget_explanation_uses_the_requested_spanish() -> None:
+    service = MotionAnalysisService(StubGemini(report(rows())))
+
+    analysis = asyncio.run(
+        service.analyze(
+            project("computer"),
+            record(),
+            request(output_language="es"),
+        )
+    )
+
+    assert analysis.output_language == "es"
+    assert "computadora" in analysis.retarget.reason
+    assert "evidencia de la fuente" in analysis.retarget.reason
 
 
 def test_the_newest_analysis_is_returned_and_missing_ones_raise() -> None:

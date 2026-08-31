@@ -20,6 +20,7 @@ Three rules keep it truthful:
 from __future__ import annotations
 
 import re
+from typing import Literal
 from uuid import uuid4
 
 from app.models.adaptation import (
@@ -28,7 +29,12 @@ from app.models.adaptation import (
     AdaptedStep,
     DestinationAdaptationPlan,
 )
-from app.models.motion_analysis import MotionAnalysisRecord, ObservedJointAngle
+from app.models.motion_analysis import (
+    MotionAnalysisRecord,
+    MotionAuditCode,
+    MotionAuditFinding,
+    ObservedJointAngle,
+)
 from app.models.procedure import Procedure, ProcedureStep
 from app.models.project import ExecutionDestination, ProjectDraft
 from app.models.project_video_procedure import (
@@ -77,6 +83,62 @@ _COMPUTER_BLOCKED_REASON = (
 
 _SAMPLE_TOLERANCE_SECONDS = 1.0
 
+Language = Literal["es", "en"]
+
+_ES = {
+    _JOINT_SPACE: "Trayectoria articular: ángulos objetivo por articulación para cada paso.",
+    _TIMING: "Temporización: una marca de tiempo o duración para cada punto de paso.",
+    _PROFILE: "Un perfil ARP-1 normalizado para este modelo exacto de robot.",
+    _SIMULATOR: "Un simulador seleccionado, más validación de colisiones y dinámica.",
+    _COMPUTER_MISSING_TARGET: "Un host público exacto para aprobar, escrito como URL http(s).",
+    _COMPUTER_MISSING_SELECTOR: "El selector CSS del campo o control al que se refiere el paso.",
+}
+
+_ES_TO_EN = {
+    "Un perfil ARP-1 normalizado para este modelo exacto de robot.": _PROFILE,
+    "Un mapa escrito por una persona entre articulaciones observadas y articulaciones ARP-1, incluyendo signo y convención cero.": "A human-authored joint map from each observed joint to a named ARP-1 joint.",
+    "Muestras de ángulos articulares con marca de tiempo; el análisis no devolvió ninguna utilizable.": "Timestamped joint-angle samples; this analysis returned none that could be used.",
+    "Un simulador seleccionado, más validación de colisiones y dinámica.": _SIMULATOR,
+    "Muestras articulares que superen la auditoría de plausibilidad.": "Joint samples that survive the plausibility audit.",
+}
+
+
+def _text(value: str, language: Language) -> str:
+    """Translate deterministic evidence vocabulary without changing evidence."""
+    if language == "en":
+        return _ES_TO_EN.get(value, value)
+    direct = _ES.get(value)
+    if direct:
+        return direct
+    if "normalized ARP-1 profile" in value:
+        return _ES[_PROFILE]
+    if "human-authored joint map" in value:
+        return (
+            "Un mapa de articulaciones escrito por una persona desde cada "
+            "articulación observada hasta una articulación ARP-1 identificada."
+        )
+    if "selected simulator" in value:
+        return _ES[_SIMULATOR]
+    if "Timestamped joint-angle samples" in value:
+        return "Muestras de ángulos articulares con marca de tiempo."
+    if "plausibility audit" in value:
+        return "Muestras articulares que superen la auditoría de plausibilidad."
+    return value
+
+
+def _audit_text(finding: MotionAuditFinding, language: Language) -> str:
+    if language == "en":
+        return finding.message
+    messages = {
+        MotionAuditCode.NO_SAMPLES: "El análisis no devolvió muestras articulares utilizables.",
+        MotionAuditCode.MIRRORED_SIDES: "Los lados izquierdo y derecho repiten los mismos ángulos.",
+        MotionAuditCode.UNIFORM_CONFIDENCE: "Todas las muestras usan exactamente la misma confianza.",
+        MotionAuditCode.UNIFORM_VISIBILITY: "Todas las muestras usan exactamente la misma visibilidad.",
+        MotionAuditCode.ACYCLIC_ALL: "Ninguna articulación muestra los ciclos esperados del movimiento.",
+        MotionAuditCode.ACYCLIC_SOME: "Algunas articulaciones no muestran ciclos plausibles.",
+    }
+    return messages[finding.code]
+
 
 def parse_clock_timestamp(value: str) -> float | None:
     """Convert an MM:SS or HH:MM:SS source timestamp into seconds."""
@@ -117,7 +179,11 @@ def _samples_in_window(
     ]
 
 
-def _adapt_robot_step(order: int, step: ProcedureStep) -> AdaptedStep:
+def _adapt_robot_step(
+    order: int,
+    step: ProcedureStep,
+    language: Language,
+) -> AdaptedStep:
     """Judge one robot step by the words it is written in, with no analysis."""
     action = step.action
     has_angles = bool(_JOINT_EVIDENCE.search(action))
@@ -144,7 +210,7 @@ def _adapt_robot_step(order: int, step: ProcedureStep) -> AdaptedStep:
         proposed_action_kind=(
             AdaptationActionKind.MOTION_SEGMENT if has_angles else None
         ),
-        missing_evidence=missing,
+        missing_evidence=[_text(item, language) for item in missing],
     )
 
 
@@ -152,6 +218,7 @@ def _adapt_robot_step_with_motion(
     order: int,
     step: ProcedureStep,
     analysis: MotionAnalysisRecord,
+    language: Language,
 ) -> AdaptedStep:
     """Judge one robot step against the samples that actually cover it."""
     window = _step_window(step)
@@ -162,33 +229,49 @@ def _adapt_robot_step_with_motion(
         # Dense samples that failed the plausibility audit are worse than no
         # samples: they look like evidence. They never advance a step.
         covered = []
-        missing.extend(item.message for item in analysis.audit.findings[:2])
+        missing.extend(
+            _audit_text(item, language) for item in analysis.audit.findings[:2]
+        )
 
     if window is None:
         missing.append(
-            "This step carries no source timestamp, so no sample can be "
-            "matched to it."
+            "This step carries no source timestamp, so no sample can be matched to it."
+            if language == "en"
+            else "Este paso no tiene marca de tiempo de origen; no se puede asociar ninguna muestra."
         )
-        missing.append(_JOINT_SPACE)
-        missing.append(_TIMING)
+        missing.append(_text(_JOINT_SPACE, language))
+        missing.append(_text(_TIMING, language))
     elif not covered:
         if analysis.audit.is_usable:
             missing.append(
-                "No joint samples cover this step. The analysis sampled "
-                f"{analysis.window_start_seconds:g}s to "
-                f"{analysis.window_end_seconds:g}s at "
-                f"{analysis.requested_fps:g} fps; this step sits at "
-                f"{window[0]:g}s to {window[1]:g}s."
+                (
+                    "No joint samples cover this step. The analysis sampled "
+                    f"{analysis.window_start_seconds:g}s to "
+                    f"{analysis.window_end_seconds:g}s at "
+                    f"{analysis.requested_fps:g} fps; this step sits at "
+                    f"{window[0]:g}s to {window[1]:g}s."
+                )
+                if language == "en"
+                else (
+                    "Ninguna muestra articular cubre este paso. El análisis muestreó "
+                    f"de {analysis.window_start_seconds:g}s a "
+                    f"{analysis.window_end_seconds:g}s a "
+                    f"{analysis.requested_fps:g} fps; el paso está entre "
+                    f"{window[0]:g}s y {window[1]:g}s."
+                )
             )
-        missing.append(_JOINT_SPACE)
+        missing.append(_text(_JOINT_SPACE, language))
     if not analysis.retarget.retarget_supported:
         for item in analysis.retarget.missing_evidence:
-            if item not in missing:
-                missing.append(item)
-    if _PROFILE not in missing and not analysis.retarget.retarget_supported:
-        missing.append(_PROFILE)
-    if _SIMULATOR not in missing:
-        missing.append(_SIMULATOR)
+            translated = _text(item, language)
+            if translated not in missing:
+                missing.append(translated)
+    profile_text = _text(_PROFILE, language)
+    simulator_text = _text(_SIMULATOR, language)
+    if profile_text not in missing and not analysis.retarget.retarget_supported:
+        missing.append(profile_text)
+    if simulator_text not in missing:
+        missing.append(simulator_text)
 
     if covered and analysis.retarget.retarget_supported:
         readiness = AdaptationReadiness.ACTIONABLE
@@ -208,7 +291,11 @@ def _adapt_robot_step_with_motion(
             AdaptationActionKind.MOTION_SEGMENT if covered else None
         ),
         proposed_target=(
-            f"{len(covered)} samples across {len(joints)} observed joints"
+            (
+                f"{len(covered)} samples across {len(joints)} observed joints"
+                if language == "en"
+                else f"{len(covered)} muestras en {len(joints)} articulaciones observadas"
+            )
             if covered
             else None
         ),
@@ -216,7 +303,11 @@ def _adapt_robot_step_with_motion(
     )
 
 
-def _adapt_computer_step(order: int, step: ProcedureStep) -> AdaptedStep:
+def _adapt_computer_step(
+    order: int,
+    step: ProcedureStep,
+    language: Language,
+) -> AdaptedStep:
     action = step.action
     url_match = _PUBLIC_URL.search(action)
     if url_match:
@@ -237,7 +328,10 @@ def _adapt_computer_step(order: int, step: ProcedureStep) -> AdaptedStep:
         source_timestamps=list(step.source_timestamps),
         readiness=AdaptationReadiness.NEEDS_HUMAN_DETAIL,
         proposed_action_kind=None,
-        missing_evidence=[_COMPUTER_MISSING_TARGET, _COMPUTER_MISSING_SELECTOR],
+        missing_evidence=[
+            _text(_COMPUTER_MISSING_TARGET, language),
+            _text(_COMPUTER_MISSING_SELECTOR, language),
+        ],
     )
 
 
@@ -249,6 +343,7 @@ class DestinationAdaptationService:
         project: ProjectDraft,
         record: ProjectVideoProcedureRecord,
         motion_analysis: MotionAnalysisRecord | None = None,
+        language: Language = "en",
     ) -> DestinationAdaptationPlan:
         """Build a plan, or refuse when human review has not approved it."""
         if record.status is not ProjectVideoProcedureStatus.APPROVED:
@@ -268,7 +363,7 @@ class DestinationAdaptationService:
             and motion_analysis.extraction_id == record.extraction_id
             else None
         )
-        steps = self._adapt_steps(destination, procedure, analysis)
+        steps = self._adapt_steps(destination, procedure, analysis, language)
         actionable = sum(
             1 for step in steps if step.readiness is AdaptationReadiness.ACTIONABLE
         )
@@ -295,9 +390,17 @@ class DestinationAdaptationService:
             missing_evidence=missing[:40],
             requires_human_completion=actionable < len(steps),
             execution_blocked_reason=(
-                _ROBOT_BLOCKED_REASON
+                (
+                    _ROBOT_BLOCKED_REASON
+                    if language == "en"
+                    else "Los pasos revisados describen movimiento observado, no código para el robot. La ejecución queda bloqueada hasta disponer de trayectoria articular, perfil ARP-1 y simulador validado."
+                )
                 if destination is ExecutionDestination.ROBOT
-                else _COMPUTER_BLOCKED_REASON
+                else (
+                    _COMPUTER_BLOCKED_REASON
+                    if language == "en"
+                    else "Cada acción requiere aprobación humana explícita de los pasos exactos y del host público exacto antes de ejecutarse en el navegador aislado."
+                )
             ),
             motion_analysis_id=analysis.analysis_id if analysis else None,
             motion_evidence_step_count=with_motion if analysis else 0,
@@ -308,18 +411,19 @@ class DestinationAdaptationService:
         destination: ExecutionDestination,
         procedure: Procedure,
         analysis: MotionAnalysisRecord | None,
+        language: Language,
     ) -> list[AdaptedStep]:
         if destination is ExecutionDestination.ROBOT:
             if analysis is not None:
                 return [
-                    _adapt_robot_step_with_motion(index + 1, step, analysis)
+                    _adapt_robot_step_with_motion(index + 1, step, analysis, language)
                     for index, step in enumerate(procedure.steps)
                 ]
             return [
-                _adapt_robot_step(index + 1, step)
+                _adapt_robot_step(index + 1, step, language)
                 for index, step in enumerate(procedure.steps)
             ]
         return [
-            _adapt_computer_step(index + 1, step)
+            _adapt_computer_step(index + 1, step, language)
             for index, step in enumerate(procedure.steps)
         ]

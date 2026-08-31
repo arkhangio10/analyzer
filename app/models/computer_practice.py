@@ -67,3 +67,11 @@ class ComputerPracticeRunResult(BaseModel):
 
     practice: ComputerPractice
     execution: ComputerBrowserExecutionResult
+
+
+class ComputerPracticeRecord(BaseModel):
+    """Versioned practice evidence with private action values removed."""
+
+    schema_version: Literal[1] = 1
+    practice: ComputerPractice
+    redacted_action_ids: list[str] = Field(default_factory=list, max_length=25)

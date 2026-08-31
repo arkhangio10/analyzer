@@ -218,6 +218,7 @@ class MotionAnalysisRecord(BaseModel):
     window_start_seconds: float = Field(ge=0)
     window_end_seconds: float = Field(gt=0)
     media_resolution: Literal["medium"] = "medium"
+    output_language: Literal["es", "en"] = "en"
 
     measurement_method: Literal["vision_model_estimate"] = "vision_model_estimate"
     physically_measured: Literal[False] = False

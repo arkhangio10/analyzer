@@ -5,7 +5,13 @@ from pathlib import Path
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-from app.api.runtime import project_service
+from app.api.runtime import (
+    browser_execution_service,
+    computer_execution_service,
+    computer_practice_service,
+    project_service,
+    robot_motion_training_service,
+)
 
 
 router = APIRouter()
@@ -25,6 +31,14 @@ async def project_status() -> dict[str, str | bool]:
         "project": "APRENDIZ",
         "status": "mvp_in_progress",
         "durable_storage": project_service.is_durable,
+        "workflow_evidence_durable": all(
+            (
+                robot_motion_training_service.is_durable,
+                computer_practice_service.is_durable,
+                computer_execution_service.is_durable,
+                browser_execution_service.is_durable,
+            )
+        ),
     }
 
 

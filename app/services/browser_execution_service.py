@@ -13,6 +13,7 @@ from app.core.config import get_settings
 from app.models.browser_execution import (
     ComputerBrowserActionExecution,
     ComputerBrowserExecutionRequest,
+    ComputerBrowserExecutionRecord,
     ComputerBrowserExecutionResult,
 )
 from app.models.computer_execution import (
@@ -21,6 +22,7 @@ from app.models.computer_execution import (
     ComputerActionStatus,
     ComputerExecutionStatus,
 )
+from app.services.record_store import JsonRecordStore
 
 try:
     from playwright.async_api import (
@@ -140,13 +142,24 @@ class BrowserExecutionService:
         *,
         enabled: bool | None = None,
         isolation_boundary: str | None = None,
+        store: JsonRecordStore | None = None,
     ) -> None:
         settings = get_settings()
         self._enabled = settings.computer_browser_enabled if enabled is None else enabled
         self._isolation_boundary = (
             isolation_boundary or settings.computer_execution_boundary
         )
-        self._executions: dict[str, ComputerBrowserExecutionResult] = {}
+        self._record_store = store
+        records = store.load_all(ComputerBrowserExecutionRecord) if store else {}
+        self._executions = {
+            execution_id: record.execution
+            for execution_id, record in records.items()
+        }
+
+    @property
+    def is_durable(self) -> bool:
+        """Report whether redacted browser evidence survives a restart."""
+        return bool(self._record_store and self._record_store.is_durable)
 
     async def execute(
         self,
@@ -407,6 +420,11 @@ class BrowserExecutionService:
         result: ComputerBrowserExecutionResult,
     ) -> ComputerBrowserExecutionResult:
         self._executions[result.execution_id] = result
+        if self._record_store:
+            self._record_store.save(
+                result.execution_id,
+                ComputerBrowserExecutionRecord(execution=result),
+            )
         return result
 
     @staticmethod
