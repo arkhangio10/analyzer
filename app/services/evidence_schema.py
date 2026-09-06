@@ -159,7 +159,7 @@ FROM
         span,
         points,
         direction,
-        lagInFrame(direction, 1, 0)
+        lagInFrame(direction, 1, toInt8(0))
             OVER (PARTITION BY joint_key ORDER BY timestamp_seconds)
             AS previous_direction
     FROM
