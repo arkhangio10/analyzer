@@ -20,6 +20,7 @@ from app.services.adaptation_service import DestinationAdaptationService
 from app.services.browser_execution_service import BrowserExecutionService
 from app.services.computer_execution_service import ComputerExecutionService
 from app.services.computer_practice_service import ComputerPracticeService
+from app.services.evidence_store import EvidenceStore
 from app.services.gcs_record_store import GcsRecordStore
 from app.services.gemini_service import GeminiService
 from app.services.motion_analysis_service import MotionAnalysisService
@@ -89,8 +90,10 @@ project_video_procedure_service = ProjectVideoProcedureService(
     gemini_service,
     store=_record_store("video-procedures"),
 )
+evidence_store = EvidenceStore(_settings)
 motion_analysis_service = MotionAnalysisService(
     gemini_service,
     store=_record_store("motion-analyses"),
+    evidence_store=evidence_store,
 )
 video_storage = _video_storage()

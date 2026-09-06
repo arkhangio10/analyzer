@@ -88,6 +88,24 @@ Before collecting evidence, APRENDIZ asks whether the learned procedure will exe
 - `tests/frozen_eval/`: protected unseen cases for final validation.
 - `docs/`: architecture and learning-model notes.
 
+### The QC console
+
+`/qc` is a separate surface from the product workspace. It opens a project's
+library, lists what has been analysed, and for one asset shows the audit's
+counts -- not only its verdict -- next to an SVG chart of the retained samples.
+A button recomputes the verdict from those samples and reports each pipeline
+stage. It reads only: pressing it repeatedly costs nothing.
+
+Two ways of overstating are ruled out by the contract rather than by the copy.
+An absent ClickHouse does not produce an empty library, which would read as a
+clean one: the view sets `evidence_available` false, says which part is
+missing, and still lists what the local record store holds. And the detail view
+carries the counts the verdict was reached from, because the claim is that the
+verdict is recomputable and a reader cannot check a verdict.
+
+The robot controls, the setup wizard and the bilingual toggle stay on the
+product surface; a browser test asserts they do not appear here.
+
 ### The QC pipeline
 
 `app/agents/qc_pipeline.py` runs six ADK agents in order: ingest, extraction,

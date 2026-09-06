@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>APRENDIZ QC — prove the metadata</title>
+<link rel="stylesheet" href="/static/qc.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="bar">
+  <div class="bar-title">
+    <span class="mark">APRENDIZ</span>
+    <span class="sub">metadata QC</span>
+  </div>
+  <p class="claim">Which AI-generated metadata was actually observed?</p>
+</header>
+
+<main id="main">
+  <section class="panel" aria-labelledby="pick-heading">
+    <h1 id="pick-heading">Pick a project</h1>
+    <form id="project-form" class="row">
+      <label for="project-id">Project identifier</label>
+      <input id="project-id" name="project-id" type="text" placeholder="prj_..."
+             autocomplete="off" spellcheck="false" required>
+      <button type="submit" id="load-library">Open library</button>
+    </form>
+    <p id="library-error" class="error" role="alert" hidden></p>
+  </section>
+
+  <section class="panel" id="library-panel" aria-labelledby="library-heading" hidden>
+    <h2 id="library-heading">Library</h2>
+    <p id="evidence-note" class="note"></p>
+
+    <div id="verdict-block" hidden>
+      <h3>Verdicts, counted by ClickHouse</h3>
+      <div class="scroller">
+        <table id="verdict-table">
+          <caption class="visually-hidden">Analyses grouped by audit verdict</caption>
+          <thead>
+            <tr><th scope="col">Verdict</th><th scope="col">Analyses</th>
+                <th scope="col">Samples</th><th scope="col">Tokens</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3>Analyses</h3>
+    <p id="library-empty" class="note" hidden>
+      No analysis is retained for this project yet.
+    </p>
+    <div class="scroller">
+      <table id="analysis-table">
+        <caption class="visually-hidden">Retained analyses for this project</caption>
+        <thead>
+          <tr><th scope="col">Verdict</th><th scope="col">Source</th>
+              <th scope="col">Samples</th><th scope="col">Joints</th>
+              <th scope="col">Analysed</th><th scope="col"><span class="visually-hidden">Open</span></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" id="detail-panel" aria-labelledby="detail-heading" hidden>
+    <h2 id="detail-heading">Asset detail</h2>
+
+    <div class="verdict-line">
+      <span id="detail-verdict" class="verdict"></span>
+      <span id="detail-source" class="muted"></span>
+    </div>
+
+    <p class="note" id="detail-provenance"></p>
+
+    <h3>The counts the verdict was reached from</h3>
+    <p class="note">
+      These are the numbers, not a summary of them. A reader who can see the
+      counts can check the arithmetic.
+    </p>
+    <div class="scroller">
+      <table id="counts-table">
+        <caption class="visually-hidden">Audit counts</caption>
+        <thead><tr><th scope="col">Measure</th><th scope="col">Value</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <h3>Findings</h3>
+    <p id="no-findings" class="note" hidden>The audit raised no finding.</p>
+    <ul id="findings-list" class="findings"></ul>
+
+    <h3>Samples</h3>
+    <p id="no-series" class="note" hidden>No samples were retained for this analysis.</p>
+    <figure id="series-figure">
+      <svg id="series-chart" viewBox="0 0 720 260" role="img"
+           aria-labelledby="series-title series-desc" preserveAspectRatio="none">
+        <title id="series-title">Joint angle over time</title>
+        <desc id="series-desc">One line per joint, plotting the retained angle readings against their timestamps.</desc>
+      </svg>
+      <figcaption id="series-caption" class="muted"></figcaption>
+    </figure>
+
+    <h3>Prove it</h3>
+    <p class="note">
+      Recomputes the verdict from the stored samples and compares it to what the
+      record claims. Reads only: it costs nothing and calls no model.
+    </p>
+    <button type="button" id="prove-button">Recompute from the stored samples</button>
+    <div id="prove-result" hidden>
+      <p id="prove-headline" class="headline"></p>
+      <ol id="prove-stages" class="stages"></ol>
+    </div>
+    <p id="detail-error" class="error" role="alert" hidden></p>
+  </section>
+</main>
+
+<script src="/static/qc.js"></script>
+</body>
+</html>

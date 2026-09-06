@@ -295,3 +295,52 @@ def test_reported_density_describes_what_arrived_not_what_was_asked() -> None:
     assert analysis.observed_span_seconds == 2.0
     assert analysis.samples_per_second == 1.0
     assert analysis.clear_sample_count == 2
+
+
+# --- evidence reaches the columnar store, and its absence costs nothing ----
+
+
+class SpyEvidenceStore:
+    """Stands in for ClickHouse; can also refuse, the way a real one may."""
+
+    def __init__(self, error: Exception | None = None) -> None:
+        self.recorded: list[str] = []
+        self._error = error
+
+    def record(self, analysis) -> bool:
+        if self._error is not None:
+            raise self._error
+        self.recorded.append(analysis.analysis_id)
+        return True
+
+
+def test_a_completed_analysis_is_offered_to_the_evidence_store() -> None:
+    evidence = SpyEvidenceStore()
+    service = MotionAnalysisService(
+        StubGemini(report(rows())), evidence_store=evidence
+    )
+
+    analysis = asyncio.run(service.analyze(project(), record(), request()))
+
+    assert evidence.recorded == [analysis.analysis_id]
+
+
+def test_an_analysis_still_succeeds_when_the_evidence_store_refuses() -> None:
+    """The call is already paid for; losing the columnar copy must not undo it."""
+    evidence = SpyEvidenceStore(error=ConnectionError("clickhouse is down"))
+    service = MotionAnalysisService(
+        StubGemini(report(rows())), evidence_store=evidence
+    )
+
+    analysis = asyncio.run(service.analyze(project(), record(), request()))
+
+    assert analysis.sample_count == 24
+    assert service.latest_for_extraction(analysis.extraction_id) is analysis
+
+
+def test_without_an_evidence_store_nothing_is_attempted() -> None:
+    service = MotionAnalysisService(StubGemini(report(rows())))
+
+    analysis = asyncio.run(service.analyze(project(), record(), request()))
+
+    assert analysis.analysis_id

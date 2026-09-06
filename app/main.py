@@ -11,6 +11,7 @@ from app.api.learning_routes import router as learning_router
 from app.api.computer_execution_routes import router as computer_execution_router
 from app.api.computer_practice_routes import router as computer_practice_router
 from app.api.project_routes import router as project_router
+from app.api.qc_routes import router as qc_router
 from app.api.project_video_procedure_routes import router as project_video_procedure_router
 from app.api.robot_profile_routes import router as robot_profile_router
 from app.api.source_routes import router as source_router
@@ -33,6 +34,7 @@ app.include_router(learning_router)
 app.include_router(computer_execution_router)
 app.include_router(computer_practice_router)
 app.include_router(project_router)
+app.include_router(qc_router)
 app.include_router(project_video_procedure_router)
 app.include_router(robot_profile_router)
 app.include_router(source_router)

@@ -13,6 +13,8 @@ record's uncertainties so a reader can see it.
 
 from __future__ import annotations
 
+import logging
+
 from datetime import datetime, timezone
 from uuid import uuid4
 
@@ -36,6 +38,9 @@ from app.services.gemini_service import GeminiService
 from app.services.motion_evidence_audit import audit_motion_samples
 from app.services.motion_retarget import build_retarget_verdict
 from app.services.record_store import RecordStore
+
+
+logger = logging.getLogger(__name__)
 
 
 MAX_SAMPLES = 2000
@@ -71,9 +76,11 @@ class MotionAnalysisService:
         gemini_service: GeminiService,
         store: RecordStore | None = None,
         output_token_ceiling: int | None = None,
+        evidence_store: object | None = None,
     ) -> None:
         self._gemini_service = gemini_service
         self._store = store
+        self._evidence_store = evidence_store
         self._output_token_ceiling = output_token_ceiling or (
             get_settings().google_genai_motion_max_output_tokens
         )
@@ -85,6 +92,22 @@ class MotionAnalysisService:
     def is_durable(self) -> bool:
         """Report whether paid motion evidence survives a restart."""
         return bool(self._store and self._store.is_durable)
+
+    def list_for_project(self, project_id: str) -> list[MotionAnalysisRecord]:
+        """Return one project's retained analyses, newest first."""
+        matches = [
+            record
+            for record in self._records.values()
+            if record.project_id == project_id
+        ]
+        return sorted(matches, key=lambda record: record.created_at, reverse=True)
+
+    def get(self, analysis_id: str) -> MotionAnalysisRecord:
+        """Return one retained analysis by its identifier."""
+        try:
+            return self._records[analysis_id]
+        except KeyError as error:
+            raise MotionAnalysisNotFoundError(analysis_id) from error
 
     def latest_for_extraction(self, extraction_id: str) -> MotionAnalysisRecord:
         """Return the newest retained analysis for one extraction."""
@@ -175,7 +198,27 @@ class MotionAnalysisService:
         self._records[analysis.analysis_id] = analysis
         if self._store:
             self._store.save(analysis.analysis_id, analysis)
+        self._record_evidence(analysis)
         return analysis
+
+    def _record_evidence(self, analysis: MotionAnalysisRecord) -> None:
+        """Offer the samples to the evidence store, which may not be there.
+
+        The analysis is already paid for and already retained by the time this
+        runs, so a columnar store that is absent, unreachable, or refusing
+        writes must not turn a completed analysis into a failed request. It
+        logs and moves on; `EvidenceStore` reports its own availability.
+        """
+        if self._evidence_store is None:
+            return
+        try:
+            self._evidence_store.record(analysis)
+        except Exception as error:  # noqa: BLE001 - evidence is not the request
+            logger.warning(
+                "Motion evidence for %s was not stored: %s",
+                analysis.analysis_id,
+                error,
+            )
 
     def max_window_seconds(self, frames_per_second: float) -> float:
         """Return the longest window that can be answered without truncation."""
