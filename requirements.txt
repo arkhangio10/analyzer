@@ -1,5 +1,6 @@
 clickhouse-connect
 fastapi
+google-adk
 google-cloud-storage
 google-genai
 httpx

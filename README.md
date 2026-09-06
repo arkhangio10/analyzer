@@ -80,13 +80,38 @@ Before collecting evidence, APRENDIZ asks whether the learned procedure will exe
 
 ## Current architecture
 
-- `app/agents/`: planned workflow responsibilities; no learning pipeline yet.
+- `app/agents/`: the QC pipeline as ADK agents, plus boundaries that still raise rather than fabricate a result.
 - `app/models/`: initial Pydantic contracts for tasks, procedures, skills, training examples, and evaluations.
 - `app/services/`: deterministic workflow services plus provider boundaries for Gemini and future GCP services.
 - `app/api/`: FastAPI routes for projects, reviewed practice, execution, evaluation, and visible processing sessions.
 - `data/`: local development placeholders for skills, examples, and evaluations.
 - `tests/frozen_eval/`: protected unseen cases for final validation.
 - `docs/`: architecture and learning-model notes.
+
+### The QC pipeline
+
+`app/agents/qc_pipeline.py` runs six ADK agents in order: ingest, extraction,
+approval gate, motion, audit, report. It is deterministic and initiates no
+provider call, so a run costs nothing; a test asserts as much by failing if the
+motion service is ever asked to analyse.
+
+The audit stage is the one that matters. It recomputes the verdict from the
+stored samples and compares it to the verdict the stored record claims, and
+where ClickHouse is configured it asks the database the same questions
+independently. `proven` is true only when the recomputation agrees, so metadata
+its own samples contradict is reported as unproven rather than passed along.
+
+The composition is written by hand rather than taken from ADK's
+`SequentialAgent`, for a measured reason: a sub-agent that sets `escalate` does
+not stop a `SequentialAgent` -- every later sub-agent still runs. A gate built
+on it would read as enforced and would not be. `tests/unit/test_qc_pipeline.py`
+pins that ADK behaviour, so a future version that changes it will say so.
+
+The gate is checked in the stage base class, so a stage added later inherits it,
+and a test walks the pipeline asserting every stage that requires approval does
+nothing without it. This is the second line, not the first:
+`MotionAnalysisService` already refuses an unapproved procedure at the point the
+cloud call would be spent, which is the check that guards the money.
 
 Technology: Python 3.12, Google ADK, Google GenAI/Gemini, FastAPI, Uvicorn, Pydantic, and selected Google Cloud services.
 
