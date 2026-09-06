@@ -1,8 +1,69 @@
 # APRENDIZ
 
-APRENDIZ teaches software agents and simulated robots procedural tasks from human demonstrations and instructional videos.
+**Prove which AI-generated video metadata was actually observed, and refuse to
+pass on the rest.**
 
-The MVP acquires structured procedural knowledge; it does **not** update foundation-model weights. Its first domain is objectively verifiable Peruvian accounting calculations, while the architecture remains domain-independent.
+A model asked to describe a video will answer. It will answer confidently when
+it measured something and just as confidently when it did not, and downstream
+systems cannot tell the two apart. APRENDIZ extracts structured metadata from an
+approved video with Gemini on Vertex AI, then audits what came back with
+arithmetic and reports a verdict a reader can recompute.
+
+On the first real run against a public walking video, the audit rejected its own
+model's output:
+
+| Check | What arrived |
+|---|---|
+| Left and right independent? | identical in **98 of 98** paired readings |
+| Confidence estimated per sample? | one value, `0.7`, across all **196** |
+| Visibility judged per frame? | one value, `partial`, across all 196 |
+| Gait cyclic? | one rise and fall where ~10 cycles belong |
+
+Two limbs of a walking body do not move identically, and 12 seconds of walking
+is not one arc. Higher frame rate bought density, not evidence. The samples were
+drawn, not measured, and the system said so instead of forwarding them.
+
+That refusal is the product.
+
+## What is actually real here
+
+Claims in this README are limited to what runs and is tested.
+
+- Gemini on Vertex AI analysing video at a pinned frame rate with bounded
+  windows, structured output, and a pre-flight budget guard that refuses an
+  over-dense request **before** it is billed.
+- A deterministic plausibility audit whose findings carry recomputable counts.
+- A human approval gate: nothing is adapted or executed without it.
+- Typed contracts that make the guarantees permanent rather than promised in
+  prose: `physically_measured` is always false, `approved_for_execution` is
+  always false, uploaded video's `sent_to_provider` is always false.
+- 187 unit tests, plus 19 browser tests driving real Chrome against a live
+  server.
+
+Not real yet, and labelled as such throughout: simulation, hardware execution,
+and extraction from uploaded files.
+
+## Running it
+
+```bash
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m uvicorn app.main:app --reload --port 8080
+```
+
+Provider calls are **disabled by default**. Set `GOOGLE_GENAI_ENABLED=true` only
+for a call you intend to pay for.
+
+```bash
+pytest                 # unit suite
+pytest tests/browser   # real Chrome against a live server
+```
+
+The browser suite is a separate command on purpose: Playwright's synchronous API
+holds an event loop open, which breaks `asyncio.run` in anything that follows.
+
+## Licence
+
+Apache-2.0. See `LICENSE`.
 
 ## Objective and workflow
 

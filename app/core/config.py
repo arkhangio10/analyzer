@@ -39,6 +39,17 @@ class Settings(BaseSettings):
         "application_container",
     ] = "managed_local_directory"
     computer_browser_enabled: bool = False
+    # Evidence storage. Off by default like every other outbound integration:
+    # the application must run and pass its tests on a machine that has no
+    # ClickHouse, and fall back to reporting that evidence is not durable.
+    clickhouse_enabled: bool = False
+    clickhouse_host: str | None = None
+    clickhouse_port: int = Field(default=8443, ge=1, le=65535)
+    clickhouse_user: str = "default"
+    clickhouse_password: str | None = None
+    clickhouse_database: str = "default"
+    clickhouse_secure: bool = True
+
     firestore_database: str | None = None
     gcs_bucket: str | None = None
     data_dir: str = "data"

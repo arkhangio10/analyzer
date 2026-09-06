@@ -1,11 +1,16 @@
-"""Durable JSON storage for typed workflow records.
+"""Durable storage for typed workflow records.
 
-Each record is written to its own file, so an interrupted write can never
-corrupt more than the record being saved, and every write is atomic. When the
-target directory cannot be created or written, the store degrades to memory
-only and reports that it is not durable rather than failing the request that
-produced the record. Callers must therefore treat `is_durable` as visible
-state, not assume persistence succeeded.
+Each record is written under its own identifier, so an interrupted write can
+never corrupt more than the record being saved, and every write is atomic. When
+the target cannot be created or written, a store degrades to memory only and
+reports that it is not durable rather than failing the request that produced the
+record. Callers must therefore treat `is_durable` as visible state, not assume
+persistence succeeded.
+
+`RecordStore` is the contract every backing store honours. `JsonRecordStore`
+writes one file per record on a local disk, which is correct for a machine that
+has one; a stateless container has no such disk, so a bucket-backed store
+implements the same four methods rather than the callers changing.
 
 Only paid or human-reviewed workflow evidence belongs here. Secrets, uploaded
 media, and credentials must never be written through this store.
@@ -19,7 +24,7 @@ import os
 import re
 import tempfile
 from pathlib import Path
-from typing import TypeVar
+from typing import Protocol, TypeVar, runtime_checkable
 
 from pydantic import BaseModel, ValidationError
 
@@ -33,6 +38,39 @@ _SAFE_RECORD_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 
 class RecordIdError(ValueError):
     """Raised when a record identifier cannot be used as a file name."""
+
+
+def validate_record_id(record_id: str) -> str:
+    """Return the identifier if it is safe to use as a storage key.
+
+    Every backing store shares this rule, so a key that is safe on a local disk
+    is safe in a bucket: no traversal, no separators, no leading dot.
+    """
+    if not _SAFE_RECORD_ID.fullmatch(record_id):
+        raise RecordIdError(record_id)
+    return record_id
+
+
+@runtime_checkable
+class RecordStore(Protocol):
+    """What every backing store must provide, wherever the bytes land."""
+
+    @property
+    def is_durable(self) -> bool:
+        """Report whether records actually survive a restart."""
+        ...
+
+    def save(self, record_id: str, record: BaseModel) -> bool:
+        """Write one record; return whether it was persisted."""
+        ...
+
+    def load_all(self, model_type: type[ModelT]) -> dict[str, ModelT]:
+        """Return every readable record, skipping unusable ones."""
+        ...
+
+    def delete(self, record_id: str) -> None:
+        """Remove one stored record if it exists."""
+        ...
 
 
 class JsonRecordStore:
@@ -123,6 +161,4 @@ class JsonRecordStore:
         return os.access(self._directory, os.W_OK)
 
     def _path_for(self, record_id: str) -> Path:
-        if not _SAFE_RECORD_ID.fullmatch(record_id):
-            raise RecordIdError(record_id)
-        return self._directory / f"{record_id}.json"
+        return self._directory / f"{validate_record_id(record_id)}.json"
