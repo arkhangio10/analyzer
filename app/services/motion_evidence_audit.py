@@ -107,13 +107,27 @@ def _acyclic_joints(
     return sorted(flagged), checked
 
 
-def audit_motion_samples(
-    samples: list[ObservedJointAngle],
+def verdict_from_counts(
     *,
+    total_samples: int,
+    identical_pairs: int,
+    paired_readings: int,
+    distinct_confidences: int,
+    a_confidence: float | None,
+    distinct_visibilities: int,
+    a_visibility: str | None,
+    acyclic: list[str],
+    checked_joint_count: int,
     window_seconds: float,
 ) -> MotionEvidenceAudit:
-    """Judge whether returned samples can be treated as observations at all."""
-    if not samples:
+    """Turn raw counts into findings and a verdict.
+
+    Every threshold and every sentence lives here, so the counts are the only
+    thing that can differ between counting samples in Python and counting them
+    in SQL across a whole library. A disagreement between those two paths is
+    then unambiguously a bug in the counting, not a drifted rule.
+    """
+    if total_samples == 0:
         return MotionEvidenceAudit(
             verdict=MotionEvidenceVerdict.NOT_EVIDENCE,
             findings=[
@@ -130,8 +144,9 @@ def audit_motion_samples(
         )
 
     findings: list[MotionAuditFinding] = []
-    total = len(samples)
-    ratio, identical, paired = _mirrored_frame_ratio(samples)
+    total = total_samples
+    identical, paired = identical_pairs, paired_readings
+    ratio = round(identical / paired, 3) if paired else 0.0
     if paired >= MIN_PAIRED_FRAMES and ratio >= MIRROR_RATIO_THRESHOLD:
         findings.append(
             MotionAuditFinding(
@@ -146,9 +161,8 @@ def audit_motion_samples(
             )
         )
 
-    confidences = {sample.confidence for sample in samples}
-    if total >= MIN_UNIFORM_SAMPLES and len(confidences) == 1:
-        confidence = next(iter(confidences))
+    if total >= MIN_UNIFORM_SAMPLES and distinct_confidences == 1:
+        confidence = a_confidence if a_confidence is not None else 0.0
         findings.append(
             MotionAuditFinding(
                 code=MotionAuditCode.UNIFORM_CONFIDENCE,
@@ -161,9 +175,8 @@ def audit_motion_samples(
             )
         )
 
-    visibilities = {sample.visibility for sample in samples}
-    if total >= MIN_UNIFORM_SAMPLES and len(visibilities) == 1:
-        visibility = next(iter(visibilities)).value
+    if total >= MIN_UNIFORM_SAMPLES and distinct_visibilities == 1:
+        visibility = a_visibility or ""
         findings.append(
             MotionAuditFinding(
                 code=MotionAuditCode.UNIFORM_VISIBILITY,
@@ -175,8 +188,7 @@ def audit_motion_samples(
             )
         )
 
-    series = _series_by_joint(samples)
-    acyclic, checked = _acyclic_joints(series)
+    checked = checked_joint_count
     joints = ", ".join(acyclic)
     if acyclic and checked and len(acyclic) == checked:
         findings.append(
@@ -218,8 +230,52 @@ def audit_motion_samples(
         verdict=verdict,
         findings=findings,
         mirrored_frame_ratio=ratio,
-        distinct_confidence_values=len(confidences),
-        distinct_visibility_values=len(visibilities),
+        distinct_confidence_values=distinct_confidences,
+        distinct_visibility_values=distinct_visibilities,
         acyclic_joints=acyclic,
         checked_joint_count=checked,
+    )
+
+
+def audit_motion_samples(
+    samples: list[ObservedJointAngle],
+    *,
+    window_seconds: float,
+) -> MotionEvidenceAudit:
+    """Judge whether returned samples can be treated as observations at all.
+
+    This is the reference implementation: it counts in Python over one
+    analysis's samples, then hands the counts to the shared rules. The
+    ClickHouse path counts the same things in SQL over a whole library and
+    calls the same rules, so the two can be compared directly.
+    """
+    if not samples:
+        return verdict_from_counts(
+            total_samples=0,
+            identical_pairs=0,
+            paired_readings=0,
+            distinct_confidences=0,
+            a_confidence=None,
+            distinct_visibilities=0,
+            a_visibility=None,
+            acyclic=[],
+            checked_joint_count=0,
+            window_seconds=window_seconds,
+        )
+
+    _, identical, paired = _mirrored_frame_ratio(samples)
+    confidences = {sample.confidence for sample in samples}
+    visibilities = {sample.visibility for sample in samples}
+    acyclic, checked = _acyclic_joints(_series_by_joint(samples))
+    return verdict_from_counts(
+        total_samples=len(samples),
+        identical_pairs=identical,
+        paired_readings=paired,
+        distinct_confidences=len(confidences),
+        a_confidence=next(iter(confidences)),
+        distinct_visibilities=len(visibilities),
+        a_visibility=next(iter(visibilities)).value,
+        acyclic=acyclic,
+        checked_joint_count=checked,
+        window_seconds=window_seconds,
     )

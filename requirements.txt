@@ -1,9 +1,10 @@
-google-genai
+clickhouse-connect
 fastapi
-uvicorn
-python-dotenv
+google-genai
+httpx
+playwright==1.61.0
 pydantic
 pydantic-settings
-httpx
+python-dotenv
 python-multipart
-playwright==1.61.0
+uvicorn
