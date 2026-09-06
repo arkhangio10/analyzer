@@ -1,5 +1,6 @@
 clickhouse-connect
 fastapi
+google-cloud-storage
 google-genai
 httpx
 playwright==1.61.0

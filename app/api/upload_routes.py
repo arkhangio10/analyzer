@@ -1,9 +1,11 @@
 """Routes for video a person supplies from their own machine.
 
-Nothing here forwards a file anywhere. An upload is written to this machine's
-data directory, described by its size and hash so a person can verify what was
-kept, and reported with `analysis_available` false, because extraction still
-accepts only a public YouTube URL.
+Nothing here forwards a file anywhere. An upload is written to whichever
+destination this deployment configured -- a directory on this machine, or the
+operator's own bucket -- described by its size and hash so a person can verify
+what was kept, and reported with `analysis_available` false, because extraction
+still accepts only a public YouTube URL. The record and the listing name the
+destination rather than assuming one.
 """
 
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
@@ -15,7 +17,7 @@ from app.models.upload import (
     UploadedVideoRecord,
 )
 from app.services.project_service import ProjectNotFoundError
-from app.services.storage_service import STORAGE_NOTE, UploadRejectedError
+from app.services.storage_service import UploadRejectedError
 
 
 router = APIRouter(prefix="/api/projects/{project_id}/uploads", tags=["uploads"])
@@ -35,7 +37,7 @@ def _listing(project_id: str) -> UploadedVideoList:
         total_bytes=video_storage.total_bytes(project_id),
         max_upload_bytes=video_storage.max_upload_bytes,
         accepted_types=sorted(ALLOWED_VIDEO_TYPES),
-        storage_note=STORAGE_NOTE,
+        storage_note=video_storage.storage_note,
     )
 
 

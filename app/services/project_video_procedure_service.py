@@ -17,7 +17,7 @@ from app.services.gemini_service import (
     GeminiService,
 )
 from app.services.project_service import ProjectService
-from app.services.record_store import JsonRecordStore
+from app.services.record_store import RecordStore
 
 
 class ProjectVideoProcedureNotFoundError(LookupError):
@@ -35,7 +35,7 @@ class ProjectVideoProcedureService:
         self,
         project_service: ProjectService,
         gemini_service: GeminiService,
-        store: JsonRecordStore | None = None,
+        store: RecordStore | None = None,
     ) -> None:
         self._project_service = project_service
         self._gemini_service = gemini_service

@@ -15,7 +15,7 @@ from app.models.computer_practice import (
 from app.models.project import ComputerExecutionContract
 from app.services.browser_execution_service import BrowserExecutionService
 from app.services.project_service import ProjectNotFoundError, ProjectService
-from app.services.record_store import JsonRecordStore
+from app.services.record_store import RecordStore
 
 
 class ComputerPracticeNotFoundError(LookupError):
@@ -41,7 +41,7 @@ class ComputerPracticeService:
         self,
         project_service: ProjectService,
         browser_execution_service: BrowserExecutionService,
-        store: JsonRecordStore | None = None,
+        store: RecordStore | None = None,
     ) -> None:
         self._project_service = project_service
         self._browser_execution_service = browser_execution_service

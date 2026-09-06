@@ -22,7 +22,7 @@ from app.models.computer_execution import (
     ComputerActionStatus,
     ComputerExecutionStatus,
 )
-from app.services.record_store import JsonRecordStore
+from app.services.record_store import RecordStore
 
 try:
     from playwright.async_api import (
@@ -142,7 +142,7 @@ class BrowserExecutionService:
         *,
         enabled: bool | None = None,
         isolation_boundary: str | None = None,
-        store: JsonRecordStore | None = None,
+        store: RecordStore | None = None,
     ) -> None:
         settings = get_settings()
         self._enabled = settings.computer_browser_enabled if enabled is None else enabled

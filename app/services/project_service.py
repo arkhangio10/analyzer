@@ -2,7 +2,7 @@
 
 from app.agents.root_agent import RootAgent
 from app.models.project import ProjectClarificationRequest, ProjectDraft
-from app.services.record_store import JsonRecordStore
+from app.services.record_store import RecordStore
 
 
 class ProjectNotFoundError(LookupError):
@@ -15,7 +15,7 @@ class ProjectService:
     def __init__(
         self,
         root_agent: RootAgent | None = None,
-        store: JsonRecordStore | None = None,
+        store: RecordStore | None = None,
     ) -> None:
         self._root_agent = root_agent or RootAgent()
         self._store = store

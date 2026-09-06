@@ -269,12 +269,20 @@ single rise and fall across the window. Higher frame rate produced denser
 output, not better evidence. That result is the current honest answer to whether
 video can become a robot trajectory today.
 
-Uploaded video stays on the machine that received it. The contract makes
-that permanent rather than promising it in prose: `stored_locally` is always
-true, `sent_to_provider` is always false, and `analysis_available` is always
-false, because extraction still accepts only a public YouTube URL. An upload
-can therefore be kept and verified by its SHA-256, but the interface never
-implies it can be turned into a procedure yet.
+Uploaded video is never handed to a model. The contract makes that permanent
+rather than promising it in prose: `sent_to_provider` is always false, and
+`analysis_available` is always false, because extraction still accepts only a
+public YouTube URL. An upload can therefore be kept and verified by its
+SHA-256, but the interface never implies it can be turned into a procedure yet.
+
+Where the file is kept is a separate claim, and it is one the code has to earn
+rather than assert. `storage_location` reports `this_machine` for a mounted
+directory and `your_bucket` for Cloud Storage in the operator's own project. It
+used to be `stored_locally`, permanently true, which stopped being honest the
+moment the target was a stateless container with no disk to keep anything on.
+Both destinations share one implementation of what is accepted, how the stream
+is capped, and what the record claims, so the guarantees cannot weaken on the
+way to the cloud; only the bytes' destination differs.
 
 Reconciliation reports something the reconciler cannot know by itself: how many
 distinct videos actually backed the procedures being compared. Two readings of

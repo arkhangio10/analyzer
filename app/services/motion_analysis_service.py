@@ -35,7 +35,7 @@ from app.core.config import get_settings
 from app.services.gemini_service import GeminiService
 from app.services.motion_evidence_audit import audit_motion_samples
 from app.services.motion_retarget import build_retarget_verdict
-from app.services.record_store import JsonRecordStore
+from app.services.record_store import RecordStore
 
 
 MAX_SAMPLES = 2000
@@ -69,7 +69,7 @@ class MotionAnalysisService:
     def __init__(
         self,
         gemini_service: GeminiService,
-        store: JsonRecordStore | None = None,
+        store: RecordStore | None = None,
         output_token_ceiling: int | None = None,
     ) -> None:
         self._gemini_service = gemini_service

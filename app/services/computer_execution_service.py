@@ -18,7 +18,7 @@ from app.models.computer_execution import (
     ComputerSandboxExecutionRecord,
     ComputerSandboxExecutionResult,
 )
-from app.services.record_store import JsonRecordStore
+from app.services.record_store import RecordStore
 
 
 class ComputerExecutionNotFoundError(LookupError):
@@ -34,7 +34,7 @@ class ComputerExecutionService:
         self,
         sandbox_root: Path | None = None,
         isolation_boundary: str | None = None,
-        store: JsonRecordStore | None = None,
+        store: RecordStore | None = None,
     ) -> None:
         self._sandbox_root = sandbox_root or (
             Path(__file__).resolve().parents[2] / ".runtime" / "computer_sandboxes"

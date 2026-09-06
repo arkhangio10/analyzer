@@ -51,7 +51,7 @@ def test_a_video_is_written_to_this_machine_and_described_by_its_hash(tmp_path) 
     assert record.size_bytes == len(payload)
     assert record.sha256 == hashlib.sha256(payload).hexdigest()
     assert store.path_for(record).read_bytes() == payload
-    assert record.stored_locally is True
+    assert record.storage_location == "this_machine"
     assert record.sent_to_provider is False
     assert record.analysis_available is False
 
@@ -102,7 +102,7 @@ def test_an_oversized_file_is_refused_and_leaves_nothing_behind(tmp_path) -> Non
     with pytest.raises(UploadRejectedError) as error:
         store.save("prj_test01", "big.mp4", "video/mp4", io.BytesIO(b"x" * 500))
 
-    assert "larger than this machine accepts" in str(error.value)
+    assert "larger than this deployment accepts" in str(error.value)
     assert store.list_for_project("prj_test01") == []
     written = list((tmp_path / "uploads" / "prj_test01").glob("*"))
     assert written == []
@@ -170,7 +170,7 @@ def test_the_endpoint_keeps_the_file_and_reports_it_was_not_sent() -> None:
     assert created.status_code == 201
     body = created.json()
     assert body["sent_to_provider"] is False
-    assert body["stored_locally"] is True
+    assert body["storage_location"] == "this_machine"
     assert body["analysis_available"] is False
     assert body["size_bytes"] == len(b"fake mp4 bytes")
     assert len(body["sha256"]) == 64

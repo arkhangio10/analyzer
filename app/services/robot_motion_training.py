@@ -18,7 +18,7 @@ from app.models.robot_motion import (
     RobotMotionSessionRecord,
     RobotMotionTrainingStatus,
 )
-from app.services.record_store import JsonRecordStore
+from app.services.record_store import RecordStore
 
 
 class RobotMotionSessionNotFoundError(LookupError):
@@ -37,7 +37,7 @@ class RobotMotionTrainingService:
     data against the stored external reference.
     """
 
-    def __init__(self, store: JsonRecordStore | None = None) -> None:
+    def __init__(self, store: RecordStore | None = None) -> None:
         self._store = store
         records = store.load_all(RobotMotionSessionRecord) if store else {}
         self._records: dict[str, RobotMotionSessionRecord] = records
