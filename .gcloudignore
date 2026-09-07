@@ -14,5 +14,10 @@ tests
 exports
 docs
 deploy
-data
+# Exclude the directory's contents, not the directory. .gcloudignore follows
+# gitignore rules, where a file cannot be re-included once its parent directory
+# is excluded -- so `data` followed by `!data/evaluations` silently drops the
+# frozen evaluation set the image needs. .dockerignore does not share that rule,
+# so a local build would never have shown this.
+data/*
 !data/evaluations

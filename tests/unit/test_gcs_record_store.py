@@ -14,6 +14,8 @@ import pytest
 
 from app.models.project import ProjectClarificationRequest
 from app.services.gcs_record_store import GcsRecordStore
+from google.api_core.exceptions import NotFound
+
 from app.services.record_store import RecordIdError, RecordStore
 
 
@@ -48,22 +50,37 @@ class FakeBucket:
         self.objects: dict[str, bytes] = {}
         self.content_types: dict[str, str] = {}
         self.write_error: Exception | None = None
-        self.exists_calls = 0
-        self._exists = exists
+        self.list_error: Exception | None = None if exists else NotFound("absent")
+        self.probe_calls = 0
 
     def exists(self) -> bool:
-        self.exists_calls += 1
-        return self._exists
+        # roles/storage.objectAdmin does not grant storage.buckets.get, so a
+        # store that calls this is unusable with the permissions the
+        # deployment grants. Failing here is the point.
+        raise AssertionError(
+            "bucket.exists() needs storage.buckets.get, which the runtime "
+            "service account deliberately does not have."
+        )
 
     def blob(self, name: str) -> FakeBlob:
         return FakeBlob(self, name)
 
-    def list_blobs(self, prefix: str | None = None) -> list[FakeBlob]:
-        return [
+    def list_blobs(
+        self,
+        prefix: str | None = None,
+        max_results: int | None = None,
+    ) -> list[FakeBlob]:
+        if self.list_error is not None:
+            raise self.list_error
+        # Only the durability probe caps its results; a real listing does not.
+        if max_results is not None:
+            self.probe_calls += 1
+        found = [
             FakeBlob(self, name)
             for name in sorted(self.objects)
             if prefix is None or name.startswith(prefix)
         ]
+        return found[:max_results] if max_results else found
 
 
 class FakeClient:
@@ -220,10 +237,28 @@ def test_durability_is_checked_once_rather_than_per_call(
 ) -> None:
     """Startup wires several stores; none may cost a round trip to construct."""
     store = GcsRecordStore("aprendiz-records", "projects", client=FakeClient(bucket))
-    assert bucket.exists_calls == 0
+    assert bucket.probe_calls == 0
 
     store.save("prj_abc123", clarification())
     store.load_all(ProjectClarificationRequest)
     assert store.is_durable is True
 
-    assert bucket.exists_calls == 1
+    assert bucket.probe_calls == 1
+
+
+def test_availability_asks_for_object_access_not_bucket_metadata(
+    bucket: FakeBucket,
+) -> None:
+    """Found on Cloud Run: objectAdmin does not grant storage.buckets.get.
+
+    The first deployment logged 403 on every call and degraded to memory, with
+    `durable_storage` false, because availability was checked with
+    `bucket.exists()`. This store reads and writes objects and never touches
+    the bucket's own configuration, so it must not need a permission for
+    something it does not use. `FakeBucket.exists` raises, so a store that
+    reaches for it again fails here rather than in production.
+    """
+    store = store_over(bucket)
+
+    assert store.is_durable is True
+    assert bucket.probe_calls == 1

@@ -156,13 +156,13 @@ class GcsRecordStore:
             self._client = client
         try:
             bucket = client.bucket(self._bucket_name)
-            if not bucket.exists():
-                logger.warning(
-                    "Bucket %s is not reachable; records stay in memory for "
-                    "this process only.",
-                    self._bucket_name,
-                )
-                return None
+            # Probe with an object listing rather than bucket.exists(). This
+            # store reads and writes objects and never touches the bucket's own
+            # metadata, but exists() calls buckets.get, which roles/storage.
+            # objectAdmin does not grant. Checking with the permission the
+            # store actually uses keeps the deployment from having to widen the
+            # grant to satisfy a check for something it never needs.
+            next(iter(bucket.list_blobs(prefix=self._prefix, max_results=1)), None)
         except Exception as error:  # noqa: BLE001
             logger.warning(
                 "Bucket %s could not be opened; records stay in memory for "

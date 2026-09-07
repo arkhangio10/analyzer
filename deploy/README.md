@@ -61,10 +61,34 @@ saves roughly a gigabyte of image and the cold start that comes with it. Set
 `docker build` default still installs it, so nothing about the existing build
 changed.
 
-## What has not been verified
+## Two things the first deployment taught us
 
-None of this has been run. The scripts are written and their syntax checked;
-the container has not been built here, because the Docker daemon was not
-running on the development machine, and no Google Cloud resource has been
-created. Expect to fix something on the first run — most likely an API that
-needs a minute after being enabled, or the ClickHouse IP allowlist above.
+**`.gcloudignore` follows gitignore rules, and `.dockerignore` does not.** A
+file cannot be re-included once its parent directory is excluded, so `data`
+followed by `!data/evaluations` silently dropped the frozen evaluation set and
+the build failed at `COPY data/evaluations`. It is written as `data/*` now. A
+local `docker build` would never have shown this, because Docker does not share
+that rule. Check a context with `gcloud meta list-files-for-upload .` before
+blaming the Dockerfile.
+
+**`roles/storage.objectAdmin` does not grant `storage.buckets.get`.** The first
+revision logged 403 on every request and degraded to memory with
+`durable_storage: false`, because the record store checked availability with
+`bucket.exists()`. The store reads and writes objects and never touches the
+bucket's own configuration, so the fix was to probe with an object listing
+rather than to widen the grant. A test now fails if anything reaches for
+`exists()` again.
+
+## Verified on 2026-09-06
+
+Deployed to `https://aprendiz-963953909890.us-central1.run.app`.
+`/api/status` reports `durable_storage`, `records_survive_restart` and
+`workflow_evidence_durable` all true. A project created through the API landed
+in the bucket at `records/projects/`, and was read back intact from a new
+revision with an empty container — records survive a restart with no local
+disk. ClickHouse is reachable from Cloud Run: the QC library reports
+`evidence_available: true`, so the IP allowlist did not need changing. The
+verification project was then removed.
+
+The three-minute demo has not been recorded, and no motion analysis has been
+run against the deployed service, because producing one costs a cloud call.
