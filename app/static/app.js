@@ -26,7 +26,7 @@ const translations = {
     processLogs: ["Sesión creada; validando una trayectoria de seis articulaciones.", "Límites, tiempos y velocidades comprobados por el backend.", "Procedimiento observable extraído desde waypoints estructurados.", "Repetición comparada con la referencia; no es validación de hardware.", "Contrato Docker preparado; llamadas cloud realizadas: 0."],
     processError: "El backend no pudo completar la sesión. Revisa el estado y vuelve a intentarlo.",
     trainerEyebrow: "NUEVO ENTRENAMIENTO", trainerTitle: "¿Qué debe aprender<br>tu agente?", trainerIntro: "Define la tarea, comparte una demostración y revisa el plan antes de iniciar.",
-    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendRemaining: "Quedan {amount} {currency}", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
+    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica", "Simulación"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendRemaining: "Quedan {amount} {currency}", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada", simulation: "Simulación local" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
     formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Destino", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
     taskPlaceholder: "Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil.", taskHelp: "Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.",
     continue: "Continuar <span aria-hidden=\"true\">→</span>", destinationLegend: "¿Dónde ejecutará lo aprendido?", destinationTypeLabel: "Destino de ejecución",
@@ -108,7 +108,21 @@ const translations = {
     extractionActivityNote: "Una llamada acotada a Vertex sigue en curso. No cierres esta vista.",
     nextStepLabel: "SIGUIENTE PASO", nextStepAwaitingReview: "Revisa los pasos y después aprueba o rechaza el procedimiento.",
     nextStepApprovedRobot: "Aprobado. Ahora valida el movimiento en la simulación local. Esa simulación usa una trayectoria interna, no el video.",
-    nextStepSimulate: "Validar en simulación", nextStepApprovedComputer: "Aprobado. Define un ensayo aislado de navegador para probarlo. El plan lo escribes y lo apruebas tú.",
+    nextStepSimulate: "Validar en simulación",
+    simulationEyebrow: "SIMULACIÓN LOCAL",
+    simulationTitle: "Lo aprendido del video, y lo que la simulación realmente corre.",
+    simulationLearnedLabel: "LO QUE SE APRENDIÓ DEL VIDEO",
+    simulationLearnedNote: "{count} pasos extraídos de la fuente que aprobaste, con la marca de tiempo del video de la que salió cada uno.",
+    simulationLearnedEmpty: "Todavía no hay procedimiento aprobado para esta sesión.",
+    simulationMotionLabel: "MOVIMIENTO OBSERVADO",
+    simulationMotionNone: "No has analizado el movimiento del video todavía. Ese análisis vive en la vista Video y gasta una llamada.",
+    simulationMotionSummary: "{subject} · cadena {chain} · {samples} muestras de {joints} articulaciones en {span} s · confianza media {confidence}.",
+    simulationConsoleLabel: "LO QUE CORRE LA SIMULACIÓN LOCAL",
+    simulationGapLabel: "LO QUE FALTA PARA QUE ESTO MUEVA AL ROBOT",
+    simulationGapIntro: "La simulación de la derecha usa una trayectoria interna, no el video. Para que el movimiento del video moviera de verdad al robot falta:",
+    simulationGapProfile: "Un perfil ARP-1 importado de este robot exacto, para conocer sus articulaciones, ejes y límites.",
+    simulationGapMap: "Un mapa de articulaciones escrito por una persona, de cada articulación observada a una del robot, con signo y convención de cero.",
+    simulationGapWhy: "La app no inventa ese mapa: pasar los ángulos de un antebrazo humano a un brazo de seis ejes no es una conversión, es un error de categoría.", nextStepApprovedComputer: "Aprobado. Define un ensayo aislado de navegador para probarlo. El plan lo escribes y lo apruebas tú.",
     nextStepPractice: "Preparar ensayo", nextStepRejected: "El rechazo quedó registrado. Puedes extraer otra vez; sería una nueva llamada de pago.",
     nextStepFailed: "No se extrajo ningún procedimiento. Puedes intentarlo otra vez; sería una nueva llamada de pago.", nextStepRetry: "Extraer otra vez",
     motionTitle: "Vista lateral esquemática del movimiento demostrado",
@@ -148,7 +162,7 @@ const translations = {
     processLogs: ["Session created; validating a six-joint trajectory.", "Limits, timestamps, and velocities checked by the backend.", "Observable procedure extracted from structured waypoints.", "Replay compared with its reference; this is not hardware validation.", "Docker contract prepared; cloud calls made: 0."],
     processError: "The backend could not complete the session. Check its status and try again.",
     trainerEyebrow: "NEW TRAINING", trainerTitle: "What should your<br>agent learn?", trainerIntro: "Define the task, share a demonstration, and review the plan before starting.",
-    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendRemaining: "{amount} {currency} left", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice" }, procedurePrevious: "Previous step", procedureNext: "Next step",
+    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice", "Simulation"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendRemaining: "{amount} {currency} left", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice", simulation: "Local simulation" }, procedurePrevious: "Previous step", procedureNext: "Next step",
     formProgressLabel: "Configuration progress", formMarkers: ["Task", "Destination", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
     taskPlaceholder: "Example: Teach a robot arm to pick and place a fragile component.", taskHelp: "Describe the outcome and important limits. This first session runs in simulation only.",
     continue: "Continue <span aria-hidden=\"true\">→</span>", destinationLegend: "Where will the learned behavior run?", destinationTypeLabel: "Execution destination",
@@ -230,7 +244,21 @@ const translations = {
     extractionActivityNote: "One bounded Vertex call is still running. Keep this view open.",
     nextStepLabel: "NEXT STEP", nextStepAwaitingReview: "Read the steps, then approve or reject the procedure.",
     nextStepApprovedRobot: "Approved. Now validate the motion in the local simulation. That simulation uses a built-in trajectory, not the video.",
-    nextStepSimulate: "Validate in simulation", nextStepApprovedComputer: "Approved. Define an isolated browser rehearsal to test it. You write and approve that plan yourself.",
+    nextStepSimulate: "Validate in simulation",
+    simulationEyebrow: "LOCAL SIMULATION",
+    simulationTitle: "What the video taught, and what this simulation actually runs.",
+    simulationLearnedLabel: "WHAT THE VIDEO TAUGHT",
+    simulationLearnedNote: "{count} steps extracted from the source you approved, each with the video timestamp it came from.",
+    simulationLearnedEmpty: "There is no approved procedure for this session yet.",
+    simulationMotionLabel: "OBSERVED MOTION",
+    simulationMotionNone: "You have not analysed the video's motion yet. That analysis lives in the Video view and spends one call.",
+    simulationMotionSummary: "{subject} · {chain} chain · {samples} samples of {joints} joints across {span} s · mean confidence {confidence}.",
+    simulationConsoleLabel: "WHAT THE LOCAL SIMULATION RUNS",
+    simulationGapLabel: "WHAT IS MISSING BEFORE THIS COULD DRIVE THE ROBOT",
+    simulationGapIntro: "The simulation on the right runs a built-in trajectory, not the video. For the video's motion to actually drive the robot, this is missing:",
+    simulationGapProfile: "An imported ARP-1 profile for this exact robot, so its joints, axes, and limits are known.",
+    simulationGapMap: "A human-authored joint map from each observed joint to a robot joint, including sign and zero convention.",
+    simulationGapWhy: "The application will not invent that map: sending a human forearm's angles to a six-axis arm is not a conversion, it is a category error.", nextStepApprovedComputer: "Approved. Define an isolated browser rehearsal to test it. You write and approve that plan yourself.",
     nextStepPractice: "Set up rehearsal", nextStepRejected: "The rejection is recorded. You can extract again; that would be another paid call.",
     nextStepFailed: "No procedure was extracted. You can try again; that would be another paid call.", nextStepRetry: "Extract again",
     motionTitle: "Schematic side view of the demonstrated motion",
@@ -290,6 +318,9 @@ const approveVideoProcedureButton = document.querySelector("#approve-video-proce
 const rejectVideoProcedureButton = document.querySelector("#reject-video-procedure");
 const workspace = document.querySelector("#entrenar");
 const workspaceCloseButton = document.querySelector("#workspace-close");
+const simulationPanel = document.querySelector("#workspace-simulation");
+const simulationConsoleHost = document.querySelector("#simulation-console-host");
+const processingSectionHome = document.querySelector("#procesamiento");
 const spendTokenField = document.querySelector("#spend-token-field");
 const spendRemainingLabel = document.querySelector("#spend-remaining");
 const spendTokenInput = document.querySelector("#spend-token");
@@ -432,6 +463,7 @@ function applyLanguage(language) {
   workspaceViewButtons.forEach((button, index) => { button.textContent = t.workspaceViews[index]; });
   workspaceCloseButton.ariaLabel = t.workspaceClose;
   setContent("#spend-token-label", t.spendTokenLabel);
+  renderSimulationEvidence();
   spendTokenInput.placeholder = t.spendTokenPlaceholder;
   procedureStepPrevious.ariaLabel = t.procedurePrevious;
   procedureStepNext.ariaLabel = t.procedureNext;
@@ -549,9 +581,14 @@ function showStep(stepNumber) {
 }
 
 function setWorkspaceView(view, moveFocus = true) {
-  if (!["setup", "video", "practice"].includes(view)) return;
+  if (!["setup", "video", "practice", "simulation"].includes(view)) return;
   const viewButton = workspaceViewButtons.find((button) => button.dataset.workspaceTarget === view);
   if (viewButton?.hidden) return;
+  if (view === "simulation") {
+    simulationPanel.hidden = false;
+    mountSimulationConsole();
+    renderSimulationEvidence();
+  }
   workspace.dataset.workspaceView = view;
   workspaceViewButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.workspaceTarget === view)));
   setContent("#workspace-context", translations[currentLanguage].workspaceContexts[view]);
@@ -560,7 +597,9 @@ function setWorkspaceView(view, moveFocus = true) {
     ? steps.find((step) => !step.hidden)?.querySelector("textarea, input:not([type='radio']), button")
     : view === "video"
       ? (procedureReview.hidden ? extractVideoButton : procedureStepNext)
-      : browserTargetUrl;
+      : view === "simulation"
+        ? simulationPanel
+        : browserTargetUrl;
   requestAnimationFrame(() => focusTarget?.focus({ preventScroll: true }));
 }
 
@@ -574,6 +613,7 @@ function openWorkspace(view = "setup", trigger = document.activeElement) {
 }
 
 function closeWorkspace() {
+  releaseSimulationConsole();
   document.body.classList.remove("workspace-open");
   workspace.setAttribute("aria-hidden", "true");
   history.replaceState(null, "", `${location.pathname}${location.search}`);
@@ -1019,12 +1059,104 @@ function stopExtractionTimer() {
   extractionTimerId = 0;
 }
 
-function startSimulationFromReview() {
-  closeWorkspace();
-  window.setTimeout(
-    () => startProcessing(taskInput.value.trim(), "local-simulation://guided-demo"),
-    reducedMotion.matches ? 0 : 400,
+/* The console is one node carrying one set of ids, and app.js addresses all of
+   them. So it is moved into the workspace rather than copied: a duplicate
+   would give every id two owners and silently break every binding. */
+function mountSimulationConsole() {
+  if (!processingConsole || !simulationConsoleHost) return;
+  if (processingConsole.parentElement !== simulationConsoleHost) {
+    simulationConsoleHost.append(processingConsole);
+  }
+}
+
+function releaseSimulationConsole() {
+  if (!processingConsole || !processingSectionHome) return;
+  if (processingConsole.parentElement === simulationConsoleHost) {
+    processingSectionHome.insertBefore(
+      processingConsole,
+      processingSectionHome.querySelector(".demo-disclosure"),
+    );
+  }
+}
+
+function consoleIsInWorkspace() {
+  return processingConsole?.parentElement === simulationConsoleHost;
+}
+
+/* Two columns that must not be read as one. The left is what the video taught;
+   the right is a built-in trajectory. The gap between them is stated rather
+   than left for someone to assume away. */
+function renderSimulationEvidence() {
+  if (!simulationPanel) return;
+  const t = translations[currentLanguage];
+  setContent("#simulation-eyebrow", t.simulationEyebrow);
+  setContent("#simulation-title", t.simulationTitle);
+  setContent("#simulation-learned-label", t.simulationLearnedLabel);
+  setContent("#simulation-motion-label", t.simulationMotionLabel);
+  setContent("#simulation-console-label", t.simulationConsoleLabel);
+  setContent("#simulation-gap-label", t.simulationGapLabel);
+  setContent("#simulation-gap-intro", t.simulationGapIntro);
+
+  const steps = videoProcedureRecord?.procedure?.steps || [];
+  setContent(
+    "#simulation-learned-note",
+    steps.length
+      ? t.simulationLearnedNote.replace("{count}", String(steps.length))
+      : t.simulationLearnedEmpty,
   );
+
+  const list = document.querySelector("#simulation-steps");
+  list.replaceChildren();
+  steps.forEach((step) => {
+    const item = document.createElement("li");
+    const stamps = (step.source_timestamps || []).join(" · ");
+    if (stamps) {
+      const time = document.createElement("time");
+      time.textContent = stamps;
+      item.append(time);
+    }
+    const action = document.createElement("b");
+    action.textContent = step.action;
+    item.append(action);
+    if (step.evidence) {
+      const evidence = document.createElement("span");
+      evidence.textContent = step.evidence;
+      item.append(evidence);
+    }
+    list.append(item);
+  });
+
+  setContent(
+    "#simulation-motion-note",
+    motionAnalysis
+      ? t.simulationMotionSummary
+          .replace("{subject}", motionAnalysis.subject_kind)
+          .replace("{chain}", motionAnalysis.kinematic_chain)
+          .replace("{samples}", String(motionAnalysis.sample_count))
+          .replace("{joints}", String(motionAnalysis.distinct_joint_count))
+          .replace("{span}", motionAnalysis.observed_span_seconds.toFixed(1))
+          .replace("{confidence}", motionAnalysis.mean_confidence.toFixed(2))
+      : t.simulationMotionNone,
+  );
+
+  const gap = document.querySelector("#simulation-gap-list");
+  gap.replaceChildren();
+  [t.simulationGapProfile, t.simulationGapMap, t.simulationGapWhy].forEach((text) => {
+    const item = document.createElement("li");
+    item.textContent = text;
+    gap.append(item);
+  });
+}
+
+function startSimulationFromReview() {
+  mountSimulationConsole();
+  renderSimulationEvidence();
+  const simulationButton = workspaceViewButtons.find(
+    (button) => button.dataset.workspaceTarget === "simulation",
+  );
+  if (simulationButton) simulationButton.hidden = false;
+  setWorkspaceView("simulation");
+  startProcessing(taskInput.value.trim(), "local-simulation://guided-demo", true);
 }
 
 function restartVideoExtraction() {
@@ -1991,7 +2123,9 @@ async function startProcessing(task, source, immediate = false) {
   if (motionPreview && !reducedMotion.matches) setMotionPlaying(true);
   renderProcessState();
   const processingSection = document.querySelector("#procesamiento");
-  if (immediate) {
+  if (consoleIsInWorkspace()) {
+    // Nothing to scroll to: the console is inside the fixed workspace overlay.
+  } else if (immediate) {
     const previousScrollBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = "auto";
     processingSection.scrollIntoView({ block: "start" });

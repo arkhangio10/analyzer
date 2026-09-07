@@ -264,6 +264,11 @@ h2 { margin-bottom: 0; font-size: clamp(3.5rem, 7vw, 7.8rem); line-height: 0.87;
 .form-button-ghost { background: transparent; border: 1px solid rgba(255,255,255,0.28); }
 .form-button:hover:not(:disabled) { transform: translateY(-2px); }
 .form-button:disabled { opacity: 0.42; cursor: not-allowed; }
+/* .form-button sets a white foreground but no background of its own, so a
+   button that reaches the browser with no variant renders white-on-white and
+   is invisible. This is the floor, not a variant: -primary, -ghost and
+   -accent all still win on specificity. */
+.form-button:not(.form-button-primary):not(.form-button-ghost):not(.form-button-accent) { background: transparent; border: 1px solid rgba(255,255,255,0.28); }
 .form-button.is-busy:disabled { opacity: 0.75; cursor: progress; }
 .source-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
 .destination-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem; }
@@ -492,7 +497,8 @@ body.workspace-open .trainer-preview {
 
 .trainer-preview .trainer-form,
 .trainer-preview .video-procedure,
-.trainer-preview .computer-practice {
+.trainer-preview .computer-practice,
+.trainer-preview .workspace-simulation {
   grid-area: content;
   min-width: 0;
   align-self: center;
@@ -503,11 +509,17 @@ body.workspace-open .trainer-preview {
 }
 
 .trainer-preview[data-workspace-view="video"] .trainer-form,
-.trainer-preview[data-workspace-view="practice"] .trainer-form { display: none; }
+.trainer-preview[data-workspace-view="practice"] .trainer-form,
+.trainer-preview[data-workspace-view="simulation"] .trainer-form { display: none; }
 .trainer-preview[data-workspace-view="setup"] .video-procedure,
 .trainer-preview[data-workspace-view="setup"] .computer-practice,
+.trainer-preview[data-workspace-view="setup"] .workspace-simulation,
 .trainer-preview[data-workspace-view="video"] .computer-practice,
-.trainer-preview[data-workspace-view="practice"] .video-procedure { display: none !important; }
+.trainer-preview[data-workspace-view="video"] .workspace-simulation,
+.trainer-preview[data-workspace-view="practice"] .video-procedure,
+.trainer-preview[data-workspace-view="practice"] .workspace-simulation,
+.trainer-preview[data-workspace-view="simulation"] .video-procedure,
+.trainer-preview[data-workspace-view="simulation"] .computer-practice { display: none !important; }
 
 .trainer-preview .trainer-form { display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .trainer-preview .form-step { min-height: 0; overflow: hidden; }
@@ -736,3 +748,44 @@ body.workspace-open .trainer-preview {
 .reconciliation-independence { margin: 0 0 0.5rem; padding: 0.55rem 0.7rem; border-radius: 0.6rem; font-size: 0.73rem; line-height: 1.45; }
 .reconciliation-independence[data-cross="false"] { background: rgba(255,143,122,0.12); color: #ffb9a8; }
 .reconciliation-independence[data-cross="true"] { background: rgba(217,255,87,0.1); color: var(--lime); }
+
+
+/* --- Simulation view ------------------------------------------------------
+   Two columns that say different things on purpose: on the left what the video
+   actually taught, on the right what this simulation actually runs. They are
+   not the same thing and the layout should not let anyone read them as one. */
+.trainer-preview .workspace-simulation {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  padding: clamp(1.1rem, 2vw, 1.9rem);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 1.35rem;
+  background: linear-gradient(158deg, rgba(38,32,82,0.62), rgba(23,23,23,0.9) 62%);
+  overflow: hidden;
+}
+.simulation-heading { flex: none; margin-bottom: 1rem; }
+.simulation-heading .eyebrow { margin: 0 0 0.5rem; color: var(--lime); }
+.simulation-heading h3 { max-width: 46rem; margin: 0; font-size: clamp(1.2rem, 2.2vw, 1.9rem); letter-spacing: -0.02em; }
+.simulation-columns { display: grid; min-height: 0; flex: 1; gap: 1.25rem; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr); }
+.simulation-learned,
+.simulation-console-host { min-height: 0; padding: 1.2rem; border: 1px solid rgba(255,255,255,0.16); border-radius: 1rem; background: rgba(0,0,0,0.2); overflow: hidden auto; overscroll-behavior: contain; }
+.simulation-note { margin: 0.45rem 0 1rem; color: rgba(255,255,255,0.62); font-size: 0.76rem; line-height: 1.5; }
+.simulation-steps { display: grid; gap: 0.5rem; margin: 0 0 1.4rem; padding: 0; list-style: none; }
+.simulation-steps li { padding: 0.7rem 0.8rem; border: 1px solid rgba(255,255,255,0.13); border-radius: 0.7rem; background: rgba(255,255,255,0.035); font-size: 0.78rem; line-height: 1.45; }
+.simulation-steps li b { display: block; margin-bottom: 0.2rem; }
+.simulation-steps time { display: inline-block; margin-bottom: 0.3rem; color: var(--lime); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em; }
+/* The gap is the honest part of this screen, so it is the loud part. */
+.simulation-gap { margin-top: 1.2rem; padding: 0.95rem; border: 1px solid rgba(255,196,84,0.42); border-radius: 0.8rem; background: rgba(255,196,84,0.07); }
+.simulation-gap .practice-label { color: #ffc454; }
+.simulation-gap ul { margin: 0.6rem 0 0; padding-left: 1.1rem; color: rgba(255,255,255,0.76); font-size: 0.75rem; line-height: 1.55; }
+.simulation-gap li { margin-bottom: 0.35rem; }
+
+/* The console is moved here at runtime, so its landing-page framing is undone
+   rather than restyled: inside the workspace it is a panel, not a section. */
+.simulation-console-host > .processing-console { margin: 0.6rem 0 0; border-radius: 0.85rem; }
+.simulation-console-host .console-grid { grid-template-columns: minmax(0, 1fr); }
+
+@media (max-width: 1100px) {
+  .simulation-columns { grid-template-columns: minmax(0, 1fr); overflow: hidden auto; }
+}
