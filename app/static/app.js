@@ -26,7 +26,7 @@ const translations = {
     processLogs: ["Sesión creada; validando una trayectoria de seis articulaciones.", "Límites, tiempos y velocidades comprobados por el backend.", "Procedimiento observable extraído desde waypoints estructurados.", "Repetición comparada con la referencia; no es validación de hardware.", "Contrato Docker preparado; llamadas cloud realizadas: 0."],
     processError: "El backend no pudo completar la sesión. Revisa el estado y vuelve a intentarlo.",
     trainerEyebrow: "NUEVO ENTRENAMIENTO", trainerTitle: "¿Qué debe aprender<br>tu agente?", trainerIntro: "Define la tarea, comparte una demostración y revisa el plan antes de iniciar.",
-    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica", "Simulación"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendRemaining: "Quedan {amount} {currency}", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada", simulation: "Simulación local" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
+    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica", "Simulación"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendTokenRejected: "El servidor rechazó el token de gasto. Lo más probable es que se haya rotado: pega el actual en la barra de arriba y vuelve a intentarlo.", httpFailure: "El servidor respondió {status} sin dar explicación.", networkFailure: "No se pudo contactar con el servidor.", spendRemaining: "Quedan {amount} {currency}", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada", simulation: "Simulación local" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
     formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Destino", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
     taskPlaceholder: "Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil.", taskHelp: "Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.",
     continue: "Continuar <span aria-hidden=\"true\">→</span>", destinationLegend: "¿Dónde ejecutará lo aprendido?", destinationTypeLabel: "Destino de ejecución",
@@ -162,7 +162,7 @@ const translations = {
     processLogs: ["Session created; validating a six-joint trajectory.", "Limits, timestamps, and velocities checked by the backend.", "Observable procedure extracted from structured waypoints.", "Replay compared with its reference; this is not hardware validation.", "Docker contract prepared; cloud calls made: 0."],
     processError: "The backend could not complete the session. Check its status and try again.",
     trainerEyebrow: "NEW TRAINING", trainerTitle: "What should your<br>agent learn?", trainerIntro: "Define the task, share a demonstration, and review the plan before starting.",
-    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice", "Simulation"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendRemaining: "{amount} {currency} left", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice", simulation: "Local simulation" }, procedurePrevious: "Previous step", procedureNext: "Next step",
+    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice", "Simulation"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendTokenRejected: "The server rejected the spend token. It has most likely been rotated: paste the current one in the top bar and try again.", httpFailure: "The server answered {status} with no explanation.", networkFailure: "The server could not be reached.", spendRemaining: "{amount} {currency} left", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice", simulation: "Local simulation" }, procedurePrevious: "Previous step", procedureNext: "Next step",
     formProgressLabel: "Configuration progress", formMarkers: ["Task", "Destination", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
     taskPlaceholder: "Example: Teach a robot arm to pick and place a fragile component.", taskHelp: "Describe the outcome and important limits. This first session runs in simulation only.",
     continue: "Continue <span aria-hidden=\"true\">→</span>", destinationLegend: "Where will the learned behavior run?", destinationTypeLabel: "Execution destination",
@@ -760,11 +760,12 @@ async function searchAutomaticSources() {
         acknowledge_search_quota: true,
       }),
     });
-    if (!response.ok) throw new Error(`Source search failed: ${response.status}`);
+    if (!response.ok) throw new Error(failureDetail(response, await response.json().catch(() => null)));
     sourceSearch = await response.json();
     renderSourceCandidates(sourceSearch.candidates);
   } catch (error) {
-    renderSourceStatus(t.searchUnavailable, true);
+    // The reason was already worked out; "unavailable" would throw it away.
+    renderSourceStatus(error?.message || t.searchUnavailable, true);
     console.error(error);
   } finally {
     searchSourcesButton.disabled = false;
@@ -966,6 +967,36 @@ async function refreshSpendState() {
     const response = await fetch("/api/status");
     if (response.ok) renderSpendRemaining((await response.json()).spend);
   } catch (_) { /* Leave the last known figure showing. */ }
+}
+
+/* A rotated secret is the ordinary reason a paid call starts refusing, and a
+   stored copy of the old one is then worse than nothing: the field looks
+   configured, so nobody suspects it. A 401 drops it and says so. */
+function forgetRejectedSpendToken() {
+  try { sessionStorage.removeItem(SPEND_TOKEN_KEY); } catch (_) { /* Field only. */ }
+  spendTokenInput.value = "";
+  spendTokenField.classList.remove("is-set");
+  spendTokenField.hidden = false;
+  spendTokenInput.focus({ preventScroll: true });
+}
+
+/* Never returns an empty string. "Motion analysis failed:" with nothing after
+   the colon tells a reader only that something is wrong, which is exactly
+   where a rotated token used to leave them. */
+function failureDetail(response, body) {
+  const t = translations[currentLanguage];
+  if (response.status === 401) {
+    forgetRejectedSpendToken();
+    return t.spendTokenRejected;
+  }
+  const detail = body?.detail;
+  if (typeof detail === "string" && detail) return detail;
+  if (detail?.violations?.length) return detail.violations.join(" ");
+  return t.httpFailure.replace("{status}", String(response.status));
+}
+
+function thrownDetail(error) {
+  return error?.message || translations[currentLanguage].networkFailure;
 }
 
 function apiErrorMessage(payload, fallback) {
@@ -1390,13 +1421,13 @@ async function runMotionAnalysis() {
       const template = response.status === 422 ? t.motionBudget : t.motionFailed;
       videoProcedureError.textContent = template.replace(
         "{detail}",
-        body.detail || "",
+        failureDetail(response, body),
       );
     }
   } catch (error) {
     console.error(error);
     videoProcedureError.textContent = translations[currentLanguage]
-      .motionFailed.replace("{detail}", "");
+      .motionFailed.replace("{detail}", thrownDetail(error));
   } finally {
     motionAnalysisRunning = false;
     refreshSpendState();
@@ -1822,7 +1853,7 @@ async function extractProjectVideoProcedure() {
       }),
     });
     const payload = await response.json();
-    if (!response.ok) throw new Error(apiErrorMessage(payload, t.videoExtractionError));
+    if (!response.ok) throw new Error(failureDetail(response, payload));
     videoProcedureRecord = payload;
   } catch (error) {
     videoProcedureError.textContent = error.message || t.videoExtractionError;
