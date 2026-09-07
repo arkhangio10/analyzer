@@ -205,3 +205,34 @@ def test_pending_practice_restarts_blocked_with_private_values_removed(
     assert reloaded.actions[0].target == "https://example.com/form"
     assert reloaded.actions[1].value_template is None
     assert any("redacted at rest" in item for item in reloaded.violations)
+
+
+# --- durability is a property of the destination, not of the directory ------
+
+
+def test_a_writable_directory_is_not_durability_on_a_replaced_container() -> None:
+    """Cloud Run accepts writes to a filesystem it then throws away."""
+    from app.core.config import Settings
+
+    on_a_machine = Settings()
+    on_cloud_run = Settings(k_service="aprendiz")
+    on_cloud_run_with_a_bucket = Settings(k_service="aprendiz", gcs_bucket="b")
+
+    assert on_a_machine.records_survive_restart is True
+    assert on_cloud_run.records_survive_restart is False
+    assert on_cloud_run_with_a_bucket.records_survive_restart is True
+    assert on_a_machine.is_stateless_container is False
+    assert on_cloud_run.is_stateless_container is True
+
+
+def test_the_status_endpoint_does_not_claim_durability_it_does_not_have() -> None:
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    body = TestClient(app).get("/api/status").json()
+
+    assert "records_survive_restart" in body
+    assert body["durable_storage"] is (
+        body["records_survive_restart"] and body["durable_storage"]
+    )

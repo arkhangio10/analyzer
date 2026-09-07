@@ -1,0 +1,25 @@
+# Build the container with the browser toggle exposed.
+#
+# `gcloud builds submit --tag` cannot pass a build argument, and the Chromium
+# install is one: a Cloud Run deployment with browser execution disabled has no
+# use for roughly a gigabyte of image. So the build is spelled out here instead.
+
+substitutions:
+  _IMAGE: "us-central1-docker.pkg.dev/analyzer-robotics-ark10/aprendiz/aprendiz"
+  _INSTALL_BROWSER: "false"
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --build-arg
+      - INSTALL_BROWSER=${_INSTALL_BROWSER}
+      - --tag
+      - ${_IMAGE}
+      - .
+
+images:
+  - ${_IMAGE}
+
+options:
+  logging: CLOUD_LOGGING_ONLY

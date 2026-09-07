@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
+from app.core.config import get_settings
 from app.api.runtime import (
     browser_execution_service,
     computer_execution_service,
@@ -30,7 +31,11 @@ async def project_status() -> dict[str, str | bool]:
     return {
         "project": "APRENDIZ",
         "status": "mvp_in_progress",
-        "durable_storage": project_service.is_durable,
+        # A writable directory is not durability on a container that is
+        # replaced. Both facts are reported, because they differ there.
+        "durable_storage": project_service.is_durable
+        and get_settings().records_survive_restart,
+        "records_survive_restart": get_settings().records_survive_restart,
         "workflow_evidence_durable": all(
             (
                 robot_motion_training_service.is_durable,

@@ -57,6 +57,25 @@ class Settings(BaseSettings):
     app_env: str = "development"
     log_level: str = "INFO"
 
+    # Cloud Run sets K_SERVICE in every container it starts. It is read here
+    # only to tell a container that keeps nothing from a machine that does: a
+    # writable directory on Cloud Run accepts records and loses them at the
+    # next revision or scale event, so durability reported from the filesystem
+    # alone would be a lie there.
+    k_service: str | None = None
+
+    @property
+    def is_stateless_container(self) -> bool:
+        """Report whether this process runs where local disk does not survive."""
+        return bool(self.k_service)
+
+    @property
+    def records_survive_restart(self) -> bool:
+        """Report whether written records outlive this container."""
+        if self.is_stateless_container:
+            return bool(self.gcs_bucket)
+        return True
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

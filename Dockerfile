@@ -9,8 +9,18 @@ WORKDIR /app
 
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-RUN playwright install --with-deps --only-shell chromium \
-    && chmod -R a+rX /ms-playwright
+# Chromium is only reachable when COMPUTER_BROWSER_ENABLED is true, and it is
+# false by default. It costs roughly a gigabyte of image and the cold start
+# that comes with it, so a deployment that does not enable browser execution
+# can leave it out with --build-arg INSTALL_BROWSER=false. The default installs
+# it, so an existing build is unchanged.
+ARG INSTALL_BROWSER=true
+RUN if [ "$INSTALL_BROWSER" = "true" ]; then \
+        playwright install --with-deps --only-shell chromium \
+        && chmod -R a+rX /ms-playwright; \
+    else \
+        echo "Skipping Chromium; browser execution will be unavailable."; \
+    fi
 
 RUN groupadd --system --gid 10001 aprendiz \
     && useradd --system --uid 10001 --gid 10001 --no-create-home aprendiz \

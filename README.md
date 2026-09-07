@@ -61,6 +61,21 @@ pytest tests/browser   # real Chrome against a live server
 The browser suite is a separate command on purpose: Playwright's synchronous API
 holds an event loop open, which breaks `asyncio.run` in anything that follows.
 
+## Deploying
+
+`deploy/deploy.sh` creates the bucket, the service account, the secret and the
+Cloud Run service, and `deploy/README.md` explains what each permission is for
+and which ones are deliberately withheld. None of it has been run yet: the
+scripts are written and syntax-checked, no Google Cloud resource has been
+created, and the container has not been built.
+
+One thing that surprised us is worth repeating here. On Cloud Run a writable
+container filesystem accepts records and loses them at the next revision, while
+reporting itself durable. `/api/status` now separates the two: `durable_storage`
+means a store accepted the write, and `records_survive_restart` means the write
+outlives the container. Without `GCS_BUCKET` the second is false, and the
+service says so at startup.
+
 ## Licence
 
 Apache-2.0. See `LICENSE`.

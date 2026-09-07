@@ -12,6 +12,7 @@ report that they are not durable, rather than failing the request that produced
 the record.
 """
 
+import logging
 from pathlib import Path
 
 from app.agents.evaluator import EvaluatorAgent
@@ -46,6 +47,13 @@ _settings = get_settings()
 _data_root = Path(_settings.data_dir)
 _records_root = _data_root / "records"
 _bucket = _settings.gcs_bucket
+
+if _settings.is_stateless_container and not _bucket:
+    logging.getLogger(__name__).error(
+        "This is a stateless container with no GCS_BUCKET set. Records will be "
+        "written to a filesystem that does not survive the next revision or "
+        "scale event, and will be silently lost. Set GCS_BUCKET."
+    )
 
 
 def _record_store(name: str) -> RecordStore:

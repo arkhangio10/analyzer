@@ -1,0 +1,18 @@
+# The build context is uploaded to Cloud Build; keep it to what the image needs.
+.git
+.gitignore
+.venv
+venv
+.runtime
+.env
+.env.*
+!.env.example
+.pytest_cache
+__pycache__/
+*.pyc
+tests
+exports
+docs
+deploy
+data
+!data/evaluations
