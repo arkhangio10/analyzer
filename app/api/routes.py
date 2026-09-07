@@ -5,10 +5,14 @@ from pathlib import Path
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
-from app.api.spend_guard import spend_endpoints_are_protected
+from app.api.spend_guard import (
+    spend_endpoints_are_protected,
+    spend_token_is_required,
+)
 from app.core.config import get_settings
 from app.api.runtime import (
     browser_execution_service,
+    spend_ledger,
     computer_execution_service,
     computer_practice_service,
     project_service,
@@ -27,7 +31,7 @@ async def frontend() -> FileResponse:
 
 
 @router.get("/api/status")
-async def project_status() -> dict[str, str | bool]:
+async def project_status() -> dict[str, object]:
     """Return the project identity, status, and whether records are durable."""
     return {
         "project": "APRENDIZ",
@@ -39,6 +43,11 @@ async def project_status() -> dict[str, str | bool]:
         "records_survive_restart": get_settings().records_survive_restart,
         # Whether an unknown caller can reach an endpoint that spends money.
         "spend_endpoints_protected": spend_endpoints_are_protected(),
+        # Whether this deployment expects the spend token header, so the
+        # console can ask for it before spending rather than after failing.
+        "spend_token_required": spend_token_is_required(),
+        # What the application has spent against its own ceiling this period.
+        "spend": spend_ledger.state().model_dump(mode="json"),
         "workflow_evidence_durable": all(
             (
                 robot_motion_training_service.is_durable,

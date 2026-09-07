@@ -26,7 +26,7 @@ const translations = {
     processLogs: ["Sesión creada; validando una trayectoria de seis articulaciones.", "Límites, tiempos y velocidades comprobados por el backend.", "Procedimiento observable extraído desde waypoints estructurados.", "Repetición comparada con la referencia; no es validación de hardware.", "Contrato Docker preparado; llamadas cloud realizadas: 0."],
     processError: "El backend no pudo completar la sesión. Revisa el estado y vuelve a intentarlo.",
     trainerEyebrow: "NUEVO ENTRENAMIENTO", trainerTitle: "¿Qué debe aprender<br>tu agente?", trainerIntro: "Define la tarea, comparte una demostración y revisa el plan antes de iniciar.",
-    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica"], workspaceClose: "Cerrar espacio de trabajo", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
+    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendRemaining: "Quedan {amount} {currency}", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
     formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Destino", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
     taskPlaceholder: "Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil.", taskHelp: "Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.",
     continue: "Continuar <span aria-hidden=\"true\">→</span>", destinationLegend: "¿Dónde ejecutará lo aprendido?", destinationTypeLabel: "Destino de ejecución",
@@ -148,7 +148,7 @@ const translations = {
     processLogs: ["Session created; validating a six-joint trajectory.", "Limits, timestamps, and velocities checked by the backend.", "Observable procedure extracted from structured waypoints.", "Replay compared with its reference; this is not hardware validation.", "Docker contract prepared; cloud calls made: 0."],
     processError: "The backend could not complete the session. Check its status and try again.",
     trainerEyebrow: "NEW TRAINING", trainerTitle: "What should your<br>agent learn?", trainerIntro: "Define the task, share a demonstration, and review the plan before starting.",
-    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice"], workspaceClose: "Close workspace", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice" }, procedurePrevious: "Previous step", procedureNext: "Next step",
+    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendRemaining: "{amount} {currency} left", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice" }, procedurePrevious: "Previous step", procedureNext: "Next step",
     formProgressLabel: "Configuration progress", formMarkers: ["Task", "Destination", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
     taskPlaceholder: "Example: Teach a robot arm to pick and place a fragile component.", taskHelp: "Describe the outcome and important limits. This first session runs in simulation only.",
     continue: "Continue <span aria-hidden=\"true\">→</span>", destinationLegend: "Where will the learned behavior run?", destinationTypeLabel: "Execution destination",
@@ -290,6 +290,9 @@ const approveVideoProcedureButton = document.querySelector("#approve-video-proce
 const rejectVideoProcedureButton = document.querySelector("#reject-video-procedure");
 const workspace = document.querySelector("#entrenar");
 const workspaceCloseButton = document.querySelector("#workspace-close");
+const spendTokenField = document.querySelector("#spend-token-field");
+const spendRemainingLabel = document.querySelector("#spend-remaining");
+const spendTokenInput = document.querySelector("#spend-token");
 const workspaceViewButtons = [...document.querySelectorAll("[data-workspace-target]")];
 const procedureStepPager = document.querySelector("#procedure-step-pager");
 const procedureStepPrevious = document.querySelector("#procedure-step-previous");
@@ -428,6 +431,8 @@ function applyLanguage(language) {
   document.querySelector(".workspace-switcher").ariaLabel = t.workspaceViewLabel;
   workspaceViewButtons.forEach((button, index) => { button.textContent = t.workspaceViews[index]; });
   workspaceCloseButton.ariaLabel = t.workspaceClose;
+  setContent("#spend-token-label", t.spendTokenLabel);
+  spendTokenInput.placeholder = t.spendTokenPlaceholder;
   procedureStepPrevious.ariaLabel = t.procedurePrevious;
   procedureStepNext.ariaLabel = t.procedureNext;
   document.querySelector(".step-nav").ariaLabel = t.formProgressLabel;
@@ -692,6 +697,11 @@ async function searchAutomaticSources() {
     renderSourceStatus(t.automaticError, true);
     return;
   }
+  if (missingSpendToken()) {
+    renderSourceStatus(t.spendTokenMissing, true);
+    spendTokenInput.focus({ preventScroll: true });
+    return;
+  }
   approvedSources = [];
   sourceSearch = null;
   searchSourcesButton.disabled = true;
@@ -702,7 +712,7 @@ async function searchAutomaticSources() {
   try {
     const response = await fetch("/api/sources/search", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: spendHeaders(),
       body: JSON.stringify({
         query,
         language: currentLanguage,
@@ -852,6 +862,70 @@ function renderPracticeState() {
     }
     actionResults.append(item);
   });
+}
+
+// A deployment that configures SPEND_TOKEN refuses every paid endpoint that
+// arrives without the header, and the console cannot guess the value. It is
+// the operator's credential, so it is held in sessionStorage: long enough to
+// survive a reload while the tab is open, gone when the tab closes. That is
+// as long as a shared secret pasted into a browser should live anywhere.
+const SPEND_TOKEN_KEY = "aprendiz-spend-token";
+let spendTokenRequired = false;
+
+function storedSpendToken() {
+  const typed = spendTokenInput?.value.trim();
+  if (typed) return typed;
+  try { return sessionStorage.getItem(SPEND_TOKEN_KEY) || ""; } catch (_) { return ""; }
+}
+
+function rememberSpendToken() {
+  const token = spendTokenInput.value.trim();
+  spendTokenField.classList.toggle("is-set", Boolean(token));
+  try {
+    if (token) sessionStorage.setItem(SPEND_TOKEN_KEY, token);
+    else sessionStorage.removeItem(SPEND_TOKEN_KEY);
+  } catch (_) { /* Keep the token in the field for this page only. */ }
+}
+
+function spendHeaders() {
+  const headers = { "Content-Type": "application/json" };
+  const token = storedSpendToken();
+  if (token) headers["X-Aprendiz-Spend-Token"] = token;
+  return headers;
+}
+
+// Refuse locally rather than send a request that is already known to fail.
+function missingSpendToken() {
+  return spendTokenRequired && !storedSpendToken();
+}
+
+// The ceiling is enforced on the server; this only shows what is left of it,
+// so a person can see a run getting expensive before a refusal explains it.
+function renderSpendRemaining(spend) {
+  if (!spendRemainingLabel) return;
+  if (!spend?.enforced) { spendRemainingLabel.hidden = true; return; }
+  const t = translations[currentLanguage];
+  const remaining = Number(spend.remaining ?? 0);
+  const exhausted = remaining <= 0;
+  spendRemainingLabel.hidden = false;
+  spendRemainingLabel.textContent = exhausted
+    ? t.spendExhausted.replace("{currency}", spend.currency)
+    : t.spendRemaining
+        .replace("{amount}", remaining.toFixed(2))
+        .replace("{currency}", spend.currency);
+  spendRemainingLabel.classList.toggle("is-spent", exhausted);
+  spendRemainingLabel.classList.toggle(
+    "is-low",
+    !exhausted && spend.ceiling > 0 && remaining / spend.ceiling <= 0.2,
+  );
+}
+
+// Read after anything that may have spent, so the number is not stale.
+async function refreshSpendState() {
+  try {
+    const response = await fetch("/api/status");
+    if (response.ok) renderSpendRemaining((await response.json()).spend);
+  } catch (_) { /* Leave the last known figure showing. */ }
 }
 
 function apiErrorMessage(payload, fallback) {
@@ -1154,12 +1228,17 @@ async function loadMotionAnalysis() {
 
 async function runMotionAnalysis() {
   if (motionAnalysisRunning || !motionCostApproval.checked) return;
+  if (missingSpendToken()) {
+    videoProcedureError.textContent = translations[currentLanguage].spendTokenMissing;
+    spendTokenInput.focus({ preventScroll: true });
+    return;
+  }
   motionAnalysisRunning = true;
   renderMotionEvidence();
   try {
     const response = await fetch(motionAnalysisUrl(), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: spendHeaders(),
       body: JSON.stringify({
         frames_per_second: MOTION_FPS,
         window_seconds: MOTION_WINDOW_SECONDS,
@@ -1188,6 +1267,7 @@ async function runMotionAnalysis() {
       .motionFailed.replace("{detail}", "");
   } finally {
     motionAnalysisRunning = false;
+    refreshSpendState();
     renderMotionEvidence();
   }
 }
@@ -1588,6 +1668,11 @@ async function extractProjectVideoProcedure() {
     videoProcedureError.textContent = t.videoCostError;
     return;
   }
+  if (missingSpendToken()) {
+    videoProcedureError.textContent = t.spendTokenMissing;
+    spendTokenInput.focus({ preventScroll: true });
+    return;
+  }
   videoExtractionRunning = true;
   startExtractionTimer();
   renderVideoProcedureState();
@@ -1595,7 +1680,7 @@ async function extractProjectVideoProcedure() {
   try {
     const response = await fetch(`/api/projects/${encodeURIComponent(currentProject.project_id)}/video-procedures/extract`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: spendHeaders(),
       body: JSON.stringify({
         video_url: currentVideoSource,
         task_hint: taskInput.value.trim(),
@@ -1613,6 +1698,7 @@ async function extractProjectVideoProcedure() {
   } finally {
     videoExtractionRunning = false;
     stopExtractionTimer();
+    refreshSpendState();
     if (videoProcedureRecord?.status === "extraction_failed") videoCostApproval.checked = false;
     renderVideoProcedureState();
   }
@@ -2359,6 +2445,7 @@ document.querySelectorAll('a[href="#entrenar"]').forEach((anchor) => anchor.addE
   openWorkspace("setup", anchor);
 }));
 workspaceCloseButton.addEventListener("click", closeWorkspace);
+spendTokenInput.addEventListener("input", rememberSpendToken);
 workspaceViewButtons.forEach((button) => button.addEventListener("click", () => setWorkspaceView(button.dataset.workspaceTarget)));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && document.body.classList.contains("workspace-open")) closeWorkspace();
@@ -2429,4 +2516,15 @@ setMotionPreview(null);
 applyLanguage(preferredLanguage);
 loadRecentWork();
 if (location.hash === "#entrenar") openWorkspace("setup", null);
+fetch("/api/status")
+  .then((response) => (response.ok ? response.json() : null))
+  .then((status) => {
+    renderSpendRemaining(status?.spend);
+    spendTokenRequired = Boolean(status?.spend_token_required);
+    if (!spendTokenRequired) return;
+    spendTokenField.hidden = false;
+    try { spendTokenInput.value = sessionStorage.getItem(SPEND_TOKEN_KEY) || ""; } catch (_) { /* Ask for it again. */ }
+    spendTokenField.classList.toggle("is-set", Boolean(spendTokenInput.value));
+  })
+  .catch(() => { /* The field stays hidden; a paid call will say why. */ });
 fetch("/health").then((response) => { if (!response.ok) throw new Error("Health check failed"); return response.json(); }).then(() => { systemChecked = true; systemOnline = true; updateSystemStatus(); }).catch(() => { systemChecked = true; systemOnline = false; updateSystemStatus(); });

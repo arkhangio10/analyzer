@@ -22,6 +22,7 @@ from app.api.spend_guard import (
     SPEND_TOKEN_HEADER,
     require_spend_authorization,
     spend_endpoints_are_protected,
+    spend_token_is_required,
 )
 from app.core.config import Settings
 from app.main import app
@@ -233,3 +234,38 @@ def test_an_enabled_deployment_without_a_token_refuses_to_serve(monkeypatch) -> 
 
     assert response.status_code == 503
     assert "no spend token is configured" in response.json()["detail"]
+
+
+# --- telling the console a token is expected -------------------------------
+#
+# Without this the console can only learn the requirement by spending a
+# request on a 401, and the person then has nowhere to put the token.
+
+
+def test_no_token_configured_is_not_required() -> None:
+    assert spend_token_is_required(Settings(spend_token=None)) is False
+
+
+def test_a_configured_token_is_reported_required() -> None:
+    """Reported whether or not provider calls are on: the guard checks either way."""
+    assert spend_token_is_required(Settings(spend_token="s3cret")) is True
+    assert (
+        spend_token_is_required(
+            Settings(google_genai_enabled=True, spend_token="s3cret")
+        )
+        is True
+    )
+
+
+def test_status_reports_the_requirement_without_revealing_the_token(
+    configured,
+) -> None:
+    """The console reads this to decide whether to ask for a token."""
+    response = client.get("/api/status")
+
+    assert response.json()["spend_token_required"] is True
+    assert configured not in response.text
+
+
+def test_status_reports_no_requirement_when_no_token_is_configured() -> None:
+    assert client.get("/api/status").json()["spend_token_required"] is False

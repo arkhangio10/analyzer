@@ -39,6 +39,19 @@ def spend_endpoints_are_protected(settings: Settings | None = None) -> bool:
     return bool(settings.spend_token)
 
 
+def spend_token_is_required(settings: Settings | None = None) -> bool:
+    """Report whether callers must present the token header.
+
+    The browser cannot discover this from a failed request without first
+    making one, and a paid endpoint is the wrong place to learn a header is
+    missing. Reporting it says only *that* a token is configured, never what
+    it is, so an unauthenticated caller learns nothing it could not learn by
+    reading the 401 it would get anyway.
+    """
+    settings = settings or get_settings()
+    return bool(settings.spend_token)
+
+
 async def require_spend_authorization(
     x_aprendiz_spend_token: str | None = Header(default=None),
 ) -> None:

@@ -36,6 +36,7 @@ from app.services.project_service import ProjectService
 from app.services.project_video_procedure_service import ProjectVideoProcedureService
 from app.services.record_store import JsonRecordStore, RecordStore
 from app.services.robot_motion_training import RobotMotionTrainingService
+from app.services.spend_ledger import SpendLedger
 from app.services.storage_service import (
     GcsVideoStorage,
     LocalVideoStorage,
@@ -84,7 +85,11 @@ computer_execution_service = ComputerExecutionService(
 browser_execution_service = BrowserExecutionService(
     store=_record_store("browser-executions"),
 )
-gemini_service = GeminiService()
+# The ledger is durable wherever records are. On a stateless container with no
+# bucket it degrades to memory like every other store, and the ceiling degrades
+# with it: /api/status reports records_survive_restart so that is visible.
+spend_ledger = SpendLedger(store=_record_store("spend-ledger"))
+gemini_service = GeminiService(ledger=spend_ledger)
 computer_practice_service = ComputerPracticeService(
     project_service,
     browser_execution_service,

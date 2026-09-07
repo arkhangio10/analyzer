@@ -446,6 +446,21 @@ body.workspace-open .trainer-preview {
 .workspace-switcher { display: flex; padding: 0.2rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; }
 .workspace-switcher button { border: 0; border-radius: 999px; padding: 0.5rem 0.75rem; background: transparent; color: rgba(255,255,255,0.5); font: inherit; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; cursor: pointer; }
 .workspace-switcher button[aria-pressed="true"] { background: var(--violet); color: var(--white); }
+/* Only shown when the deployment configures a spend token. It is a service
+   credential the operator holds, not a per-extraction choice, so it lives in
+   the toolbar rather than beside any one button that spends. */
+/* What is left of the operator's own ceiling. Turns amber then red as it goes,
+   because a number nobody reads is not a warning. */
+.spend-remaining { margin: 0; padding: 0.35rem 0.7rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; color: rgba(255,255,255,0.72); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+.spend-remaining.is-low { border-color: rgba(255,196,84,0.6); color: #ffc454; }
+.spend-remaining.is-spent { border-color: rgba(255,154,185,0.7); color: #ff9ab9; }
+
+.spend-token { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.spend-token label { color: rgba(255,255,255,0.5); font-size: 0.58rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
+.spend-token input { width: 9.5rem; min-width: 0; padding: 0.5rem 0.7rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 999px; background: rgba(0,0,0,0.25); color: var(--white); font: inherit; font-size: 0.68rem; }
+.spend-token input:focus-visible { border-color: var(--lime); outline: none; }
+.spend-token.is-set input { border-color: rgba(190,242,100,0.55); }
+
 .workspace-close { display: grid; width: 2.55rem; height: 2.55rem; place-items: center; border: 1px solid rgba(255,255,255,0.25); border-radius: 50%; background: transparent; color: var(--white); font: inherit; font-size: 1.25rem; cursor: pointer; }
 .workspace-close:hover { border-color: var(--lime); color: var(--lime); }
 
@@ -584,6 +599,8 @@ body.workspace-open .trainer-preview {
   .workspace-identity { min-width: 0; flex: 1; }
   .workspace-identity strong { max-width: 8.5rem; }
   .workspace-actions { flex: 0 0 auto; gap: 0.4rem; }
+  .spend-token label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .spend-token input { width: 5.5rem; }
   .workspace-switcher button { padding-inline: 0.6rem; }
   .trainer-preview .trainer-form,
   .trainer-preview .video-procedure,

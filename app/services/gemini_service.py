@@ -19,6 +19,7 @@ from app.models.video_extraction import (
     VideoExtractionRequest,
     VideoExtractionResult,
 )
+from app.services.spend_ledger import SpendLedger
 
 
 class GeminiConfigurationError(RuntimeError):
@@ -56,9 +57,24 @@ class GeminiService:
         self,
         settings: Settings | None = None,
         client_factory: Callable[..., Any] | None = None,
+        ledger: SpendLedger | None = None,
     ) -> None:
         self._settings = settings or get_settings()
         self._client_factory = client_factory or genai.Client
+        # Every call that can spend goes through this class, so the ceiling is
+        # checked here rather than in each route. A route added later inherits
+        # the ceiling without anyone remembering to ask for it.
+        self._ledger = ledger
+
+    def _check_ceiling(self) -> None:
+        """Refuse before the call if the operator's ceiling is already reached."""
+        if self._ledger is not None:
+            self._ledger.check()
+
+    def _record_spend(self, model: str, usage: GeminiUsage) -> None:
+        """Price the call that just completed and add it to the ledger."""
+        if self._ledger is not None:
+            self._ledger.record(model, usage)
 
     def _create_client(self) -> Any:
         settings = self._settings
@@ -90,6 +106,7 @@ class GeminiService:
         request: VideoExtractionRequest,
     ) -> VideoExtractionResult:
         """Extract typed procedural memory from one approved public video."""
+        self._check_ceiling()
         client = self._create_client()
         prompt = self._build_prompt(request)
         requested_model = self._settings.google_genai_youtube_model
@@ -125,6 +142,10 @@ class GeminiService:
                 requested_model=requested_model,
             ) from error
         elapsed_seconds = perf_counter() - started
+        # The provider bills for the call whether or not its response parses,
+        # so the ledger is written before parsing is allowed to raise.
+        usage = self._extract_usage(getattr(response, "usage_metadata", None))
+        self._record_spend(requested_model, usage)
         procedure = self._parse_procedure(response)
 
         return VideoExtractionResult(
@@ -138,7 +159,7 @@ class GeminiService:
             requested_model=requested_model,
             model_version=getattr(response, "model_version", None),
             elapsed_seconds=round(elapsed_seconds, 3),
-            usage=self._extract_usage(getattr(response, "usage_metadata", None)),
+            usage=usage,
         )
 
     async def analyze_motion(
@@ -158,6 +179,7 @@ class GeminiService:
         over time. The window is bounded on purpose: frame rate multiplies
         cost, so a caller always states how much video is sampled.
         """
+        self._check_ceiling()
         client = self._create_client()
         requested_model = self._settings.google_genai_youtube_model
         started = perf_counter()
@@ -204,6 +226,8 @@ class GeminiService:
                 requested_model=requested_model,
             ) from error
         elapsed_seconds = perf_counter() - started
+        usage = self._extract_usage(getattr(response, "usage_metadata", None))
+        self._record_spend(requested_model, usage)
 
         return MotionAnalysisCall(
             report=self._parse_motion_report(response),
@@ -215,7 +239,7 @@ class GeminiService:
             requested_model=requested_model,
             model_version=getattr(response, "model_version", None),
             elapsed_seconds=round(elapsed_seconds, 3),
-            usage=self._extract_usage(getattr(response, "usage_metadata", None)),
+            usage=usage,
         )
 
     @staticmethod

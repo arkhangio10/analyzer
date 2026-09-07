@@ -69,6 +69,20 @@ class Settings(BaseSettings):
     # recomputing a verdict from stored samples costs nothing.
     spend_token: str | None = None
 
+    # A ceiling the application enforces on itself, in the operator's own
+    # currency. A cloud budget cannot do this: it notifies after the fact and
+    # the spending continues. Unset means no ceiling.
+    #
+    # The prices are per million tokens and have no default on purpose. A
+    # guessed price produces a ceiling that is wrong in an unknown direction
+    # and reads as protection anyway, so a ceiling set without them makes the
+    # paid endpoints refuse. Copy the current numbers from the provider's
+    # pricing page for the model in GOOGLE_GENAI_YOUTUBE_MODEL; they change.
+    spend_currency: str = "PEN"
+    spend_ceiling: float | None = Field(default=None, ge=0)
+    price_per_million_input_tokens: float | None = Field(default=None, ge=0)
+    price_per_million_output_tokens: float | None = Field(default=None, ge=0)
+
     @property
     def is_stateless_container(self) -> bool:
         """Report whether this process runs where local disk does not survive."""

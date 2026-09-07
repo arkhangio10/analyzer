@@ -2,7 +2,8 @@
 
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
@@ -18,6 +19,7 @@ from app.api.source_routes import router as source_router
 from app.api.training_routes import router as training_router
 from app.api.upload_routes import router as upload_router
 from app.api.video_extraction_routes import router as video_extraction_router
+from app.services.spend_ledger import SpendCeilingReached, SpendLedgerNotConfigured
 
 
 APP_DIR = Path(__file__).resolve().parent
@@ -41,3 +43,26 @@ app.include_router(source_router)
 app.include_router(training_router)
 app.include_router(upload_router)
 app.include_router(video_extraction_router)
+
+
+# Registered on the application rather than in each route, so an endpoint added
+# later cannot spend past the ceiling by forgetting to catch this.
+@app.exception_handler(SpendCeilingReached)
+async def _spend_ceiling_reached(
+    request: Request,
+    error: SpendCeilingReached,
+) -> JSONResponse:
+    """Refuse a call that would spend past the operator's own ceiling."""
+    return JSONResponse(
+        status_code=402,
+        content={"detail": str(error), "spend": error.state.model_dump(mode="json")},
+    )
+
+
+@app.exception_handler(SpendLedgerNotConfigured)
+async def _spend_ledger_not_configured(
+    request: Request,
+    error: SpendLedgerNotConfigured,
+) -> JSONResponse:
+    """Refuse rather than serve a ceiling that cannot be measured against."""
+    return JSONResponse(status_code=503, content={"detail": str(error)})

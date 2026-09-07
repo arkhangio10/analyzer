@@ -169,6 +169,11 @@
             <strong id="workspace-context">New training</strong>
           </div>
           <div class="workspace-actions">
+            <p class="spend-remaining" id="spend-remaining" hidden></p>
+            <div class="spend-token" id="spend-token-field" hidden>
+              <label for="spend-token" id="spend-token-label">Token de gasto</label>
+              <input id="spend-token" type="password" autocomplete="off" spellcheck="false" placeholder="X-Aprendiz-Spend-Token">
+            </div>
             <div class="workspace-switcher" role="group" aria-label="Workspace view">
               <button type="button" data-workspace-target="setup" aria-pressed="true">Setup</button>
               <button type="button" data-workspace-target="video" aria-pressed="false" hidden>Video</button>
