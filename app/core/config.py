@@ -64,6 +64,11 @@ class Settings(BaseSettings):
     # alone would be a lie there.
     k_service: str | None = None
 
+    # Required by the endpoints that reach a provider once provider calls are
+    # enabled. The QC console never needs it: reading stored evidence and
+    # recomputing a verdict from stored samples costs nothing.
+    spend_token: str | None = None
+
     @property
     def is_stateless_container(self) -> bool:
         """Report whether this process runs where local disk does not survive."""

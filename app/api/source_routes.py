@@ -1,6 +1,7 @@
 """Routes for reference discovery and explicit source approval."""
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status
+from app.api.spend_guard import require_spend_authorization
 
 from app.models.source import (
     SourceApprovalRequest,
@@ -21,7 +22,11 @@ router = APIRouter(prefix="/api/sources", tags=["sources"])
 youtube_service = YouTubeService()
 
 
-@router.post("/search", response_model=SourceSearchResult)
+@router.post(
+    "/search",
+    response_model=SourceSearchResult,
+    dependencies=[Depends(require_spend_authorization)],
+)
 async def search_sources(request: SourceSearchRequest) -> SourceSearchResult:
     """Search for candidates without analyzing or approving them."""
     try:

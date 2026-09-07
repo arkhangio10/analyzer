@@ -1,6 +1,7 @@
 """Controlled API route for the first real instructional-video experiment."""
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status
+from app.api.spend_guard import require_spend_authorization
 
 from app.api.runtime import gemini_service
 from app.models.video_extraction import (
@@ -21,6 +22,7 @@ router = APIRouter(prefix="/api/experiments/video", tags=["experiments"])
     "/extract",
     response_model=VideoExtractionResult,
     status_code=status.HTTP_200_OK,
+    dependencies=[Depends(require_spend_authorization)],
 )
 async def extract_video_procedure(
     request: VideoExtractionRequest,

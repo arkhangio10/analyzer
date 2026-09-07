@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter
 from fastapi.responses import FileResponse
 
+from app.api.spend_guard import spend_endpoints_are_protected
 from app.core.config import get_settings
 from app.api.runtime import (
     browser_execution_service,
@@ -36,6 +37,8 @@ async def project_status() -> dict[str, str | bool]:
         "durable_storage": project_service.is_durable
         and get_settings().records_survive_restart,
         "records_survive_restart": get_settings().records_survive_restart,
+        # Whether an unknown caller can reach an endpoint that spends money.
+        "spend_endpoints_protected": spend_endpoints_are_protected(),
         "workflow_evidence_durable": all(
             (
                 robot_motion_training_service.is_durable,

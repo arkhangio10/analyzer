@@ -2,7 +2,8 @@
 
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status
+from app.api.spend_guard import require_spend_authorization
 
 from app.api.runtime import (
     adaptation_service,
@@ -52,6 +53,7 @@ router = APIRouter(
     "/extract",
     response_model=ProjectVideoProcedureRecord,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_spend_authorization)],
 )
 async def extract_project_video_procedure(
     project_id: str,
@@ -159,6 +161,7 @@ def _load_pair(project_id: str, extraction_id: str):
     "/{extraction_id}/motion-analysis",
     response_model=MotionAnalysisRecord,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_spend_authorization)],
 )
 async def analyze_project_video_motion(
     project_id: str,
