@@ -270,3 +270,79 @@ class MotionAnalysisCall(BaseModel):
     usage: GeminiUsage = Field(default_factory=GeminiUsage)
     cloud_calls_made: Literal[1] = 1
     raw_response_retained: Literal[False] = False
+
+
+class ObservedTrackPoint(BaseModel):
+    """One estimated angle on one joint's timeline, ready to be drawn."""
+
+    timestamp_seconds: float = Field(ge=0)
+    angle_degrees: float
+    confidence: float = Field(ge=0, le=1)
+    visibility: JointVisibility
+    starts_segment: bool = Field(
+        description=(
+            "True when this point must begin a new stroke because the joint "
+            "was not seen continuously up to it. An interface that joins it "
+            "to the previous point draws a movement nobody observed."
+        ),
+    )
+
+
+class ObservedJointTrack(BaseModel):
+    """Everything one observed joint contributed, in time order."""
+
+    joint_name: str = Field(min_length=1, max_length=60)
+    side: Literal["left", "right", "center"]
+    label: str = Field(min_length=1, max_length=80)
+    point_count: int = Field(ge=1)
+    minimum_degrees: float
+    maximum_degrees: float
+    range_degrees: float = Field(ge=0)
+    mean_confidence: float = Field(ge=0, le=1)
+    clear_ratio: float = Field(ge=0, le=1)
+    segment_count: int = Field(
+        ge=1,
+        description="How many unbroken strokes this timeline breaks into.",
+    )
+    points: list[ObservedTrackPoint] = Field(min_length=1, max_length=2000)
+
+
+class ObservedMotionPreview(BaseModel):
+    """Drawing data for the movement observed in the video itself.
+
+    This is the answer to "show me what the video did", and it is deliberately
+    not a body. The samples are per-joint angles over time; nothing in them
+    says how long a limb is, where a joint sits, or how the parts connect, so
+    reconstructing a silhouette from them would be invention rather than
+    evidence. What can honestly be drawn is each joint's own timeline, and
+    that is what this preview carries.
+
+    The three `Literal[False]` fields are permanent: an estimate never becomes
+    a measurement, a set of angles never becomes a geometry, and a gap where
+    a joint was occluded is never bridged to make a nicer line.
+    """
+
+    preview_kind: Literal["observed_joint_angle_tracks"] = (
+        "observed_joint_angle_tracks"
+    )
+    physically_measured: Literal[False] = False
+    reconstructed_body_geometry: Literal[False] = False
+    interpolated_across_gaps: Literal[False] = False
+
+    analysis_id: str = Field(min_length=1)
+    extraction_id: str = Field(min_length=1)
+    subject_kind: MotionSubjectKind
+    kinematic_chain: str = Field(max_length=120)
+    evidence_verdict: MotionEvidenceVerdict
+
+    span_start_seconds: float = Field(ge=0)
+    span_end_seconds: float = Field(ge=0)
+    duration_seconds: float = Field(ge=0)
+    mean_confidence: float = Field(ge=0, le=1)
+
+    tracks: list[ObservedJointTrack] = Field(default_factory=list, max_length=40)
+    omitted_joint_count: int = Field(
+        default=0,
+        ge=0,
+        description="Joints left out because the drawing caps how many fit.",
+    )

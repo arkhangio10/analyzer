@@ -490,6 +490,25 @@
               <p class="practice-label" id="simulation-motion-label">MOVIMIENTO OBSERVADO</p>
               <p class="simulation-note" id="simulation-motion-note"></p>
 
+              <div class="observed-motion" id="observed-motion" hidden>
+                <div class="observed-heading">
+                  <span class="observed-tag" id="observed-tag">DEL VIDEO · ÁNGULOS ESTIMADOS</span>
+                  <p class="observed-summary" id="observed-summary"></p>
+                </div>
+                <div class="observed-stage">
+                  <svg id="observed-canvas" role="img" aria-labelledby="observed-canvas-title observed-canvas-desc" preserveAspectRatio="xMidYMid meet">
+                    <title id="observed-canvas-title">Ángulos de articulación observados en el video</title>
+                    <desc id="observed-canvas-desc">Sin análisis de movimiento cargado.</desc>
+                  </svg>
+                </div>
+                <div class="observed-controls">
+                  <button class="observed-play" id="observed-play" type="button" aria-pressed="false" aria-label="Reproducir el movimiento observado"><span aria-hidden="true">▶</span></button>
+                  <input id="observed-scrubber" type="range" min="0" max="1000" step="1" value="0" aria-label="Momento del movimiento observado" aria-valuetext="0.0 s">
+                  <b class="observed-clock" id="observed-clock">0.0 s</b>
+                </div>
+                <p class="observed-legend" id="observed-legend"></p>
+              </div>
+
               <div class="simulation-gap" id="simulation-gap">
                 <p class="practice-label" id="simulation-gap-label">LO QUE FALTA PARA QUE ESTO MUEVA AL ROBOT</p>
                 <p class="simulation-note" id="simulation-gap-intro"></p>

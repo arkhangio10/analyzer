@@ -150,14 +150,21 @@ def seed(data_dir: Path) -> None:
             record.model_dump(mode="json"),
         )
 
+    # Eight readings, then the hip leaves frame for 1.75 s, then four more.
+    # One reading is taken while the joint is occluded. Both shapes exist so
+    # the observed-motion drawing has a real break and a real hole to render,
+    # rather than a clean line that would never test the rule.
+    def observed_time(index: int) -> float:
+        return round(60 + index * 0.25 + (1.75 if index >= 8 else 0), 3)
+
     samples = [
         ObservedJointAngle(
-            timestamp_seconds=round(60 + index * 0.25, 3),
+            timestamp_seconds=observed_time(index),
             joint_name="hip",
             side=side,
             angle_degrees=10.0 + index,
             confidence=0.7,
-            visibility="partial",
+            visibility="occluded" if index == 3 else "partial",
         )
         for index in range(12)
         for side in ("left", "right")
@@ -180,8 +187,8 @@ def seed(data_dir: Path) -> None:
         uncertainties=["Clothing hides the knees."],
         sample_count=len(samples),
         distinct_joint_count=2,
-        observed_span_seconds=2.75,
-        samples_per_second=8.7,
+        observed_span_seconds=4.5,
+        samples_per_second=5.3,
         mean_confidence=0.7,
         clear_sample_count=0,
         audit=MotionEvidenceAudit(
@@ -200,7 +207,7 @@ def seed(data_dir: Path) -> None:
             ],
             mirrored_frame_ratio=1.0,
             distinct_confidence_values=1,
-            distinct_visibility_values=1,
+            distinct_visibility_values=2,
             acyclic_joints=[],
             checked_joint_count=2,
         ),

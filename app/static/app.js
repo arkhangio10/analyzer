@@ -155,6 +155,17 @@ const translations = {
     simulationMotionLabel: "MOVIMIENTO OBSERVADO",
     simulationMotionNone: "No has analizado el movimiento del video todavía. Ese análisis vive en la vista Video y gasta una llamada.",
     simulationMotionSummary: "{subject} · cadena {chain} · {samples} muestras de {joints} articulaciones en {span} s · confianza media {confidence}.",
+    observedTag: "DEL VIDEO · ÁNGULOS ESTIMADOS",
+    observedTitle: "Ángulos de articulación observados en el video",
+    observedDescription: "{joints} articulaciones observadas durante {duration} s, cada una dibujada como su propio ángulo en el tiempo.",
+    observedSummary: "Esto sí sale de tu video: {joints} articulaciones, {duration} s, {points} lecturas. Cada línea es un ángulo, no un cuerpo.",
+    observedOmitted: " Se omitieron {count} articulaciones que se movieron menos.",
+    observedLegend: "Ángulos estimados por un modelo de visión, no medidos. Las líneas se cortan donde la articulación dejó de verse: ese hueco no se rellena. No se reconstruye el cuerpo porque las muestras no dicen dónde está cada parte ni cuánto mide.",
+    observedPlay: "Reproducir el movimiento observado",
+    observedPause: "Pausar el movimiento observado",
+    observedScrubberLabel: "Momento del movimiento observado",
+    observedOccluded: "oculta",
+    observedFailed: "No se pudo cargar el movimiento observado: {detail}",
     simulationConsoleLabel: "LO QUE CORRE LA SIMULACIÓN LOCAL",
     simulationGapLabel: "LO QUE FALTA PARA QUE ESTO MUEVA AL ROBOT",
     simulationGapIntro: "La simulación de la derecha usa una trayectoria interna, no el video. Para que el movimiento del video moviera de verdad al robot falta:",
@@ -329,6 +340,17 @@ const translations = {
     simulationMotionLabel: "OBSERVED MOTION",
     simulationMotionNone: "You have not analysed the video's motion yet. That analysis lives in the Video view and spends one call.",
     simulationMotionSummary: "{subject} · {chain} chain · {samples} samples of {joints} joints across {span} s · mean confidence {confidence}.",
+    observedTag: "FROM THE VIDEO · ESTIMATED ANGLES",
+    observedTitle: "Joint angles observed in the video",
+    observedDescription: "{joints} observed joints across {duration} s, each drawn as its own angle over time.",
+    observedSummary: "This one does come from your video: {joints} joints, {duration} s, {points} readings. Each line is an angle, not a body.",
+    observedOmitted: " {count} joints that moved less were left out.",
+    observedLegend: "Angles estimated by a vision model, not measured. A line breaks where the joint stopped being visible, and that gap is not filled in. The body is not reconstructed, because the samples never say where each part is or how long it is.",
+    observedPlay: "Play the observed motion",
+    observedPause: "Pause the observed motion",
+    observedScrubberLabel: "Observed motion time",
+    observedOccluded: "occluded",
+    observedFailed: "The observed motion could not be loaded: {detail}",
     simulationConsoleLabel: "WHAT THE LOCAL SIMULATION RUNS",
     simulationGapLabel: "WHAT IS MISSING BEFORE THIS COULD DRIVE THE ROBOT",
     simulationGapIntro: "The simulation on the right runs a built-in trajectory, not the video. For the video's motion to actually drive the robot, this is missing:",
@@ -421,6 +443,10 @@ const teachDownloadNote = document.querySelector("#teach-download-note");
 const teachDestinationInputs = [...document.querySelectorAll('input[name="teach-destination"]')];
 const simulationPanel = document.querySelector("#workspace-simulation");
 const simulationConsoleHost = document.querySelector("#simulation-console-host");
+const observedPanel = document.querySelector("#observed-motion");
+const observedCanvas = document.querySelector("#observed-canvas");
+const observedPlayButton = document.querySelector("#observed-play");
+const observedScrubber = document.querySelector("#observed-scrubber");
 const processingSectionHome = document.querySelector("#procesamiento");
 const spendTokenField = document.querySelector("#spend-token-field");
 const spendRemainingLabel = document.querySelector("#spend-remaining");
@@ -491,6 +517,14 @@ let motionLastTimestamp = 0;
 let extractionTimerId = 0;
 let videoNextStepHandler = null;
 let motionAnalysis = null;
+let observedPreview = null;
+let observedPreviewKey = null;
+let observedScene = null;
+let observedTime = 0;
+let observedIntent = false;
+let observedPlaying = false;
+let observedFrameId = 0;
+let observedLastTimestamp = 0;
 let storedUploads = [];
 let procedureHistory = null;
 let projectReconciliation = null;
@@ -701,6 +735,7 @@ function setWorkspaceView(view, moveFocus = true) {
     renderSimulationEvidence();
   }
   workspace.dataset.workspaceView = view;
+  syncObservedPlayback();
   workspaceViewButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.workspaceTarget === view)));
   setContent("#workspace-context", translations[currentLanguage].workspaceContexts[view]);
   if (!moveFocus) return;
@@ -727,6 +762,7 @@ function openWorkspace(view = "setup", trigger = document.activeElement) {
 
 function closeWorkspace() {
   releaseSimulationConsole();
+  setObservedPlaying(false);
   document.body.classList.remove("workspace-open");
   workspace.setAttribute("aria-hidden", "true");
   history.replaceState(null, "", `${location.pathname}${location.search}`);
@@ -1318,6 +1354,351 @@ function renderSimulationEvidence() {
     item.textContent = text;
     gap.append(item);
   });
+
+  renderObservedMotion();
+  loadObservedMotionPreview();
+}
+
+/* --- The movement that actually came from the video ---------------------
+   The console on the right runs a built-in arm, and that is the honest
+   answer to "simulate this". It is not the honest answer to "show me my
+   video", so this panel answers that question separately, from the samples
+   the analysis paid for.
+
+   What it draws is one timeline per joint, and deliberately not a figure.
+   The samples carry angles and nothing else -- no link lengths, no joint
+   positions, no statement of what connects to what -- so a silhouette drawn
+   from them would be geometry this application invented and then displayed
+   as evidence. A line here also stops wherever the joint stopped being
+   visible: bridging that gap would draw a movement nobody observed. */
+
+/* The joint name and its live angle both sit in the left column, so a narrow
+   workspace can scroll the plot without scrolling away what it is a plot of. */
+const OBSERVED_VIEW = {
+  width: 320,
+  labelWidth: 104,
+  labelRight: 70,
+  valueRight: 98,
+  rightGutter: 10,
+  rowHeight: 34,
+  topPad: 12,
+  bottomPad: 20,
+};
+
+function observedPlotLeft() {
+  return OBSERVED_VIEW.labelWidth;
+}
+
+function observedPlotRight() {
+  return OBSERVED_VIEW.width - OBSERVED_VIEW.rightGutter;
+}
+
+function observedPreviewUrl() {
+  return `${motionAnalysisUrl()}/preview`;
+}
+
+/* Reshaping samples costs nothing, but fetching them twice for the same
+   analysis is still noise: the key is what makes this run once. */
+async function loadObservedMotionPreview() {
+  const key = motionAnalysis?.analysis_id || null;
+  if (!key) {
+    observedPreview = null;
+    observedPreviewKey = null;
+    renderObservedMotion();
+    return;
+  }
+  if (key === observedPreviewKey) return;
+  try {
+    const response = await fetch(observedPreviewUrl());
+    if (!response.ok) return;
+    observedPreview = await response.json();
+    observedPreviewKey = key;
+    observedTime = 0;
+    buildObservedScene();
+    renderObservedMotion();
+    setObservedPlaying(!reducedMotion.matches);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function observedScale(tracks) {
+  const largest = tracks.reduce(
+    (top, track) =>
+      Math.max(top, Math.abs(track.minimum_degrees), Math.abs(track.maximum_degrees)),
+    0,
+  );
+  return largest > 0 ? largest : 1;
+}
+
+/* Split one joint's points wherever the analysis said the stroke breaks. A
+   segment is a run the joint was seen through; the space between two of them
+   is time nobody watched, and it stays empty. */
+function observedSegments(points) {
+  const segments = [];
+  points.forEach((point) => {
+    if (point.starts_segment || !segments.length) segments.push([]);
+    segments[segments.length - 1].push(point);
+  });
+  return segments;
+}
+
+function buildObservedScene() {
+  observedScene = null;
+  if (!observedCanvas) return;
+  observedCanvas.textContent = "";
+  const preview = observedPreview;
+  if (!preview || !preview.tracks.length) return;
+
+  const rowCount = preview.tracks.length;
+  const height =
+    OBSERVED_VIEW.topPad + rowCount * OBSERVED_VIEW.rowHeight + OBSERVED_VIEW.bottomPad;
+  observedCanvas.setAttribute("viewBox", `0 0 ${OBSERVED_VIEW.width} ${height}`);
+
+  const title = svgElement("title", { id: "observed-canvas-title" });
+  const description = svgElement("desc", { id: "observed-canvas-desc" });
+  observedCanvas.append(title, description);
+
+  const left = observedPlotLeft();
+  const right = observedPlotRight();
+  const span = preview.duration_seconds;
+  const scale = observedScale(preview.tracks);
+  const half = OBSERVED_VIEW.rowHeight / 2 - 3;
+  const at = (seconds) =>
+    span > 0
+      ? left + ((seconds - preview.span_start_seconds) / span) * (right - left)
+      : left;
+
+  const rows = preview.tracks.map((track, index) => {
+    const midY = OBSERVED_VIEW.topPad + index * OBSERVED_VIEW.rowHeight + OBSERVED_VIEW.rowHeight / 2;
+    const group = svgElement("g", { class: "observed-row" });
+
+    group.append(
+      svgElement("line", {
+        class: "observed-baseline",
+        x1: left,
+        y1: midY,
+        x2: right,
+        y2: midY,
+      }),
+    );
+
+    const label = svgElement("text", {
+      class: "observed-label",
+      x: OBSERVED_VIEW.labelRight,
+      y: midY + 3,
+      "text-anchor": "end",
+    });
+    label.textContent = track.label;
+    const labelTitle = svgElement("title");
+    labelTitle.textContent = `${track.label}: ${Math.round(track.minimum_degrees)}° … ${Math.round(track.maximum_degrees)}°`;
+    label.append(labelTitle);
+    group.append(label);
+
+    const plotted = track.points.map((point) => ({
+      ...point,
+      x: at(point.timestamp_seconds),
+      y: midY - (point.angle_degrees / scale) * half,
+    }));
+
+    observedSegments(plotted).forEach((segment) => {
+      if (segment.length < 2) {
+        const only = segment[0];
+        group.append(
+          svgElement("circle", {
+            class: "observed-lone-point",
+            cx: only.x.toFixed(1),
+            cy: only.y.toFixed(1),
+            r: 1.6,
+          }),
+        );
+        return;
+      }
+      const confidence =
+        segment.reduce((total, point) => total + point.confidence, 0) / segment.length;
+      group.append(
+        svgElement("polyline", {
+          class: "observed-trace",
+          points: segment.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" "),
+          "stroke-opacity": (0.35 + 0.65 * confidence).toFixed(2),
+        }),
+      );
+    });
+
+    // A reading taken while the joint was hidden is marked, not smoothed away.
+    plotted
+      .filter((point) => point.visibility === "occluded")
+      .forEach((point) => {
+        group.append(
+          svgElement("circle", {
+            class: "observed-occluded",
+            cx: point.x.toFixed(1),
+            cy: point.y.toFixed(1),
+            r: 2,
+          }),
+        );
+      });
+
+    const dot = svgElement("circle", { class: "observed-dot", r: 2.6, cx: left, cy: midY });
+    const value = svgElement("text", {
+      class: "observed-value",
+      x: OBSERVED_VIEW.valueRight,
+      y: midY + 3,
+      "text-anchor": "end",
+    });
+    group.append(dot, value);
+    observedCanvas.append(group);
+    return { track, points: plotted, midY, dot, value };
+  });
+
+  const axisY = height - OBSERVED_VIEW.bottomPad + 14;
+  [
+    [left, "start", preview.span_start_seconds],
+    [right, "end", preview.span_end_seconds],
+  ].forEach(([x, anchor, seconds]) => {
+    const stamp = svgElement("text", {
+      class: "observed-axis",
+      x,
+      y: axisY,
+      "text-anchor": anchor,
+    });
+    stamp.textContent = `${seconds.toFixed(1)} s`;
+    observedCanvas.append(stamp);
+  });
+
+  const playhead = svgElement("line", {
+    class: "observed-playhead",
+    x1: left,
+    y1: OBSERVED_VIEW.topPad - 4,
+    x2: left,
+    y2: height - OBSERVED_VIEW.bottomPad + 4,
+  });
+  observedCanvas.append(playhead);
+
+  observedScene = { preview, rows, playhead, title, description, at, scale };
+  drawObservedFrame(observedTime);
+}
+
+/* Read one joint at one instant, without inventing what happened between two
+   strokes. Inside a stroke the angle is interpolated; across a break, and
+   outside the joint's own span, the answer is that there is no reading. */
+function observedReadingAt(points, seconds) {
+  if (!points.length) return null;
+  if (seconds < points[0].timestamp_seconds) return null;
+  for (let index = 0; index < points.length - 1; index += 1) {
+    const from = points[index];
+    const to = points[index + 1];
+    if (seconds < from.timestamp_seconds || seconds > to.timestamp_seconds) continue;
+    if (to.starts_segment) return null;
+    const width = to.timestamp_seconds - from.timestamp_seconds;
+    const ratio = width > 0 ? (seconds - from.timestamp_seconds) / width : 0;
+    return {
+      angle: from.angle_degrees + (to.angle_degrees - from.angle_degrees) * ratio,
+      x: from.x + (to.x - from.x) * ratio,
+      y: from.y + (to.y - from.y) * ratio,
+    };
+  }
+  const last = points[points.length - 1];
+  if (seconds > last.timestamp_seconds) return null;
+  return { angle: last.angle_degrees, x: last.x, y: last.y };
+}
+
+function drawObservedFrame(offsetSeconds) {
+  if (!observedScene) return;
+  const preview = observedScene.preview;
+  const span = preview.duration_seconds;
+  const clamped = span > 0 ? Math.min(Math.max(0, offsetSeconds), span) : 0;
+  const seconds = preview.span_start_seconds + clamped;
+  const x = observedScene.at(seconds);
+  observedScene.playhead.setAttribute("x1", x.toFixed(1));
+  observedScene.playhead.setAttribute("x2", x.toFixed(1));
+
+  const gap = translations[currentLanguage].observedOccluded;
+  observedScene.rows.forEach((row) => {
+    const reading = observedReadingAt(row.points, seconds);
+    if (reading) {
+      row.dot.setAttribute("cx", reading.x.toFixed(1));
+      row.dot.setAttribute("cy", reading.y.toFixed(1));
+      row.dot.style.display = "";
+      row.value.textContent = `${Math.round(reading.angle)}°`;
+      row.value.classList.remove("is-missing");
+    } else {
+      row.dot.style.display = "none";
+      row.value.textContent = gap;
+      row.value.classList.add("is-missing");
+    }
+  });
+
+  const clock = `${clamped.toFixed(1)} s`;
+  setContent("#observed-clock", clock);
+  if (observedScrubber && span > 0) {
+    const position = String(Math.round((clamped / span) * 1000));
+    if (observedScrubber.value !== position) observedScrubber.value = position;
+    observedScrubber.setAttribute("aria-valuetext", clock);
+  }
+}
+
+function renderObservedMotion() {
+  if (!observedPanel) return;
+  const t = translations[currentLanguage];
+  const preview = observedPreview;
+  observedPanel.hidden = !preview || !preview.tracks.length;
+  setContent("#observed-tag", t.observedTag);
+  setContent("#observed-legend", t.observedLegend);
+  observedPlayButton?.setAttribute("aria-label", observedIntent ? t.observedPause : t.observedPlay);
+  observedPlayButton?.setAttribute("aria-pressed", String(observedIntent));
+  const glyph = observedPlayButton?.querySelector("span");
+  if (glyph) glyph.textContent = observedIntent ? "❚❚" : "▶";
+  observedScrubber?.setAttribute("aria-label", t.observedScrubberLabel);
+  if (observedPanel.hidden) return;
+
+  const points = preview.tracks.reduce((total, track) => total + track.point_count, 0);
+  let summary = t.observedSummary
+    .replace("{joints}", String(preview.tracks.length))
+    .replace("{duration}", preview.duration_seconds.toFixed(1))
+    .replace("{points}", String(points));
+  if (preview.omitted_joint_count) {
+    summary += t.observedOmitted.replace("{count}", String(preview.omitted_joint_count));
+  }
+  setContent("#observed-summary", summary);
+
+  if (!observedScene) return;
+  observedScene.title.textContent = t.observedTitle;
+  observedScene.description.textContent = t.observedDescription
+    .replace("{joints}", String(preview.tracks.length))
+    .replace("{duration}", preview.duration_seconds.toFixed(1));
+  drawObservedFrame(observedTime);
+}
+
+function observedFrameLoop(timestamp) {
+  if (!observedPlaying || !observedPreview) return;
+  const delta = observedLastTimestamp
+    ? Math.min(0.25, (timestamp - observedLastTimestamp) / 1000)
+    : 0;
+  observedLastTimestamp = timestamp;
+  observedTime += delta;
+  if (observedTime >= observedPreview.duration_seconds) observedTime = 0;
+  drawObservedFrame(observedTime);
+  observedFrameId = requestAnimationFrame(observedFrameLoop);
+}
+
+function syncObservedPlayback() {
+  const visible =
+    Boolean(observedScene) &&
+    document.body.classList.contains("workspace-open") &&
+    workspace.dataset.workspaceView === "simulation";
+  const shouldRun = observedIntent && visible;
+  if (shouldRun === observedPlaying) return;
+  observedPlaying = shouldRun;
+  cancelAnimationFrame(observedFrameId);
+  observedLastTimestamp = 0;
+  if (observedPlaying) observedFrameId = requestAnimationFrame(observedFrameLoop);
+}
+
+function setObservedPlaying(playing) {
+  observedIntent = playing && Boolean(observedScene);
+  syncObservedPlayback();
+  renderObservedMotion();
 }
 
 /* --- Teach: one screen, one button, one approval, one result ------------
@@ -1877,6 +2258,9 @@ function motionAnalysisUrl() {
 
 async function loadMotionAnalysis() {
   motionAnalysis = null;
+  observedPreview = null;
+  observedPreviewKey = null;
+  observedScene = null;
   if (!currentProject || videoProcedureRecord?.status !== "approved") {
     renderMotionEvidence();
     return;
@@ -1915,6 +2299,9 @@ async function runMotionAnalysis() {
     const body = await response.json();
     if (response.ok) {
       motionAnalysis = body;
+      observedPreview = null;
+      observedPreviewKey = null;
+      observedScene = null;
       motionCostApproval.checked = false;
       loadAdaptationPlan();
     } else {
@@ -3166,6 +3553,16 @@ motionScrubber.addEventListener("input", () => {
   setMotionPlaying(false);
   motionTime = (Number(motionScrubber.value) / 1000) * motionPreview.duration_seconds;
   drawMotionFrame(motionTime);
+});
+observedPlayButton?.addEventListener("click", () => setObservedPlaying(!observedIntent));
+observedScrubber?.addEventListener("input", () => {
+  if (!observedPreview) return;
+  // Read the dragged position first: pausing redraws the frame, and that
+  // redraw writes the playing position back into this very input.
+  const ratio = Number(observedScrubber.value) / 1000;
+  setObservedPlaying(false);
+  observedTime = ratio * observedPreview.duration_seconds;
+  drawObservedFrame(observedTime);
 });
 useExampleButton.addEventListener("click", applyExample);
 videoNextStepAction.addEventListener("click", () => videoNextStepHandler?.());

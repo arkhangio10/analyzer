@@ -233,3 +233,54 @@ def test_an_unknown_extraction_is_not_found() -> None:
     )
 
     assert response.status_code == 404
+
+
+def test_the_observed_preview_is_free_and_drawable_after_an_analysis() -> None:
+    project = create_robot_project()
+    record = store_record(project["project_id"], ProjectVideoProcedureStatus.APPROVED)
+    base = (
+        f"/api/projects/{project['project_id']}/video-procedures/"
+        f"{record.extraction_id}/motion-analysis"
+    )
+    stub = StubGemini()
+    use(stub)
+    assert client.post(base, json=payload()).status_code == 201
+
+    preview = client.get(f"{base}/preview")
+
+    assert preview.status_code == 200
+    body = preview.json()
+    # Reshaping paid-for samples costs nothing more.
+    assert stub.call_count == 1
+    assert body["extraction_id"] == record.extraction_id
+    assert body["physically_measured"] is False
+    assert body["reconstructed_body_geometry"] is False
+    assert body["interpolated_across_gaps"] is False
+    assert [track["label"] for track in body["tracks"]] == ["left hip", "right hip"]
+    assert all(track["point_count"] == 12 for track in body["tracks"])
+    # The window started at 60 s in the stub, and the span is read from samples.
+    assert body["span_start_seconds"] == 60.0
+    assert body["duration_seconds"] == 2.75
+
+
+def test_there_is_no_preview_before_an_analysis_has_been_paid_for() -> None:
+    project = create_robot_project()
+    record = store_record(project["project_id"], ProjectVideoProcedureStatus.APPROVED)
+
+    response = client.get(
+        f"/api/projects/{project['project_id']}/video-procedures/"
+        f"{record.extraction_id}/motion-analysis/preview"
+    )
+
+    assert response.status_code == 404
+
+
+def test_a_preview_for_an_unknown_extraction_is_not_found() -> None:
+    project = create_robot_project()
+
+    response = client.get(
+        f"/api/projects/{project['project_id']}/video-procedures/"
+        "vpr_missing/motion-analysis/preview"
+    )
+
+    assert response.status_code == 404

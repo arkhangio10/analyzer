@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from tests.browser.conftest import PROJECT_ID
+from tests.browser.conftest import PROJECT_ID, SECOND_EXTRACTION_ID
 
 
 VIEWPORTS = [(1920, 1080), (1440, 900), (1366, 768), (1280, 620), (1024, 600)]
@@ -211,3 +211,125 @@ def test_the_seeded_project_is_the_one_under_test(page, live_server: str) -> Non
 
     assert response.ok
     assert [item["project_id"] for item in response.json()] == [PROJECT_ID]
+
+
+# --- The simulation view: two drawings that must not be read as one ---------
+
+
+def open_simulation(workspace):
+    """Reach the simulation view the way a person does, from the review.
+
+    The tab does not exist until the approved procedure's next step is taken,
+    so clicking the tab directly would test a screen no user can reach.
+    """
+    workspace.query_selector("#video-next-step-action").evaluate("node => node.click()")
+    workspace.wait_for_selector("#workspace-simulation", state="visible", timeout=15000)
+    workspace.wait_for_selector("#observed-motion polyline", timeout=15000)
+    workspace.wait_for_timeout(400)
+    return workspace
+
+
+def test_the_simulation_view_separates_the_video_from_the_built_in_arm(workspace) -> None:
+    """The whole point of this screen: two drawings, two different sources."""
+    page = open_simulation(workspace)
+
+    observed = text_of(page, "#observed-tag")
+    built_in = text_of(page, ".monitor-tag")
+
+    assert observed == "DEL VIDEO · ÁNGULOS ESTIMADOS"
+    assert built_in == "TRAYECTORIA INTERNA · NO ES EL VIDEO"
+    # The built-in console must never be captioned with the user's own task.
+    assert "SimArm-6" in text_of(page, "#monitor-task")
+    assert "Walk with aligned posture" not in text_of(page, "#monitor-task")
+    assert page.errors == []
+
+
+def test_the_observed_panel_draws_one_row_for_each_observed_joint(workspace) -> None:
+    page = open_simulation(workspace)
+
+    labels = page.evaluate(
+        """() => [...document.querySelectorAll('#observed-canvas .observed-label')]
+            .map(node => node.firstChild.nodeValue)"""
+    )
+
+    assert labels == ["left hip", "right hip"]
+    assert "24" in text_of(page, "#observed-summary")
+    assert page.errors == []
+
+
+def test_a_stroke_breaks_where_the_joint_stopped_being_visible(workspace) -> None:
+    """Eight readings, a hole, four more: three strokes, never one line."""
+    page = open_simulation(workspace)
+
+    strokes = page.query_selector_all("#observed-canvas .observed-trace")
+    occluded = page.query_selector_all("#observed-canvas .observed-occluded")
+
+    assert len(strokes) == 6  # three per joint, two joints
+    assert len(occluded) == 2  # one marked reading per joint
+    assert page.errors == []
+
+
+def test_scrubbing_into_the_hole_reports_no_reading_rather_than_a_number(
+    workspace,
+) -> None:
+    """The gap is where an interpolated line would have lied; it says so."""
+    page = open_simulation(workspace)
+
+    page.eval_on_selector(
+        "#observed-scrubber",
+        """node => {
+            node.value = '555';
+            node.dispatchEvent(new Event('input', { bubbles: true }));
+        }""",
+    )
+    page.wait_for_timeout(200)
+    during_gap = page.evaluate(
+        """() => [...document.querySelectorAll('#observed-canvas .observed-value')]
+            .map(node => node.textContent)"""
+    )
+
+    page.eval_on_selector(
+        "#observed-scrubber",
+        """node => {
+            node.value = '100';
+            node.dispatchEvent(new Event('input', { bubbles: true }));
+        }""",
+    )
+    page.wait_for_timeout(200)
+    during_movement = page.evaluate(
+        """() => [...document.querySelectorAll('#observed-canvas .observed-value')]
+            .map(node => node.textContent)"""
+    )
+
+    assert during_gap == ["oculta", "oculta"]
+    assert all(value.endswith("°") for value in during_movement)
+    assert page.errors == []
+
+
+def test_the_observed_panel_speaks_the_chosen_language(workspace) -> None:
+    page = open_simulation(workspace)
+
+    page.query_selector("[data-language='en']").evaluate("node => node.click()")
+    page.wait_for_timeout(700)
+    english = text_of(page, "#observed-tag")
+    legend = text_of(page, "#observed-legend")
+
+    assert english == "FROM THE VIDEO · ESTIMATED ANGLES"
+    assert "not measured" in legend
+    assert page.errors == []
+
+
+def test_the_observed_panel_never_claims_to_have_drawn_a_body(
+    page, live_server: str
+) -> None:
+    response = page.request.get(
+        f"{live_server}/api/projects/{PROJECT_ID}/video-procedures/"
+        f"{SECOND_EXTRACTION_ID}/motion-analysis/preview"
+    )
+
+    assert response.ok
+    body = response.json()
+    assert body["reconstructed_body_geometry"] is False
+    assert body["physically_measured"] is False
+    assert body["interpolated_across_gaps"] is False
+    assert [track["segment_count"] for track in body["tracks"]] == [3, 3]

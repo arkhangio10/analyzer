@@ -791,13 +791,51 @@ body.workspace-open .trainer-preview {
 .simulation-gap ul { margin: 0.6rem 0 0; padding-left: 1.1rem; color: rgba(255,255,255,0.76); font-size: 0.75rem; line-height: 1.55; }
 .simulation-gap li { margin-bottom: 0.35rem; }
 
+/* --- Observed motion ---------------------------------------------------------
+   Drawn in lime, next to the amber gap panel and above the built-in arm: the
+   colour is the one this interface already uses for "this came from your
+   source". Each row is one joint's angle over time, and the strokes stop
+   where the joint stopped being visible. */
+.observed-motion { margin-top: 0.4rem; padding: 0.85rem 0.9rem 0.9rem; border: 1px solid rgba(198,255,71,0.3); border-radius: 0.8rem; background: rgba(198,255,71,0.045); }
+.observed-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.7rem; }
+.observed-tag { flex: none; padding: 0.2rem 0.45rem; border-radius: 0.35rem; background: var(--lime); color: var(--ink); font-size: 0.55rem; font-weight: 800; letter-spacing: 0.08em; }
+.observed-summary { margin: 0; color: rgba(255,255,255,0.74); font-size: 0.72rem; line-height: 1.45; }
+.observed-stage { margin-top: 0.75rem; overflow-x: auto; }
+#observed-canvas { display: block; width: 100%; min-width: 19rem; height: auto; }
+.observed-baseline { stroke: rgba(255,255,255,0.12); stroke-width: 1; stroke-dasharray: 2 3; }
+.observed-label { fill: rgba(255,255,255,0.66); font-size: 9px; font-family: inherit; }
+.observed-trace { fill: none; stroke: var(--lime); stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; }
+.observed-lone-point { fill: var(--lime); }
+/* A reading taken while the joint was hidden is marked, never smoothed away. */
+.observed-occluded { fill: none; stroke: #ffc454; stroke-width: 1; }
+.observed-dot { fill: var(--white); }
+.observed-value { fill: var(--white); font-size: 9px; font-family: inherit; font-variant-numeric: tabular-nums; }
+.observed-axis { fill: rgba(255,255,255,0.42); font-size: 8px; font-family: inherit; font-variant-numeric: tabular-nums; }
+.observed-value.is-missing { fill: rgba(255,196,84,0.85); }
+.observed-playhead { stroke: rgba(255,255,255,0.55); stroke-width: 1; }
+.observed-controls { display: flex; align-items: center; gap: 0.7rem; margin-top: 0.7rem; }
+.observed-play { display: grid; width: 2rem; height: 2rem; flex: none; place-items: center; border: 1px solid rgba(255,255,255,0.28); border-radius: 50%; background: transparent; color: var(--white); font: inherit; font-size: 0.65rem; cursor: pointer; }
+.observed-play:hover { border-color: var(--lime); color: var(--lime); }
+.observed-play[aria-pressed="true"] { border-color: var(--lime); background: var(--lime); color: var(--ink); }
+#observed-scrubber { min-width: 0; flex: 1; height: 1rem; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+#observed-scrubber::-webkit-slider-runnable-track { height: 0.3rem; border-radius: 999px; background: rgba(255,255,255,0.18); }
+#observed-scrubber::-moz-range-track { height: 0.3rem; border-radius: 999px; background: rgba(255,255,255,0.18); }
+#observed-scrubber::-webkit-slider-thumb { width: 0.8rem; height: 0.8rem; margin-top: -0.25rem; border: 0; border-radius: 50%; background: var(--lime); -webkit-appearance: none; appearance: none; }
+#observed-scrubber::-moz-range-thumb { width: 0.8rem; height: 0.8rem; border: 0; border-radius: 50%; background: var(--lime); }
+.observed-clock { flex: none; min-width: 3rem; color: var(--white); font-size: 0.66rem; font-variant-numeric: tabular-nums; text-align: right; }
+.observed-legend { margin: 0.6rem 0 0; color: rgba(255,255,255,0.45); font-size: 0.6rem; line-height: 1.5; }
+
 /* The console is moved here at runtime, so its landing-page framing is undone
    rather than restyled: inside the workspace it is a panel, not a section. */
 .simulation-console-host > .processing-console { margin: 0.6rem 0 0; border-radius: 0.85rem; }
 .simulation-console-host .console-grid { grid-template-columns: minmax(0, 1fr); }
 
 @media (max-width: 1100px) {
-  .simulation-columns { grid-template-columns: minmax(0, 1fr); overflow: hidden auto; }
+  .simulation-columns { grid-template-columns: minmax(0, 1fr); grid-auto-rows: max-content; align-content: start; overflow: hidden auto; }
+  /* Stacked, the two panels share one scroll. Two boxes of a few hundred
+     pixels each, scrolling independently, hide most of both. */
+  .simulation-learned,
+  .simulation-console-host { overflow: visible; }
 }
 
 

@@ -13,7 +13,11 @@ from app.api.runtime import (
     project_video_procedure_service,
 )
 from app.models.adaptation import DestinationAdaptationPlan
-from app.models.motion_analysis import MotionAnalysisRecord, MotionAnalysisRequest
+from app.models.motion_analysis import (
+    MotionAnalysisRecord,
+    MotionAnalysisRequest,
+    ObservedMotionPreview,
+)
 from app.models.learning import ProjectReconciliation
 from app.models.procedure_history import ProcedureHistory, ProcedureVersionDiff
 from app.models.project_video_procedure import (
@@ -27,6 +31,7 @@ from app.services.gemini_service import (
     GeminiProviderError,
     GeminiResponseError,
 )
+from app.services.observed_motion_preview import build_observed_motion_preview
 from app.services.motion_analysis_service import (
     MotionAnalysisBudgetError,
     MotionAnalysisNotApprovedError,
@@ -204,6 +209,31 @@ async def get_project_video_motion_analysis(
             status_code=404,
             detail="No motion analysis has been run for this extraction.",
         ) from error
+
+
+@router.get(
+    "/{extraction_id}/motion-analysis/preview",
+    response_model=ObservedMotionPreview,
+)
+async def get_observed_motion_preview(
+    project_id: str,
+    extraction_id: str,
+) -> ObservedMotionPreview:
+    """Return the observed movement as drawable per-joint timelines.
+
+    Free: it reshapes samples that were already paid for. This is what the
+    video's own movement looks like, and it is kept separate from the local
+    simulation's built-in trajectory on purpose.
+    """
+    _load_pair(project_id, extraction_id)
+    try:
+        record = motion_analysis_service.latest_for_extraction(extraction_id)
+    except MotionAnalysisNotFoundError as error:
+        raise HTTPException(
+            status_code=404,
+            detail="No motion analysis has been run for this extraction.",
+        ) from error
+    return build_observed_motion_preview(record)
 
 
 @router.get("/history/versions", response_model=ProcedureHistory)
