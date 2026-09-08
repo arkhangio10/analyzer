@@ -161,7 +161,7 @@ Use the Be The Buzz fluid-box reference as visual inspiration, not as a design t
 
 Do not let animation obscure controls, hide system status, delay core actions, or become required to understand the workflow.
 
-The active training journey uses a viewport-sized focus workspace. Configuration, video review, and isolated computer practice change views in place; long extracted procedures are reviewed one step at a time, with secondary evidence collapsed on demand. The marketing page may scroll, but completing the primary desktop workflow must not require document scrolling.
+The default path is the Teach view (2026-09-08): one screen asks what to learn, from which video, and where it will run; one button runs the stages that used to be separate controls, showing each as it happens with live elapsed time; one approval; one result with a download. The stages stay visible on purpose, so the system is not reduced to video to prompt, and the detailed views remain reachable. The active training journey uses a viewport-sized focus workspace. Teaching, configuration, video review, and isolated computer practice change views in place; long extracted procedures are reviewed one step at a time, with secondary evidence collapsed on demand. The marketing page may scroll, but completing the primary desktop workflow must not require document scrolling.
 
 The visible processing console animates the demonstration it is validating. The animation redraws backend-supplied joint angles and must never be described as physics, collision checking, or hardware behavior. It stays inspectable: a person can pause it, scrub it, and jump to any waypoint, it never autoplays under reduced motion, and it stops while it is off screen or hidden behind the workspace.
 

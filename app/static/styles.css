@@ -498,7 +498,8 @@ body.workspace-open .trainer-preview {
 .trainer-preview .trainer-form,
 .trainer-preview .video-procedure,
 .trainer-preview .computer-practice,
-.trainer-preview .workspace-simulation {
+.trainer-preview .workspace-simulation,
+.trainer-preview .workspace-teach {
   grid-area: content;
   min-width: 0;
   align-self: center;
@@ -520,6 +521,15 @@ body.workspace-open .trainer-preview {
 .trainer-preview[data-workspace-view="practice"] .workspace-simulation,
 .trainer-preview[data-workspace-view="simulation"] .video-procedure,
 .trainer-preview[data-workspace-view="simulation"] .computer-practice { display: none !important; }
+/* The Teach view hides every other view, and every other view hides it. */
+.trainer-preview[data-workspace-view="teach"] .trainer-form { display: none; }
+.trainer-preview[data-workspace-view="teach"] .video-procedure,
+.trainer-preview[data-workspace-view="teach"] .computer-practice,
+.trainer-preview[data-workspace-view="teach"] .workspace-simulation,
+.trainer-preview[data-workspace-view="setup"] .workspace-teach,
+.trainer-preview[data-workspace-view="video"] .workspace-teach,
+.trainer-preview[data-workspace-view="practice"] .workspace-teach,
+.trainer-preview[data-workspace-view="simulation"] .workspace-teach { display: none !important; }
 
 .trainer-preview .trainer-form { display: grid; grid-template-rows: auto minmax(0, 1fr); }
 .trainer-preview .form-step { min-height: 0; overflow: hidden; }
@@ -789,3 +799,56 @@ body.workspace-open .trainer-preview {
 @media (max-width: 1100px) {
   .simulation-columns { grid-template-columns: minmax(0, 1fr); overflow: hidden auto; }
 }
+
+
+/* --- Teach view -------------------------------------------------------------
+   The default path. A person says what to learn and from which video; the
+   agent runs the stages that used to be five separate buttons; the person
+   approves once; the result can be downloaded. The stages stay visible so the
+   system is not reduced to video -> prompt. */
+.trainer-preview .workspace-teach {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  padding: clamp(1.1rem, 2vw, 1.9rem);
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 1.35rem;
+  background: linear-gradient(158deg, rgba(38,32,82,0.62), rgba(23,23,23,0.9) 62%);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+}
+.teach-form .eyebrow, .teach-result .eyebrow { margin: 0 0 0.5rem; color: var(--lime); }
+.teach-form h3, .teach-result h3 { max-width: 40rem; margin: 0 0 1.1rem; font-size: clamp(1.3rem, 2.4vw, 2rem); letter-spacing: -0.02em; line-height: 1.1; }
+.teach-label { display: block; margin: 0.9rem 0 0.35rem; color: rgba(255,255,255,0.62); font-size: 0.62rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+.teach-form textarea, .teach-form input[type="text"], .teach-form input[type="url"] { width: 100%; box-sizing: border-box; padding: 0.8rem 0.9rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 0.75rem; background: rgba(0,0,0,0.25); color: var(--white); font: inherit; font-size: 0.9rem; }
+.teach-form textarea { min-height: 5rem; max-height: 9rem; resize: vertical; }
+.teach-form textarea:focus-visible, .teach-form input:focus-visible { border-color: var(--lime); outline: none; }
+.teach-destinations { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.teach-destination { display: grid; grid-template-columns: auto 1fr; gap: 0.7rem; align-items: center; padding: 0.85rem 0.95rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 0.85rem; cursor: pointer; transition: border-color 160ms ease, background 160ms ease; }
+.teach-destination:hover { border-color: rgba(255,255,255,0.45); }
+.teach-destination.is-selected { border-color: var(--lime); background: rgba(217,255,87,0.08); }
+.teach-destination input { accent-color: var(--lime); }
+.teach-destination b { display: block; font-size: 0.86rem; }
+.teach-destination small { color: rgba(255,255,255,0.6); font-size: 0.72rem; }
+.teach-consent { margin-top: 1rem; padding: 0.9rem 0; }
+.teach-form .form-actions { margin-top: 0.6rem; }
+.teach-stages { display: grid; gap: 0.55rem; margin: 0.9rem 0 0; padding: 0; list-style: none; }
+.teach-stages li { display: grid; grid-template-columns: 2rem 1fr auto; gap: 0.8rem; align-items: center; padding: 0.8rem 0.9rem; border: 1px solid rgba(255,255,255,0.13); border-radius: 0.8rem; background: rgba(255,255,255,0.035); color: rgba(255,255,255,0.5); }
+.teach-stages li > span:first-child { font-size: 0.62rem; font-weight: 900; }
+.teach-stages li b { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.85); }
+.teach-stages li small { display: block; font-size: 0.68rem; }
+.teach-stage-state { font-size: 0.58rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.teach-stages li[data-state="running"] { border-color: rgba(101,88,245,0.7); background: rgba(101,88,245,0.16); color: var(--white); }
+.teach-stages li[data-state="running"] .teach-stage-state { color: #b7aeff; }
+.teach-stages li[data-state="waiting"] { border-color: rgba(255,196,84,0.6); background: rgba(255,196,84,0.08); color: var(--white); }
+.teach-stages li[data-state="waiting"] .teach-stage-state { color: #ffc454; }
+.teach-stages li[data-state="done"] { color: rgba(255,255,255,0.82); }
+.teach-stages li[data-state="done"] .teach-stage-state { color: var(--lime); }
+.teach-stages li[data-state="failed"] { border-color: rgba(255,154,185,0.6); }
+.teach-stages li[data-state="failed"] .teach-stage-state { color: #ff9ab9; }
+.teach-approval h4 { margin: 0.6rem 0 0.2rem; font-size: clamp(1.1rem, 2vw, 1.6rem); letter-spacing: -0.02em; }
+.teach-approval .simulation-steps { margin-top: 0.9rem; }
+.teach-result-summary { margin: 0.4rem 0 0.6rem; font-size: 0.92rem; line-height: 1.5; }
+.teach-result .agent-missing { margin: 0 0 0.8rem; padding-left: 1.1rem; color: rgba(255,255,255,0.72); font-size: 0.8rem; line-height: 1.5; }
+.teach-result-actions { flex-wrap: wrap; gap: 0.6rem; }
+@media (max-width: 720px) { .teach-destinations { grid-template-columns: 1fr; } }

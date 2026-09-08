@@ -175,7 +175,8 @@
               <input id="spend-token" type="password" autocomplete="off" spellcheck="false" placeholder="X-Aprendiz-Spend-Token">
             </div>
             <div class="workspace-switcher" role="group" aria-label="Workspace view">
-              <button type="button" data-workspace-target="setup" aria-pressed="true">Setup</button>
+              <button type="button" data-workspace-target="teach" aria-pressed="true">Teach</button>
+              <button type="button" data-workspace-target="setup" aria-pressed="false">Setup</button>
               <button type="button" data-workspace-target="video" aria-pressed="false" hidden>Video</button>
               <button type="button" data-workspace-target="practice" aria-pressed="false" hidden>Practice</button>
               <button type="button" data-workspace-target="simulation" aria-pressed="false" hidden>Simulation</button>
@@ -299,6 +300,74 @@
             </div>
           </fieldset>
         </form>
+
+        <section class="workspace-teach" id="workspace-teach" aria-labelledby="teach-title">
+          <div class="teach-form" id="teach-form">
+            <p class="eyebrow" id="teach-eyebrow">ENSEÑAR AL AGENTE</p>
+            <h3 id="teach-title">Dile qué debe aprender y de qué video.</h3>
+
+            <label class="teach-label" for="teach-task" id="teach-task-label">¿Qué debe aprender?</label>
+            <textarea id="teach-task" rows="3" autocomplete="off"></textarea>
+
+            <label class="teach-label" for="teach-url" id="teach-url-label">Enlace del video (YouTube)</label>
+            <input id="teach-url" type="url" inputmode="url" autocomplete="off" spellcheck="false">
+
+            <p class="teach-label" id="teach-destination-label">¿Dónde se ejecutará?</p>
+            <div class="teach-destinations" role="group" aria-labelledby="teach-destination-label">
+              <label class="teach-destination is-selected"><input type="radio" name="teach-destination" value="robot" checked><span><b id="teach-robot-label">Robot</b><small id="teach-robot-help">Se valida en simulación local.</small></span></label>
+              <label class="teach-destination"><input type="radio" name="teach-destination" value="computer"><span><b id="teach-computer-label">Computadora</b><small id="teach-computer-help">Ensayo aislado en el navegador.</small></span></label>
+            </div>
+
+            <label class="teach-label" for="teach-target" id="teach-target-label">Modelo exacto del robot</label>
+            <input id="teach-target" type="text" autocomplete="off">
+
+            <label class="practice-approval teach-consent" for="teach-consent">
+              <input id="teach-consent" type="checkbox">
+              <span id="teach-consent-text"></span>
+            </label>
+            <p class="field-error" id="teach-error" role="alert"></p>
+
+            <div class="form-actions">
+              <button class="form-button form-button-ghost" id="teach-advanced" type="button">Configuración avanzada</button>
+              <button class="form-button form-button-primary" id="teach-start" type="button">Enseñar al agente <span aria-hidden="true">→</span></button>
+            </div>
+          </div>
+
+          <div class="teach-progress" id="teach-progress" hidden>
+            <p class="practice-label" id="teach-progress-label">EL AGENTE ESTÁ TRABAJANDO</p>
+            <ol class="teach-stages" id="teach-stages"></ol>
+            <p class="field-error" id="teach-progress-error" role="alert"></p>
+            <div class="form-actions form-actions-end">
+              <button class="form-button form-button-ghost" id="teach-retry" type="button" hidden>Volver al formulario</button>
+            </div>
+          </div>
+
+          <div class="teach-approval" id="teach-approval" hidden>
+            <p class="practice-label" id="teach-approval-label">ESTO ES LO QUE APRENDIÓ — ¿LO APRUEBAS?</p>
+            <h4 id="teach-approval-task"></h4>
+            <p class="simulation-note" id="teach-approval-objective"></p>
+            <ol class="simulation-steps" id="teach-steps"></ol>
+            <div class="form-actions form-actions-end">
+              <button class="form-button form-button-ghost" id="teach-reject" type="button">Rechazar</button>
+              <button class="form-button form-button-primary" id="teach-approve" type="button">Aprobar</button>
+            </div>
+          </div>
+
+          <div class="teach-result" id="teach-result" hidden>
+            <p class="eyebrow" id="teach-result-eyebrow">TU AGENTE</p>
+            <h3 id="teach-result-title"></h3>
+            <p class="teach-result-summary" id="teach-result-summary"></p>
+            <ul class="agent-missing" id="teach-result-missing"></ul>
+            <p class="simulation-note" id="teach-result-motion"></p>
+            <p class="field-error" id="teach-result-error" role="alert"></p>
+            <div class="form-actions form-actions-end teach-result-actions">
+              <button class="form-button form-button-ghost" id="teach-view-detail" type="button">Ver detalle</button>
+              <button class="form-button form-button-ghost" id="teach-view-simulation" type="button">Simulación</button>
+              <button class="form-button form-button-primary" id="teach-download" type="button">Descargar agente <span aria-hidden="true">↓</span></button>
+            </div>
+            <p class="simulation-note" id="teach-download-note"></p>
+          </div>
+        </section>
 
         <section class="video-procedure" id="video-procedure-panel" aria-labelledby="video-procedure-title" hidden>
           <div class="video-procedure-heading">

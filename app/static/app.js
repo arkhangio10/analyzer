@@ -26,7 +26,7 @@ const translations = {
     processLogs: ["Sesión creada; validando una trayectoria de seis articulaciones.", "Límites, tiempos y velocidades comprobados por el backend.", "Procedimiento observable extraído desde waypoints estructurados.", "Repetición comparada con la referencia; no es validación de hardware.", "Contrato Docker preparado; llamadas cloud realizadas: 0."],
     processError: "El backend no pudo completar la sesión. Revisa el estado y vuelve a intentarlo.",
     trainerEyebrow: "NUEVO ENTRENAMIENTO", trainerTitle: "¿Qué debe aprender<br>tu agente?", trainerIntro: "Define la tarea, comparte una demostración y revisa el plan antes de iniciar.",
-    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica", "Simulación"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendTokenRejected: "El servidor rechazó el token de gasto. Lo más probable es que se haya rotado: pega el actual en la barra de arriba y vuelve a intentarlo.", httpFailure: "El servidor respondió {status} sin dar explicación.", approveFailed: "No se pudo aprobar la selección: {detail}", projectFailed: "No se pudo preparar el proyecto: {detail}", processFailedDetail: "El backend no pudo completar la sesión: {detail}", networkFailure: "No se pudo contactar con el servidor.", spendRemaining: "Quedan {amount} {currency}", spendTooltip: "Gastado {spent} de {ceiling} {currency} en {period}, con {calls} llamada(s) de pago.", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada", simulation: "Simulación local" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
+    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Enseñar", "Configurar", "Video", "Práctica", "Simulación"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendTokenRejected: "El servidor rechazó el token de gasto. Lo más probable es que se haya rotado: pega el actual en la barra de arriba y vuelve a intentarlo.", httpFailure: "El servidor respondió {status} sin dar explicación.", approveFailed: "No se pudo aprobar la selección: {detail}", projectFailed: "No se pudo preparar el proyecto: {detail}", processFailedDetail: "El backend no pudo completar la sesión: {detail}", networkFailure: "No se pudo contactar con el servidor.", spendRemaining: "Quedan {amount} {currency}", spendTooltip: "Gastado {spent} de {ceiling} {currency} en {period}, con {calls} llamada(s) de pago.", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { teach: "Enseñar al agente", setup: "Configuración avanzada", video: "Revisión del video", practice: "Práctica aislada", simulation: "Simulación local" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
     formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Destino", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
     taskPlaceholder: "Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil.", taskHelp: "Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.",
     continue: "Continuar <span aria-hidden=\"true\">→</span>", destinationLegend: "¿Dónde ejecutará lo aprendido?", destinationTypeLabel: "Destino de ejecución",
@@ -109,6 +109,44 @@ const translations = {
     nextStepLabel: "SIGUIENTE PASO", nextStepAwaitingReview: "Revisa los pasos y después aprueba o rechaza el procedimiento.",
     nextStepApprovedRobot: "Aprobado. Ahora valida el movimiento en la simulación local. Esa simulación usa una trayectoria interna, no el video.",
     nextStepSimulate: "Validar en simulación",
+    teachEyebrow: "ENSEÑAR AL AGENTE",
+    teachTitle: "Dile qué debe aprender y de qué video.",
+    teachTaskLabel: "¿Qué debe aprender?",
+    teachTaskPlaceholder: "Ej.: Cómo funciona un brazo humano, para que lo aprenda un robot.", teachTargetPlaceholderRobot: "Ej.: APRENDIZ SimArm-6", teachTargetPlaceholderComputer: "Ej.: Google Chrome",
+    teachUrlLabel: "Enlace del video (YouTube)",
+    teachUrlPlaceholder: "https://youtube.com/…",
+    teachDestinationLabel: "¿Dónde se ejecutará?",
+    teachRobot: "Robot", teachRobotHelp: "Se valida en simulación local.",
+    teachComputer: "Computadora", teachComputerHelp: "Ensayo aislado en el navegador.",
+    teachTargetRobot: "Modelo exacto del robot", teachTargetComputer: "Aplicación en la computadora", teachTargetError: "Indica el modelo exacto del robot o la aplicación (al menos 2 caracteres).",
+    teachConsent: "Autorizo hasta {calls} llamada(s) de pago a Vertex para este aprendizaje. Quedan {remaining}.",
+    teachConsentNoCeiling: "Autorizo hasta {calls} llamada(s) de pago a Vertex para este aprendizaje.",
+    teachAdvanced: "Configuración avanzada", teachStart: "Enseñar al agente",
+    teachTaskError: "Describe la tarea con al menos 12 caracteres.",
+    teachUrlError: "Pega un enlace válido que empiece por http.",
+    teachConsentError: "Marca la autorización antes de continuar.",
+    teachProgressLabel: "EL AGENTE ESTÁ TRABAJANDO",
+    teachStages: {
+      project: ["Preparar el proyecto", "Registra la tarea y el destino"],
+      extract: ["Extraer el procedimiento del video", "Una llamada acotada a Vertex"],
+      review: ["Tu aprobación", "Nada se adapta ni se ejecuta sin ella"],
+      adapt: ["Adaptar al destino", "Qué podría correr y qué falta"],
+      motion: ["Analizar el movimiento", "Una llamada acotada a Vertex"],
+      ready: ["Listo", "Tu agente está preparado para descargar"],
+    },
+    teachStates: { pending: "Pendiente", running: "En curso", waiting: "Esperándote", done: "Hecho", failed: "Falló" },
+    teachRetry: "Volver al formulario",
+    teachApprovalLabel: "ESTO ES LO QUE APRENDIÓ — ¿LO APRUEBAS?",
+    teachReject: "Rechazar", teachApprove: "Aprobar",
+    teachRejected: "Rechazaste el procedimiento. Puedes volver a enseñar; sería una nueva llamada de pago.",
+    teachReviewError: "No se pudo registrar tu decisión.",
+    teachResultEyebrow: "TU AGENTE",
+    teachNoPlan: "No hay plan de adaptación disponible.",
+    teachMotionFailed: "El análisis de movimiento no se completó: {detail} El agente se puede descargar igual, sin esa evidencia.",
+    teachViewDetail: "Ver detalle", teachViewSimulation: "Simulación", teachDownload: "Descargar agente",
+    teachDownloading: "Preparando el paquete…",
+    teachDownloadNote: "Un paquete Docker autocontenido. Quien tenga Docker lo arranca con start.sh o start.ps1; no necesita nada más.",
+    teachDownloaded: "Descargado {name} ({files} archivos). Descomprímelo y ejecuta start.sh o start.ps1.",
     simulationEyebrow: "SIMULACIÓN LOCAL",
     simulationTitle: "Lo aprendido del video, y lo que la simulación realmente corre.",
     simulationLearnedLabel: "LO QUE SE APRENDIÓ DEL VIDEO",
@@ -162,7 +200,7 @@ const translations = {
     processLogs: ["Session created; validating a six-joint trajectory.", "Limits, timestamps, and velocities checked by the backend.", "Observable procedure extracted from structured waypoints.", "Replay compared with its reference; this is not hardware validation.", "Docker contract prepared; cloud calls made: 0."],
     processError: "The backend could not complete the session. Check its status and try again.",
     trainerEyebrow: "NEW TRAINING", trainerTitle: "What should your<br>agent learn?", trainerIntro: "Define the task, share a demonstration, and review the plan before starting.",
-    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice", "Simulation"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendTokenRejected: "The server rejected the spend token. It has most likely been rotated: paste the current one in the top bar and try again.", httpFailure: "The server answered {status} with no explanation.", approveFailed: "The selection could not be approved: {detail}", projectFailed: "The project could not be prepared: {detail}", processFailedDetail: "The backend could not complete the session: {detail}", networkFailure: "The server could not be reached.", spendRemaining: "{amount} {currency} left", spendTooltip: "Spent {spent} of {ceiling} {currency} in {period}, across {calls} paid call(s).", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice", simulation: "Local simulation" }, procedurePrevious: "Previous step", procedureNext: "Next step",
+    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Teach", "Setup", "Video", "Practice", "Simulation"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendTokenRejected: "The server rejected the spend token. It has most likely been rotated: paste the current one in the top bar and try again.", httpFailure: "The server answered {status} with no explanation.", approveFailed: "The selection could not be approved: {detail}", projectFailed: "The project could not be prepared: {detail}", processFailedDetail: "The backend could not complete the session: {detail}", networkFailure: "The server could not be reached.", spendRemaining: "{amount} {currency} left", spendTooltip: "Spent {spent} of {ceiling} {currency} in {period}, across {calls} paid call(s).", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { teach: "Teach the agent", setup: "Advanced setup", video: "Video review", practice: "Isolated practice", simulation: "Local simulation" }, procedurePrevious: "Previous step", procedureNext: "Next step",
     formProgressLabel: "Configuration progress", formMarkers: ["Task", "Destination", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
     taskPlaceholder: "Example: Teach a robot arm to pick and place a fragile component.", taskHelp: "Describe the outcome and important limits. This first session runs in simulation only.",
     continue: "Continue <span aria-hidden=\"true\">→</span>", destinationLegend: "Where will the learned behavior run?", destinationTypeLabel: "Execution destination",
@@ -245,6 +283,44 @@ const translations = {
     nextStepLabel: "NEXT STEP", nextStepAwaitingReview: "Read the steps, then approve or reject the procedure.",
     nextStepApprovedRobot: "Approved. Now validate the motion in the local simulation. That simulation uses a built-in trajectory, not the video.",
     nextStepSimulate: "Validate in simulation",
+    teachEyebrow: "TEACH THE AGENT",
+    teachTitle: "Say what it should learn, and from which video.",
+    teachTaskLabel: "What should it learn?",
+    teachTaskPlaceholder: "Example: How a human arm works, so a robot can learn it.", teachTargetPlaceholderRobot: "Example: APRENDIZ SimArm-6", teachTargetPlaceholderComputer: "Example: Google Chrome",
+    teachUrlLabel: "Video link (YouTube)",
+    teachUrlPlaceholder: "https://youtube.com/…",
+    teachDestinationLabel: "Where will it run?",
+    teachRobot: "Robot", teachRobotHelp: "Validated in local simulation.",
+    teachComputer: "Computer", teachComputerHelp: "Isolated rehearsal in a browser.",
+    teachTargetRobot: "Exact robot model", teachTargetComputer: "Application on the computer", teachTargetError: "Name the exact robot model or the application (at least 2 characters).",
+    teachConsent: "I authorise up to {calls} paid Vertex call(s) for this learning. {remaining} left.",
+    teachConsentNoCeiling: "I authorise up to {calls} paid Vertex call(s) for this learning.",
+    teachAdvanced: "Advanced setup", teachStart: "Teach the agent",
+    teachTaskError: "Describe the task in at least 12 characters.",
+    teachUrlError: "Paste a valid link that starts with http.",
+    teachConsentError: "Tick the authorisation before continuing.",
+    teachProgressLabel: "THE AGENT IS WORKING",
+    teachStages: {
+      project: ["Prepare the project", "Records the task and the destination"],
+      extract: ["Extract the procedure from the video", "One bounded Vertex call"],
+      review: ["Your approval", "Nothing is adapted or executed without it"],
+      adapt: ["Adapt to the destination", "What could run and what is missing"],
+      motion: ["Analyse the motion", "One bounded Vertex call"],
+      ready: ["Ready", "Your agent is ready to download"],
+    },
+    teachStates: { pending: "Pending", running: "Running", waiting: "Waiting for you", done: "Done", failed: "Failed" },
+    teachRetry: "Back to the form",
+    teachApprovalLabel: "THIS IS WHAT IT LEARNED — DO YOU APPROVE?",
+    teachReject: "Reject", teachApprove: "Approve",
+    teachRejected: "You rejected the procedure. You can teach again; that would be another paid call.",
+    teachReviewError: "Your decision could not be recorded.",
+    teachResultEyebrow: "YOUR AGENT",
+    teachNoPlan: "No adaptation plan is available.",
+    teachMotionFailed: "The motion analysis did not complete: {detail} The agent can still be downloaded, without that evidence.",
+    teachViewDetail: "See detail", teachViewSimulation: "Simulation", teachDownload: "Download agent",
+    teachDownloading: "Preparing the package…",
+    teachDownloadNote: "A self-contained Docker package. Anyone with Docker starts it with start.sh or start.ps1; nothing else is needed.",
+    teachDownloaded: "Downloaded {name} ({files} files). Unzip it and run start.sh or start.ps1.",
     simulationEyebrow: "LOCAL SIMULATION",
     simulationTitle: "What the video taught, and what this simulation actually runs.",
     simulationLearnedLabel: "WHAT THE VIDEO TAUGHT",
@@ -319,6 +395,30 @@ const approveVideoProcedureButton = document.querySelector("#approve-video-proce
 const rejectVideoProcedureButton = document.querySelector("#reject-video-procedure");
 const workspace = document.querySelector("#entrenar");
 const workspaceCloseButton = document.querySelector("#workspace-close");
+const teachForm = document.querySelector("#teach-form");
+const teachTask = document.querySelector("#teach-task");
+const teachUrl = document.querySelector("#teach-url");
+const teachTarget = document.querySelector("#teach-target");
+const teachTargetLabel = document.querySelector("#teach-target-label");
+const teachConsent = document.querySelector("#teach-consent");
+const teachConsentText = document.querySelector("#teach-consent-text");
+const teachError = document.querySelector("#teach-error");
+const teachStart = document.querySelector("#teach-start");
+const teachAdvanced = document.querySelector("#teach-advanced");
+const teachProgress = document.querySelector("#teach-progress");
+const teachStagesList = document.querySelector("#teach-stages");
+const teachProgressError = document.querySelector("#teach-progress-error");
+const teachRetry = document.querySelector("#teach-retry");
+const teachApproval = document.querySelector("#teach-approval");
+const teachApprove = document.querySelector("#teach-approve");
+const teachReject = document.querySelector("#teach-reject");
+const teachResult = document.querySelector("#teach-result");
+const teachResultError = document.querySelector("#teach-result-error");
+const teachViewDetail = document.querySelector("#teach-view-detail");
+const teachViewSimulation = document.querySelector("#teach-view-simulation");
+const teachDownload = document.querySelector("#teach-download");
+const teachDownloadNote = document.querySelector("#teach-download-note");
+const teachDestinationInputs = [...document.querySelectorAll('input[name="teach-destination"]')];
 const simulationPanel = document.querySelector("#workspace-simulation");
 const simulationConsoleHost = document.querySelector("#simulation-console-host");
 const processingSectionHome = document.querySelector("#procesamiento");
@@ -400,6 +500,15 @@ const MOTION_FPS = 4;
 const MOTION_WINDOW_SECONDS = 12;
 let storedProjects = [];
 let adaptationPlan = null;
+// The Teach view drives the same machinery the detailed views expose; these
+// hold only what it needs to show its own progress.
+let teachRunning = false;
+let teachStages = [];
+let teachStatus = {};
+let teachDestinationValue = "robot";
+let teachStageStartedAt = 0;
+let teachTicker = null;
+let lastSpendState = null;
 
 function setContent(selector, value, useHtml = false) {
   const element = document.querySelector(selector);
@@ -465,6 +574,7 @@ function applyLanguage(language) {
   workspaceCloseButton.ariaLabel = t.workspaceClose;
   setContent("#spend-token-label", t.spendTokenLabel);
   renderSimulationEvidence();
+  renderTeachLabels();
   spendTokenInput.placeholder = t.spendTokenPlaceholder;
   procedureStepPrevious.ariaLabel = t.procedurePrevious;
   procedureStepNext.ariaLabel = t.procedureNext;
@@ -582,7 +692,7 @@ function showStep(stepNumber) {
 }
 
 function setWorkspaceView(view, moveFocus = true) {
-  if (!["setup", "video", "practice", "simulation"].includes(view)) return;
+  if (!["teach", "setup", "video", "practice", "simulation"].includes(view)) return;
   const viewButton = workspaceViewButtons.find((button) => button.dataset.workspaceTarget === view);
   if (viewButton?.hidden) return;
   if (view === "simulation") {
@@ -600,7 +710,9 @@ function setWorkspaceView(view, moveFocus = true) {
       ? (procedureReview.hidden ? extractVideoButton : procedureStepNext)
       : view === "simulation"
         ? simulationPanel
-        : browserTargetUrl;
+        : view === "teach"
+          ? teachTask
+          : browserTargetUrl;
   requestAnimationFrame(() => focusTarget?.focus({ preventScroll: true }));
 }
 
@@ -948,6 +1060,8 @@ function missingSpendToken() {
 // The ceiling is enforced on the server; this only shows what is left of it,
 // so a person can see a run getting expensive before a refusal explains it.
 function renderSpendRemaining(spend) {
+  lastSpendState = spend || null;
+  renderTeachConsent();
   if (!spendRemainingLabel) return;
   if (!spend?.enforced) { spendRemainingLabel.hidden = true; return; }
   const t = translations[currentLanguage];
@@ -1204,6 +1318,366 @@ function renderSimulationEvidence() {
     item.textContent = text;
     gap.append(item);
   });
+}
+
+/* --- Teach: one screen, one button, one approval, one result ------------
+   Every stage here already exists as its own control in the detailed views.
+   This runs them in order and shows them as stages, so the person expresses
+   intent once and still sees the machinery working -- the system is not
+   reduced to video -> prompt. */
+
+function teachCallCount() {
+  return teachDestinationValue === "robot" ? 2 : 1;
+}
+
+function renderTeachConsent() {
+  if (!teachConsentText) return;
+  const t = translations[currentLanguage];
+  const spend = lastSpendState;
+  if (spend?.enforced) {
+    teachConsentText.textContent = t.teachConsent
+      .replace("{calls}", String(teachCallCount()))
+      .replace("{remaining}", `${spendFigure(Number(spend.remaining ?? 0), Number(spend.ceiling ?? 0), Number(spend.spent ?? 0))} ${spend.currency}`);
+  } else {
+    teachConsentText.textContent = t.teachConsentNoCeiling.replace("{calls}", String(teachCallCount()));
+  }
+}
+
+function renderTeachLabels() {
+  if (!teachForm) return;
+  const t = translations[currentLanguage];
+  setContent("#teach-eyebrow", t.teachEyebrow);
+  setContent("#teach-title", t.teachTitle);
+  setContent("#teach-task-label", t.teachTaskLabel);
+  teachTask.placeholder = t.teachTaskPlaceholder;
+  setContent("#teach-url-label", t.teachUrlLabel);
+  teachUrl.placeholder = t.teachUrlPlaceholder;
+  setContent("#teach-destination-label", t.teachDestinationLabel);
+  setContent("#teach-robot-label", t.teachRobot);
+  setContent("#teach-robot-help", t.teachRobotHelp);
+  setContent("#teach-computer-label", t.teachComputer);
+  setContent("#teach-computer-help", t.teachComputerHelp);
+  teachTargetLabel.textContent = teachDestinationValue === "robot" ? t.teachTargetRobot : t.teachTargetComputer;
+  teachTarget.placeholder = teachDestinationValue === "robot" ? t.teachTargetPlaceholderRobot : t.teachTargetPlaceholderComputer;
+  setContent("#teach-advanced", t.teachAdvanced);
+  setContent("#teach-start", `${t.teachStart} <span aria-hidden="true">→</span>`, true);
+  setContent("#teach-progress-label", t.teachProgressLabel);
+  setContent("#teach-retry", t.teachRetry);
+  setContent("#teach-approval-label", t.teachApprovalLabel);
+  setContent("#teach-reject", t.teachReject);
+  setContent("#teach-approve", t.teachApprove);
+  setContent("#teach-result-eyebrow", t.teachResultEyebrow);
+  setContent("#teach-view-detail", t.teachViewDetail);
+  setContent("#teach-view-simulation", t.teachViewSimulation);
+  setContent("#teach-download", `${t.teachDownload} <span aria-hidden="true">↓</span>`, true);
+  setContent("#teach-download-note", t.teachDownloadNote);
+  renderTeachConsent();
+  if (teachStages.length) renderTeachStages();
+}
+
+function renderTeachStages() {
+  const t = translations[currentLanguage];
+  teachStagesList.replaceChildren();
+  const elapsed = teachStageStartedAt ? Math.round((Date.now() - teachStageStartedAt) / 1000) : 0;
+  teachStages.forEach((key, index) => {
+    const state = teachStatus[key] || "pending";
+    const item = document.createElement("li");
+    item.dataset.state = state;
+    const number = document.createElement("span");
+    number.textContent = String(index + 1).padStart(2, "0");
+    const body = document.createElement("div");
+    const title = document.createElement("b");
+    title.textContent = t.teachStages[key][0];
+    const detail = document.createElement("small");
+    detail.textContent = t.teachStages[key][1];
+    body.append(title, detail);
+    const label = document.createElement("span");
+    label.className = "teach-stage-state";
+    // A running stage shows how long it has been running: nobody should have
+    // to wonder whether the page is alive.
+    label.textContent = state === "running" ? `${t.teachStates[state]} · ${elapsed} s` : t.teachStates[state];
+    item.append(number, body, label);
+    teachStagesList.append(item);
+  });
+}
+
+function setTeachStage(key, state) {
+  teachStatus[key] = state;
+  if (state === "running") {
+    teachStageStartedAt = Date.now();
+    clearInterval(teachTicker);
+    teachTicker = window.setInterval(renderTeachStages, 1000);
+  } else if (!Object.values(teachStatus).includes("running")) {
+    clearInterval(teachTicker);
+    teachTicker = null;
+    teachStageStartedAt = 0;
+  }
+  renderTeachStages();
+}
+
+function failTeach(detail) {
+  Object.keys(teachStatus).forEach((key) => {
+    if (teachStatus[key] === "running" || teachStatus[key] === "waiting") teachStatus[key] = "failed";
+  });
+  clearInterval(teachTicker);
+  teachTicker = null;
+  teachStageStartedAt = 0;
+  renderTeachStages();
+  teachProgressError.textContent = detail;
+  teachProgress.hidden = false;
+  teachApproval.hidden = true;
+  teachRetry.hidden = false;
+  teachRunning = false;
+  setButtonBusy(teachStart, false);
+  teachStart.disabled = false;
+}
+
+function resetTeachToForm() {
+  teachProgress.hidden = true;
+  teachApproval.hidden = true;
+  teachResult.hidden = true;
+  teachProgressError.textContent = "";
+  teachRetry.hidden = true;
+  teachForm.hidden = false;
+  teachConsent.checked = false;
+  teachStages = [];
+  teachStatus = {};
+  renderTeachConsent();
+  teachTask.focus({ preventScroll: true });
+}
+
+function teachSelectedDestination() {
+  return teachDestinationInputs.find((input) => input.checked)?.value || "robot";
+}
+
+async function startTeaching() {
+  const t = translations[currentLanguage];
+  teachError.textContent = "";
+  const task = teachTask.value.trim();
+  const url = teachUrl.value.trim();
+  const destination = teachSelectedDestination();
+  teachDestinationValue = destination;
+  if (task.length < 12) { teachError.textContent = t.teachTaskError; teachTask.focus(); return; }
+  if (!/^https?:\/\//i.test(url)) { teachError.textContent = t.teachUrlError; teachUrl.focus(); return; }
+  if (teachTarget.value.trim().length < 2) { teachError.textContent = t.teachTargetError; teachTarget.focus(); return; }
+  if (!teachConsent.checked) { teachError.textContent = t.teachConsentError; return; }
+  if (missingSpendToken()) { teachError.textContent = t.spendTokenMissing; spendTokenInput.focus({ preventScroll: true }); return; }
+  if (teachRunning) return;
+
+  teachRunning = true;
+  setButtonBusy(teachStart, true);
+  teachStart.disabled = true;
+  teachStages = destination === "robot"
+    ? ["project", "extract", "review", "adapt", "motion", "ready"]
+    : ["project", "extract", "review", "adapt", "ready"];
+  teachStatus = Object.fromEntries(teachStages.map((key) => [key, "pending"]));
+  teachForm.hidden = true;
+  teachProgress.hidden = false;
+  teachProgressError.textContent = "";
+  teachRetry.hidden = true;
+  teachApproval.hidden = true;
+  teachResult.hidden = true;
+  renderTeachStages();
+
+  try {
+    setTeachStage("project", "running");
+    const payload = { task_description: task, destination, language: currentLanguage };
+    const target = teachTarget.value.trim();
+    if (destination === "robot") payload.robot_model = target;
+    else payload.computer_application = target;
+    const response = await fetch("/api/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const project = await response.json();
+    if (!response.ok) throw new Error(failureDetail(response, project));
+    if (!project.is_sufficiently_clear) {
+      throw new Error(project.clarification_questions?.[0]?.question || t.projectError);
+    }
+    // Keep the detailed views coherent with what was just done here.
+    taskInput.value = task;
+    videoUrl.value = url;
+    const wizardRadio = document.querySelector(`input[name="destination"][value="${destination}"]`);
+    if (wizardRadio && !wizardRadio.checked) {
+      wizardRadio.checked = true;
+      wizardRadio.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    configureVideoProcedure(project, url);
+    loadRecentWork();
+    setTeachStage("project", "done");
+
+    setTeachStage("extract", "running");
+    videoCostApproval.checked = true;
+    await extractProjectVideoProcedure();
+    if (videoProcedureRecord?.status !== "awaiting_review") {
+      throw new Error(
+        videoProcedureError.textContent
+        || videoProcedureRecord?.failure_message
+        || t.videoExtractionError,
+      );
+    }
+    setTeachStage("extract", "done");
+
+    setTeachStage("review", "waiting");
+    renderTeachApproval();
+  } catch (error) {
+    console.error(error);
+    failTeach(thrownDetail(error));
+  } finally {
+    refreshSpendState();
+  }
+}
+
+function renderTeachApproval() {
+  const procedure = videoProcedureRecord?.procedure;
+  if (!procedure) return;
+  setContent("#teach-approval-task", procedure.task);
+  setContent("#teach-approval-objective", procedure.objective);
+  const list = document.querySelector("#teach-steps");
+  list.replaceChildren();
+  procedure.steps.forEach((step) => {
+    const item = document.createElement("li");
+    const stamps = (step.source_timestamps || []).join(" · ");
+    if (stamps) {
+      const time = document.createElement("time");
+      time.textContent = stamps;
+      item.append(time);
+    }
+    const action = document.createElement("b");
+    action.textContent = step.action;
+    item.append(action);
+    if (step.evidence) {
+      const evidence = document.createElement("span");
+      evidence.textContent = step.evidence;
+      item.append(evidence);
+    }
+    list.append(item);
+  });
+  teachApproval.hidden = false;
+  teachApprove.disabled = false;
+  teachReject.disabled = false;
+  requestAnimationFrame(() => teachApprove.focus({ preventScroll: true }));
+}
+
+async function decideTeaching(decision) {
+  const t = translations[currentLanguage];
+  const button = decision === "approve" ? teachApprove : teachReject;
+  teachApprove.disabled = true;
+  teachReject.disabled = true;
+  setButtonBusy(button, true);
+  try {
+    await reviewProjectVideoProcedure(decision);
+    if (decision === "reject") {
+      setTeachStage("review", "failed");
+      failTeach(t.teachRejected);
+      return;
+    }
+    if (videoProcedureRecord?.status !== "approved") {
+      throw new Error(videoProcedureError.textContent || t.teachReviewError);
+    }
+    setTeachStage("review", "done");
+    teachApproval.hidden = true;
+
+    setTeachStage("adapt", "running");
+    await loadAdaptationPlan();
+    setTeachStage("adapt", adaptationPlan ? "done" : "failed");
+
+    if (teachStages.includes("motion")) {
+      setTeachStage("motion", "running");
+      motionCostApproval.checked = true;
+      await runMotionAnalysis();
+      setTeachStage("motion", motionAnalysis ? "done" : "failed");
+      if (motionAnalysis) await loadAdaptationPlan();
+    }
+
+    setTeachStage("ready", "done");
+    teachRunning = false;
+    setButtonBusy(teachStart, false);
+    teachStart.disabled = false;
+    renderTeachResult();
+  } catch (error) {
+    console.error(error);
+    failTeach(thrownDetail(error));
+  } finally {
+    setButtonBusy(button, false);
+    refreshSpendState();
+  }
+}
+
+function renderTeachResult() {
+  const t = translations[currentLanguage];
+  const procedure = videoProcedureRecord?.procedure;
+  teachProgress.hidden = true;
+  teachResult.hidden = false;
+  teachResultError.textContent = "";
+  setContent("#teach-result-title", procedure?.task || "");
+  setContent("#teach-result-summary", adaptationPlan ? adaptationSummaryText() : t.teachNoPlan);
+  const missing = document.querySelector("#teach-result-missing");
+  missing.replaceChildren();
+  (adaptationPlan?.missing_evidence || []).forEach((text) => {
+    const item = document.createElement("li");
+    item.textContent = text;
+    missing.append(item);
+  });
+  let motionText = "";
+  if (motionAnalysis) {
+    motionText = t.simulationMotionSummary
+      .replace("{subject}", motionAnalysis.subject_kind)
+      .replace("{chain}", motionAnalysis.kinematic_chain)
+      .replace("{samples}", String(motionAnalysis.sample_count))
+      .replace("{joints}", String(motionAnalysis.distinct_joint_count))
+      .replace("{span}", motionAnalysis.observed_span_seconds.toFixed(1))
+      .replace("{confidence}", motionAnalysis.mean_confidence.toFixed(2));
+  } else if (teachStages.includes("motion") && motionError.textContent) {
+    motionText = t.teachMotionFailed.replace("{detail}", motionError.textContent);
+  }
+  setContent("#teach-result-motion", motionText);
+  teachViewSimulation.hidden = teachDestinationValue !== "robot";
+  setContent("#teach-download-note", t.teachDownloadNote);
+  requestAnimationFrame(() => teachDownload.focus({ preventScroll: true }));
+}
+
+async function downloadAgent() {
+  const t = translations[currentLanguage];
+  if (!currentProject) return;
+  teachResultError.textContent = "";
+  setButtonBusy(teachDownload, true);
+  teachDownload.disabled = true;
+  setContent("#teach-download-note", t.teachDownloading);
+  try {
+    const base = `/api/projects/${encodeURIComponent(currentProject.project_id)}/agent-packages`;
+    const built = await fetch(base, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ language: currentLanguage }),
+    });
+    const manifest = await built.json();
+    if (!built.ok) throw new Error(failureDetail(built, manifest));
+    const file = await fetch(`${base}/${encodeURIComponent(manifest.package_id)}/download`);
+    if (!file.ok) throw new Error(failureDetail(file, await file.json().catch(() => null)));
+    const blob = await file.blob();
+    const name = `${manifest.directory_name}.zip`;
+    const href = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = href;
+    anchor.download = name;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(href), 10000);
+    setContent(
+      "#teach-download-note",
+      t.teachDownloaded.replace("{name}", name).replace("{files}", String(manifest.files.length)),
+    );
+  } catch (error) {
+    console.error(error);
+    teachResultError.textContent = thrownDetail(error);
+    setContent("#teach-download-note", t.teachDownloadNote);
+  } finally {
+    setButtonBusy(teachDownload, false);
+    teachDownload.disabled = false;
+  }
 }
 
 function startSimulationFromReview() {
@@ -2644,10 +3118,23 @@ procedureStepPrevious.addEventListener("click", () => { currentProcedureStep -= 
 procedureStepNext.addEventListener("click", () => { currentProcedureStep += 1; renderProcedureStepPage(); });
 document.querySelectorAll('a[href="#entrenar"]').forEach((anchor) => anchor.addEventListener("click", (event) => {
   event.preventDefault();
-  openWorkspace("setup", anchor);
+  openWorkspace("teach", anchor);
 }));
 workspaceCloseButton.addEventListener("click", closeWorkspace);
 spendTokenInput.addEventListener("input", rememberSpendToken);
+teachStart.addEventListener("click", startTeaching);
+teachAdvanced.addEventListener("click", () => setWorkspaceView("setup"));
+teachRetry.addEventListener("click", resetTeachToForm);
+teachApprove.addEventListener("click", () => decideTeaching("approve"));
+teachReject.addEventListener("click", () => decideTeaching("reject"));
+teachViewDetail.addEventListener("click", () => setWorkspaceView("video"));
+teachViewSimulation.addEventListener("click", startSimulationFromReview);
+teachDownload.addEventListener("click", downloadAgent);
+teachDestinationInputs.forEach((input) => input.addEventListener("change", () => {
+  teachDestinationValue = input.value;
+  teachDestinationInputs.forEach((other) => other.closest(".teach-destination").classList.toggle("is-selected", other.checked));
+  renderTeachLabels();
+}));
 workspaceViewButtons.forEach((button) => button.addEventListener("click", () => setWorkspaceView(button.dataset.workspaceTarget)));
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && document.body.classList.contains("workspace-open")) closeWorkspace();
@@ -2717,7 +3204,7 @@ if (translations[pageParameters.get("lang")]) preferredLanguage = pageParameters
 setMotionPreview(null);
 applyLanguage(preferredLanguage);
 loadRecentWork();
-if (location.hash === "#entrenar") openWorkspace("setup", null);
+if (location.hash === "#entrenar") openWorkspace("teach", null);
 fetch("/api/status")
   .then((response) => (response.ok ? response.json() : null))
   .then((status) => {
