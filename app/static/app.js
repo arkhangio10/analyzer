@@ -26,7 +26,7 @@ const translations = {
     processLogs: ["Sesión creada; validando una trayectoria de seis articulaciones.", "Límites, tiempos y velocidades comprobados por el backend.", "Procedimiento observable extraído desde waypoints estructurados.", "Repetición comparada con la referencia; no es validación de hardware.", "Contrato Docker preparado; llamadas cloud realizadas: 0."],
     processError: "El backend no pudo completar la sesión. Revisa el estado y vuelve a intentarlo.",
     trainerEyebrow: "NUEVO ENTRENAMIENTO", trainerTitle: "¿Qué debe aprender<br>tu agente?", trainerIntro: "Define la tarea, comparte una demostración y revisa el plan antes de iniciar.",
-    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica", "Simulación"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendTokenRejected: "El servidor rechazó el token de gasto. Lo más probable es que se haya rotado: pega el actual en la barra de arriba y vuelve a intentarlo.", httpFailure: "El servidor respondió {status} sin dar explicación.", networkFailure: "No se pudo contactar con el servidor.", spendRemaining: "Quedan {amount} {currency}", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada", simulation: "Simulación local" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
+    workspaceLabel: "APRENDIZ / ESPACIO DE TRABAJO", workspaceViewLabel: "Vista del espacio de trabajo", workspaceViews: ["Configurar", "Video", "Práctica", "Simulación"], workspaceClose: "Cerrar espacio de trabajo", spendTokenLabel: "Token de gasto", spendTokenPlaceholder: "Pega el token", spendTokenMissing: "Este despliegue exige un token de gasto. Pégalo en la barra superior antes de continuar.", spendTokenRejected: "El servidor rechazó el token de gasto. Lo más probable es que se haya rotado: pega el actual en la barra de arriba y vuelve a intentarlo.", httpFailure: "El servidor respondió {status} sin dar explicación.", approveFailed: "No se pudo aprobar la selección: {detail}", projectFailed: "No se pudo preparar el proyecto: {detail}", processFailedDetail: "El backend no pudo completar la sesión: {detail}", networkFailure: "No se pudo contactar con el servidor.", spendRemaining: "Quedan {amount} {currency}", spendTooltip: "Gastado {spent} de {ceiling} {currency} en {period}, con {calls} llamada(s) de pago.", spendExhausted: "Tope de {currency} agotado", spendCeilingReached: "Se alcanzó el tope de gasto de esta aplicación. No se hará ninguna llamada más hasta que subas el tope o empiece el mes siguiente.", workspaceContexts: { setup: "Nuevo entrenamiento", video: "Revisión del video", practice: "Práctica aislada", simulation: "Simulación local" }, procedurePrevious: "Paso anterior", procedureNext: "Paso siguiente",
     formProgressLabel: "Progreso de configuración", formMarkers: ["Tarea", "Destino", "Fuente", "Revisar"], taskLegend: "Describe el resultado que necesitas", taskLabel: "Tarea del agente",
     taskPlaceholder: "Ej.: Enseñar a un brazo robótico a recoger y colocar una pieza frágil.", taskHelp: "Describe el resultado y los límites importantes. Esta primera sesión se ejecutará únicamente en simulación.",
     continue: "Continuar <span aria-hidden=\"true\">→</span>", destinationLegend: "¿Dónde ejecutará lo aprendido?", destinationTypeLabel: "Destino de ejecución",
@@ -162,7 +162,7 @@ const translations = {
     processLogs: ["Session created; validating a six-joint trajectory.", "Limits, timestamps, and velocities checked by the backend.", "Observable procedure extracted from structured waypoints.", "Replay compared with its reference; this is not hardware validation.", "Docker contract prepared; cloud calls made: 0."],
     processError: "The backend could not complete the session. Check its status and try again.",
     trainerEyebrow: "NEW TRAINING", trainerTitle: "What should your<br>agent learn?", trainerIntro: "Define the task, share a demonstration, and review the plan before starting.",
-    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice", "Simulation"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendTokenRejected: "The server rejected the spend token. It has most likely been rotated: paste the current one in the top bar and try again.", httpFailure: "The server answered {status} with no explanation.", networkFailure: "The server could not be reached.", spendRemaining: "{amount} {currency} left", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice", simulation: "Local simulation" }, procedurePrevious: "Previous step", procedureNext: "Next step",
+    workspaceLabel: "APRENDIZ / WORKSPACE", workspaceViewLabel: "Workspace view", workspaceViews: ["Setup", "Video", "Practice", "Simulation"], workspaceClose: "Close workspace", spendTokenLabel: "Spend token", spendTokenPlaceholder: "Paste the token", spendTokenMissing: "This deployment requires a spend token. Paste it in the top bar before continuing.", spendTokenRejected: "The server rejected the spend token. It has most likely been rotated: paste the current one in the top bar and try again.", httpFailure: "The server answered {status} with no explanation.", approveFailed: "The selection could not be approved: {detail}", projectFailed: "The project could not be prepared: {detail}", processFailedDetail: "The backend could not complete the session: {detail}", networkFailure: "The server could not be reached.", spendRemaining: "{amount} {currency} left", spendTooltip: "Spent {spent} of {ceiling} {currency} in {period}, across {calls} paid call(s).", spendExhausted: "{currency} ceiling reached", spendCeilingReached: "This application reached its spending ceiling. No further calls will be made until you raise it or the month rolls over.", workspaceContexts: { setup: "New training", video: "Video review", practice: "Isolated practice", simulation: "Local simulation" }, procedurePrevious: "Previous step", procedureNext: "Next step",
     formProgressLabel: "Configuration progress", formMarkers: ["Task", "Destination", "Source", "Review"], taskLegend: "Describe the result you need", taskLabel: "Agent task",
     taskPlaceholder: "Example: Teach a robot arm to pick and place a fragile component.", taskHelp: "Describe the outcome and important limits. This first session runs in simulation only.",
     continue: "Continue <span aria-hidden=\"true\">→</span>", destinationLegend: "Where will the learned behavior run?", destinationTypeLabel: "Execution destination",
@@ -791,14 +791,18 @@ async function approveAutomaticSources() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ video_ids: selectedIds }),
     });
-    if (!response.ok) throw new Error(`Source approval failed: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(failureDetail(response, await response.json().catch(() => null)));
+    }
     const result = await response.json();
     approvedSources = result.approved_sources;
     renderSourceStatus(t.sourceApproved.replace("{count}", String(approvedSources.length)));
     approveSourcesButton.hidden = true;
     sourceError.textContent = "";
   } catch (error) {
-    renderSourceStatus(t.searchUnavailable, true);
+    // Approving is not searching; reporting the search as unconfigured sent
+    // people to fix something that was never the problem.
+    renderSourceStatus(t.approveFailed.replace("{detail}", thrownDetail(error)), true);
     approveSourcesButton.hidden = true;
     console.error(error);
   }
@@ -953,13 +957,34 @@ function renderSpendRemaining(spend) {
   spendRemainingLabel.textContent = exhausted
     ? t.spendExhausted.replace("{currency}", spend.currency)
     : t.spendRemaining
-        .replace("{amount}", remaining.toFixed(2))
+        .replace("{amount}", spendFigure(remaining, Number(spend.ceiling ?? 0), Number(spend.spent ?? 0)))
         .replace("{currency}", spend.currency);
+  // The exact figures, for anyone who wants to check the rounding.
+  spendRemainingLabel.title = t.spendTooltip
+    .replace("{spent}", String(spend.spent))
+    .replace("{ceiling}", String(spend.ceiling))
+    .replace("{currency}", spend.currency)
+    .replace("{period}", spend.period)
+    .replace("{calls}", String(spend.calls));
   spendRemainingLabel.classList.toggle("is-spent", exhausted);
   spendRemainingLabel.classList.toggle(
     "is-low",
     !exhausted && spend.ceiling > 0 && remaining / spend.ceiling <= 0.2,
   );
+}
+
+/* Two decimals hid every real call: a 20.00 ceiling with 0.004 spent still
+   printed "20.00 left", which reads as a ceiling doing nothing. Show only as
+   many decimals as it takes for spending to be visible at all. */
+function spendFigure(remaining, ceiling, spent) {
+  if (spent > 0 && remaining.toFixed(2) === ceiling.toFixed(2)) {
+    for (const digits of [3, 4, 5, 6]) {
+      if (remaining.toFixed(digits) !== ceiling.toFixed(digits)) {
+        return remaining.toFixed(digits);
+      }
+    }
+  }
+  return remaining.toFixed(2);
 }
 
 // Read after anything that may have spent, so the number is not stale.
@@ -990,6 +1015,7 @@ function failureDetail(response, body) {
     forgetRejectedSpendToken();
     return t.spendTokenRejected;
   }
+  if (response.status === 402) return t.spendCeilingReached;
   const detail = body?.detail;
   if (typeof detail === "string" && detail) return detail;
   if (detail?.violations?.length) return detail.violations.join(" ");
@@ -1505,12 +1531,12 @@ async function storeSelectedVideo() {
     } else {
       uploadError.textContent = t.uploadFailed.replace(
         "{detail}",
-        payload.detail || "",
+        failureDetail(response, payload),
       );
     }
   } catch (error) {
     console.error(error);
-    uploadError.textContent = t.uploadFailed.replace("{detail}", "");
+    uploadError.textContent = t.uploadFailed.replace("{detail}", thrownDetail(error));
   } finally {
     uploadRunning = false;
     renderUploads();
@@ -2010,7 +2036,9 @@ async function prepareProject() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    if (!response.ok) throw new Error(`Project creation failed: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(failureDetail(response, await response.json().catch(() => null)));
+    }
     const project = await response.json();
     if (!project.is_sufficiently_clear) {
       showProjectFeedback(project.clarification_questions[0]?.question || t.projectError, true);
@@ -2045,7 +2073,7 @@ async function prepareProject() {
       setWorkspaceView(extractionSource ? "video" : "practice");
     }
   } catch (error) {
-    showProjectFeedback(t.projectError, true);
+    showProjectFeedback(t.projectFailed.replace("{detail}", thrownDetail(error)), true);
     console.error(error);
   } finally {
     processSubmit.disabled = false;
@@ -2130,7 +2158,9 @@ function applyProcessingSession(session) {
 async function pollProcessingSession(sessionId) {
   try {
     const response = await fetch(`/api/processing/robot-motion/${encodeURIComponent(sessionId)}`);
-    if (!response.ok) throw new Error(`Processing status failed: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(failureDetail(response, await response.json().catch(() => null)));
+    }
     const session = await response.json();
     applyProcessingSession(session);
     if (session.status === "processing") {
@@ -2138,7 +2168,8 @@ async function pollProcessingSession(sessionId) {
     }
   } catch (error) {
     processStatus = "failed";
-    processErrorMessage = translations[currentLanguage].processError;
+    processErrorMessage = translations[currentLanguage]
+      .processFailedDetail.replace("{detail}", thrownDetail(error));
     renderProcessState();
     console.error(error);
   }
@@ -2187,7 +2218,8 @@ async function startProcessing(task, source, immediate = false) {
     if (session.status === "processing") pollProcessingSession(session.session_id);
   } catch (error) {
     processStatus = "failed";
-    processErrorMessage = translations[currentLanguage].processError;
+    processErrorMessage = translations[currentLanguage]
+      .processFailedDetail.replace("{detail}", thrownDetail(error));
     renderProcessState();
     console.error(error);
   }
