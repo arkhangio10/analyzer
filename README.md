@@ -34,6 +34,10 @@ Claims in this README are limited to what runs and is tested.
   over-dense request **before** it is billed.
 - A deterministic plausibility audit whose findings carry recomputable counts.
 - A human approval gate: nothing is adapted or executed without it.
+- A per-agent Docker export: an approved procedure and its evidence become a
+  self-contained, reproducible package whose agent is this application with
+  the skill baked in and provider calls disabled. Verified on 2026-09-08 by
+  building and running a real package with Docker alone.
 - Typed contracts that make the guarantees permanent rather than promised in
   prose: `physically_measured` is always false, `approved_for_execution` is
   always false, uploaded video's `sent_to_provider` is always false.
@@ -253,7 +257,44 @@ they do not authorize robot hardware control or unrestricted host access.
 
 ## Development status
 
-The responsive product interface now connects both destination paths to real backend behavior. Robot projects start the simulation-only motion session. Computer projects can create a user-reviewed browser plan, show its exact public-domain allowlist, require explicit action and network approval, execute it in containerized Chromium, and display redacted action and network evidence. Approved YouTube sources can now be extracted through a project-bound Vertex call, retained as a versioned procedure awaiting human review, and explicitly approved or rejected without automatic execution. Failed provider attempts are also retained with a safe failure category. Workflow evidence is durable under the configured data directory, and adaptation and retarget explanations follow the requested Spanish or English language. Automatic procedure-to-action mapping, generalization, and per-user Docker-agent export are **not implemented**.
+The responsive product interface now connects both destination paths to real backend behavior. Robot projects start the simulation-only motion session. Computer projects can create a user-reviewed browser plan, show its exact public-domain allowlist, require explicit action and network approval, execute it in containerized Chromium, and display redacted action and network evidence. Approved YouTube sources can now be extracted through a project-bound Vertex call, retained as a versioned procedure awaiting human review, and explicitly approved or rejected without automatic execution. Failed provider attempts are also retained with a safe failure category. Workflow evidence is durable under the configured data directory, and adaptation and retarget explanations follow the requested Spanish or English language. Automatic procedure-to-action mapping and generalization are **not implemented**. Per-agent Docker export is implemented and verified; see *Exporting an agent* below.
+
+## Exporting an agent
+
+Once a procedure has been approved through the review gate, the project can be
+packaged:
+
+```text
+POST /api/projects/{project_id}/agent-packages      {"language": "es" | "en"}
+GET  /api/projects/{project_id}/agent-packages/{package_id}/download   -> zip
+```
+
+The zip unpacks to one directory. A person who has Docker, and nothing else,
+runs `./start.sh` (Linux, macOS) or `.\start.ps1` (Windows): the launcher
+copies `.env.example` to `.env` if it is missing, builds the image from
+`requirements.lock`, starts Compose, and opens `http://localhost:8080`. The
+agent page is served at `/`, the full skill at `/api/skill`, a status at
+`/api/agent`, and `/health` answers when it is ready.
+
+What the package contains: `skill/skill.json` (the approved procedure, the
+adaptation plan, motion evidence and retarget verdict for a robot destination,
+approved rehearsals for a computer destination, lineage, and guarantees),
+`manifest.json` with the SHA-256 of every file, `app/` (this application),
+`evaluations/` (the frozen cases, copied byte for byte), a `Dockerfile` and
+`compose.yaml` that mirror the application image, `requirements.lock`,
+`.env.example`, `agent.py`, and the two launchers.
+
+What it refuses to contain: uploaded video, `.env` contents, credentials, and
+any workflow record other than the one being exported. What the agent is not
+is written as `Literal[False]` fields on the skill — `approved_for_execution`,
+`physically_measured`, `hardware_execution_approved`, `model_weights_updated`,
+`uploads_included`, `secrets_included`, `provider_calls_at_runtime` — so a
+package that claims more fails validation instead of being served.
+
+A package is reproducible: the same records and the same `created_at` produce
+the same bytes and the same package id. A download after a restart rebuilds it
+from its own extraction and checks the manifest digests; if the application
+changed underneath it, the download says so and a new package can be built.
 
 ## Product experience and delivery direction
 

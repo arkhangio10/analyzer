@@ -57,7 +57,7 @@ audit. More frames or another prose extraction do not make them measurements.
 
 | ID | Status | Work | Acceptance evidence |
 | --- | --- | --- | --- |
-| P4.1 | blocked | Build the per-agent Docker export | Begins only after P2.6 or an equivalent validated slice; secrets stay runtime-only; the package has a launcher, health check, procedure version, evaluation evidence, and reproducible build. |
+| P4.1 | done | Build the per-agent Docker export | Built ahead of the P2.6 gate by owner decision on 2026-09-08. Verified the same day on a real package: `start.sh` built the image from `requirements.lock` and started Compose; `/health` answered in 4 s; `/api/skill` served the baked procedure (v1, 6 steps) with every guarantee false; the container ran as UID 10001 on a read-only filesystem with no `.env` and both frozen cases present; secrets stay runtime-only. |
 | P4.2 | deferred | Enable automatic YouTube discovery | The key is restricted to YouTube Data API, stays outside Git, and has quota and budget controls. |
 | P4.3 | deferred | Replace the direct-YouTube compatibility model | A bounded approved regression proves the replacement before `gemini-2.5-flash-lite` is retired; there is no paid automatic fallback. |
 | P4.4 | deferred | Deploy to Cloud Run | Requires explicit project, region, public/private access, persistent storage, secrets, and budget decisions. |
