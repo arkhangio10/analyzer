@@ -312,6 +312,7 @@ const videoProcedureSource = document.querySelector("#video-procedure-source");
 const videoCostApproval = document.querySelector("#video-cost-approval");
 const extractVideoButton = document.querySelector("#extract-video-procedure");
 const videoProcedureError = document.querySelector("#video-procedure-error");
+const motionError = document.querySelector("#motion-error");
 const videoProcedureEvidence = document.querySelector("#video-procedure-evidence");
 const procedureReview = document.querySelector("#procedure-review");
 const approveVideoProcedureButton = document.querySelector("#approve-video-procedure");
@@ -1392,10 +1393,11 @@ async function loadMotionAnalysis() {
 async function runMotionAnalysis() {
   if (motionAnalysisRunning || !motionCostApproval.checked) return;
   if (missingSpendToken()) {
-    videoProcedureError.textContent = translations[currentLanguage].spendTokenMissing;
+    motionError.textContent = translations[currentLanguage].spendTokenMissing;
     spendTokenInput.focus({ preventScroll: true });
     return;
   }
+  motionError.textContent = "";
   motionAnalysisRunning = true;
   renderMotionEvidence();
   try {
@@ -1410,7 +1412,6 @@ async function runMotionAnalysis() {
         acknowledge_cloud_cost: true,
       }),
     });
-    videoProcedureError.textContent = "";
     const body = await response.json();
     if (response.ok) {
       motionAnalysis = body;
@@ -1419,14 +1420,14 @@ async function runMotionAnalysis() {
     } else {
       const t = translations[currentLanguage];
       const template = response.status === 422 ? t.motionBudget : t.motionFailed;
-      videoProcedureError.textContent = template.replace(
+      motionError.textContent = template.replace(
         "{detail}",
         failureDetail(response, body),
       );
     }
   } catch (error) {
     console.error(error);
-    videoProcedureError.textContent = translations[currentLanguage]
+    motionError.textContent = translations[currentLanguage]
       .motionFailed.replace("{detail}", thrownDetail(error));
   } finally {
     motionAnalysisRunning = false;
@@ -1715,7 +1716,10 @@ function renderMotionEvidence() {
   const eligible = videoProcedureRecord?.status === "approved"
     && selectedDestination() === "robot";
   motionEvidence.hidden = !eligible;
-  if (!eligible) return;
+  if (!eligible) {
+    motionError.textContent = "";
+    return;
+  }
 
   setContent("#motion-evidence-label", t.motionLabel);
   setContent(
@@ -1814,6 +1818,7 @@ function configureVideoProcedure(project, sourceUrl) {
   videoCostApproval.checked = false;
   videoProcedureError.textContent = "";
   videoProcedureEvidence.hidden = true;
+  motionError.textContent = "";
   videoProcedurePanel.hidden = !sourceUrl;
   const videoViewButton = workspaceViewButtons.find((button) => button.dataset.workspaceTarget === "video");
   videoViewButton.hidden = !sourceUrl;
