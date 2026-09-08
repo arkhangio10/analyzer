@@ -15,9 +15,11 @@ the record.
 import logging
 from pathlib import Path
 
+from app import __version__
 from app.agents.evaluator import EvaluatorAgent
 from app.core.config import get_settings
 from app.services.adaptation_service import DestinationAdaptationService
+from app.services.agent_export_service import AgentExportService
 from app.services.browser_execution_service import BrowserExecutionService
 from app.services.computer_execution_service import ComputerExecutionService
 from app.services.computer_practice_service import ComputerPracticeService
@@ -110,3 +112,11 @@ motion_analysis_service = MotionAnalysisService(
     evidence_store=evidence_store,
 )
 video_storage = _video_storage()
+# The exported agent is this application, so the package is built from this
+# process's own source tree and the protected cases it was started with.
+agent_export_service = AgentExportService(
+    app_root=Path(__file__).resolve().parents[2],
+    evaluations_dir=resolve_frozen_cases_dir(_settings.frozen_cases_dir),
+    app_version=__version__,
+    store=_record_store("agent-packages"),
+)

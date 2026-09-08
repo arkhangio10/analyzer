@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APRENDIZ — Agente</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/agent.css">
+</head>
+<body class="agent-body">
+  <main class="agent-page" id="agent-page">
+    <header class="agent-header">
+      <p class="eyebrow" id="agent-kicker">APRENDIZ / AGENTE EXPORTADO</p>
+      <h1 id="agent-name">Cargando…</h1>
+      <p class="agent-objective" id="agent-objective"></p>
+      <p class="agent-meta" id="agent-meta"></p>
+    </header>
+
+    <p class="field-error" id="agent-error" role="alert"></p>
+
+    <section class="agent-grid" id="agent-grid" hidden>
+      <article class="agent-card">
+        <p class="practice-label" id="steps-label">PROCEDIMIENTO</p>
+        <ol class="agent-steps" id="agent-steps"></ol>
+      </article>
+
+      <div class="agent-column">
+        <article class="agent-card">
+          <p class="practice-label" id="can-label">QUÉ PUEDE HACER EN EL DESTINO</p>
+          <p class="agent-can" id="agent-can"></p>
+          <ul class="agent-missing" id="agent-missing"></ul>
+        </article>
+
+        <article class="agent-card agent-guarantees">
+          <p class="practice-label" id="guarantees-label">GARANTÍAS</p>
+          <ul id="agent-guarantees"></ul>
+        </article>
+
+        <article class="agent-card">
+          <p class="practice-label" id="lineage-label">DE DÓNDE SALIÓ</p>
+          <dl class="agent-lineage" id="agent-lineage"></dl>
+        </article>
+
+        <article class="agent-card">
+          <p class="practice-label" id="details-label">REGLAS, EXCEPCIONES E INCERTIDUMBRES</p>
+          <details><summary id="rules-label">Reglas</summary><ul id="agent-rules"></ul></details>
+          <details><summary id="exceptions-label">Excepciones</summary><ul id="agent-exceptions"></ul></details>
+          <details><summary id="uncertainties-label">Incertidumbres</summary><ul id="agent-uncertainties"></ul></details>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script src="/static/agent.js"></script>
+</body>
+</html>

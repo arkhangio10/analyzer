@@ -1,0 +1,29 @@
+/* The exported agent's own page. Same tokens as the product; one job. */
+.agent-body { min-height: 100vh; margin: 0; background: var(--ink); color: var(--white); }
+.agent-page { max-width: 72rem; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem); }
+.agent-header { margin-bottom: 1.5rem; }
+.agent-header .eyebrow { margin: 0 0 0.6rem; color: var(--lime); }
+.agent-header h1 { margin: 0; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -0.03em; line-height: 1; }
+.agent-objective { max-width: 48rem; margin: 1rem 0 0; color: rgba(255,255,255,0.78); font-size: 1rem; line-height: 1.5; }
+.agent-meta { margin: 0.6rem 0 0; color: rgba(255,255,255,0.5); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.agent-grid { display: grid; gap: 1.25rem; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); }
+.agent-column { display: grid; gap: 1.25rem; align-content: start; }
+.agent-card { padding: 1.25rem; border: 1px solid rgba(255,255,255,0.16); border-radius: 1rem; background: rgba(255,255,255,0.035); }
+.agent-steps { display: grid; gap: 0.6rem; margin: 0.8rem 0 0; padding: 0; list-style: none; counter-reset: step; }
+.agent-steps li { position: relative; padding: 0.85rem 0.9rem 0.85rem 2.9rem; border: 1px solid rgba(255,255,255,0.13); border-radius: 0.75rem; background: rgba(0,0,0,0.2); font-size: 0.86rem; line-height: 1.45; }
+.agent-steps li::before { counter-increment: step; content: counter(step, decimal-leading-zero); position: absolute; top: 0.9rem; left: 0.9rem; color: var(--lime); font-size: 0.66rem; font-weight: 900; }
+.agent-steps b { display: block; margin-bottom: 0.25rem; }
+.agent-steps time { display: inline-block; margin-bottom: 0.3rem; color: var(--lime); font-size: 0.62rem; font-weight: 800; letter-spacing: 0.06em; }
+.agent-steps small { display: block; color: rgba(255,255,255,0.62); }
+.agent-can { margin: 0.6rem 0 0; font-size: 0.88rem; line-height: 1.5; }
+.agent-missing { margin: 0.7rem 0 0; padding-left: 1.1rem; color: rgba(255,255,255,0.72); font-size: 0.8rem; line-height: 1.5; }
+.agent-guarantees ul { margin: 0.7rem 0 0; padding: 0; list-style: none; display: grid; gap: 0.4rem; }
+.agent-guarantees li { display: grid; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: baseline; font-size: 0.78rem; line-height: 1.45; color: rgba(255,255,255,0.78); }
+.agent-guarantees code { color: var(--lime); font-size: 0.72rem; }
+.agent-lineage { display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 0.9rem; margin: 0.7rem 0 0; font-size: 0.78rem; }
+.agent-lineage dt { color: rgba(255,255,255,0.5); font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.62rem; }
+.agent-lineage dd { margin: 0; overflow-wrap: anywhere; }
+.agent-card details { margin-top: 0.6rem; }
+.agent-card summary { cursor: pointer; font-size: 0.8rem; font-weight: 800; }
+.agent-card details ul { margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.8rem; line-height: 1.5; color: rgba(255,255,255,0.78); }
+@media (max-width: 900px) { .agent-grid { grid-template-columns: minmax(0, 1fr); } }

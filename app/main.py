@@ -6,6 +6,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.agent_export_routes import router as agent_export_router
+from app.api.agent_routes import router as agent_router
 from app.api.routes import router
 from app.api.processing_routes import router as processing_router
 from app.api.learning_routes import router as learning_router
@@ -31,6 +33,8 @@ app = FastAPI(
 )
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
 app.include_router(router)
+app.include_router(agent_router)
+app.include_router(agent_export_router)
 app.include_router(processing_router)
 app.include_router(learning_router)
 app.include_router(computer_execution_router)

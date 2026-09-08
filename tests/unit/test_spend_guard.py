@@ -35,6 +35,8 @@ client = TestClient(app)
 # it is deterministic or purely local, not because guarding it was awkward.
 FREE_POST_ROUTES = {
     "/api/projects": "Creates a project record; contacts nothing.",
+    "/api/projects/{project_id}/agent-packages":
+        "Packages already-retained records into a download; contacts nothing.",
     "/api/projects/{project_id}/uploads": "Writes a file the user supplied.",
     "/api/projects/{project_id}/video-procedures/{extraction_id}/review":
         "The human approval gate itself. Free, and gating it would be circular.",

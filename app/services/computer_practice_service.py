@@ -57,6 +57,18 @@ class ComputerPracticeService:
         """Report whether redacted practice evidence survives a restart."""
         return bool(self._record_store and self._record_store.is_durable)
 
+    def list_for_project_redacted(self, project_id: str) -> list[ComputerPractice]:
+        """Return one project's practices exactly as they are kept on disk.
+
+        An export must never carry more than the retained record does, so the
+        same redaction that runs before a practice reaches disk runs here.
+        """
+        return [
+            self._persistence_record(practice).practice
+            for practice in self._practices.values()
+            if practice.project_id == project_id
+        ]
+
     def _retain(self, practice: ComputerPractice) -> ComputerPractice:
         self._practices[practice.practice_id] = practice
         if self._record_store:

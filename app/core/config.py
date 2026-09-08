@@ -78,6 +78,12 @@ class Settings(BaseSettings):
     # and reads as protection anyway, so a ceiling set without them makes the
     # paid endpoints refuse. Copy the current numbers from the provider's
     # pricing page for the model in GOOGLE_GENAI_YOUTUBE_MODEL; they change.
+    # An exported agent runs this same application with a baked-in skill and
+    # no provider. AGENT_MODE switches the root page to the agent's own
+    # interface and SKILL_PATH names what it knows.
+    agent_mode: bool = False
+    skill_path: str | None = None
+
     spend_currency: str = "PEN"
     spend_ceiling: float | None = Field(default=None, ge=0)
     price_per_million_input_tokens: float | None = Field(default=None, ge=0)

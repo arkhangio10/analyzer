@@ -26,8 +26,9 @@ WEB_DIR = Path(__file__).resolve().parents[1] / "web"
 
 @router.get("/", response_class=FileResponse)
 async def frontend() -> FileResponse:
-    """Serve the APRENDIZ product experience."""
-    return FileResponse(WEB_DIR / "index.html")
+    """Serve the product experience, or an exported agent's own interface."""
+    page = "agent.html" if get_settings().agent_mode else "index.html"
+    return FileResponse(WEB_DIR / page)
 
 
 @router.get("/api/status")
