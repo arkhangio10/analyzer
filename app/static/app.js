@@ -15,7 +15,7 @@ const translations = {
     processingIntro: "Cada paso deja evidencia. El sistema muestra qué observa, qué extrae, cómo practica y con qué resultados se valida.",
     demoButton: "Ejecutar simulación local <span aria-hidden=\"true\">↓</span>", demoButtonRunning: "Procesando…", demoButtonAgain: "Repetir simulación <span aria-hidden=\"true\">↻</span>",
     consoleTitle: "APRENDIZ / SESIÓN DE ENTRENAMIENTO", demoBadge: "BACKEND / SIMULACIÓN LOCAL", progressLabel: "Progreso del procesamiento",
-    idleStatus: "Listo para iniciar", readyStatus: "Simulación completada", sourceTag: "FUENTE / TRAYECTORIA", demoTask: "Recoger y colocar una pieza frágil",
+    idleStatus: "Listo para iniciar", readyStatus: "Simulación completada", sourceTag: "TRAYECTORIA INTERNA · NO ES EL VIDEO", demoTask: "Recoger y colocar una pieza frágil", builtInTrajectory: "{robot} · demostración interna", builtInTrajectoryIdle: "Trayectoria interna de demostración",
     sourceDetected: "<i></i> Trayectoria estructurada", pipelineLabel: "Etapas del procesamiento", memory: "MEMORIA PROCEDURAL",
     metricLabels: ["Pasos", "Reglas", "Ejemplos", "Precisión"], logLabel: "Registro de actividad", idleLog: "Esperando una demostración para comenzar…",
     resultTitle: "Procedimiento local validado", resultCopy: "El backend extrajo y evaluó una trayectoria segura en simulación.",
@@ -190,7 +190,7 @@ const translations = {
     processingIntro: "Every step leaves evidence. See what the system observes, what it extracts, how it practices, and how results are validated.",
     demoButton: "Run local simulation <span aria-hidden=\"true\">↓</span>", demoButtonRunning: "Processing…", demoButtonAgain: "Run simulation again <span aria-hidden=\"true\">↻</span>",
     consoleTitle: "APRENDIZ / TRAINING SESSION", demoBadge: "BACKEND / LOCAL SIMULATION", progressLabel: "Processing progress", idleStatus: "Ready to start",
-    readyStatus: "Simulation complete", sourceTag: "SOURCE / TRAJECTORY", demoTask: "Pick and place a fragile component", sourceDetected: "<i></i> Structured trajectory",
+    readyStatus: "Simulation complete", sourceTag: "BUILT-IN TRAJECTORY · NOT THE VIDEO", demoTask: "Pick and place a fragile component", builtInTrajectory: "{robot} · built-in demonstration", builtInTrajectoryIdle: "Built-in demonstration trajectory", sourceDetected: "<i></i> Structured trajectory",
     pipelineLabel: "Processing stages", memory: "PROCEDURAL MEMORY", metricLabels: ["Steps", "Rules", "Examples", "Accuracy"], logLabel: "Activity log",
     idleLog: "Waiting for a demonstration to begin…", resultTitle: "Local procedure validated", resultCopy: "The backend extracted and evaluated a safe simulated trajectory.",
     disclosure: "<span aria-hidden=\"true\">i</span> This session calls the real backend and processes a structured local trajectory. It does not call Gemini, interpret the video yet, or control hardware.",
@@ -2596,7 +2596,15 @@ function renderProcessState() {
   setContent("#process-percent", `${progress}%`);
   document.querySelector("#process-progress-bar").style.width = `${progress}%`;
   document.querySelector(".process-progress").setAttribute("aria-valuenow", String(progress));
-  setContent("#monitor-task", currentProcessTask || t.demoTask);
+  // Never the user's task: this panel draws a built-in six-joint arm, and
+  // labelling it "how a cheetah runs" is how somebody concludes the arm is
+  // repeating their video.
+  setContent(
+    "#monitor-task",
+    motionPreview?.robot_model
+      ? t.builtInTrajectory.replace("{robot}", motionPreview.robot_model)
+      : t.builtInTrajectoryIdle,
+  );
   setContent("#source-name", currentProcessSource || "local-simulation://guided-demo");
   setContent("#monitor-time", isIdle ? "00/05" : `${String(isComplete ? 5 : processCompletedStages).padStart(2, "0")}/05`);
   setContent("#memory-version", processCompletedStages >= 2 || isComplete ? "V1" : "V0");
