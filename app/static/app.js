@@ -156,9 +156,14 @@ const translations = {
     simulationMotionNone: "No has analizado el movimiento del video todavía. Ese análisis vive en la vista Video y gasta una llamada.",
     simulationMotionSummary: "{subject} · cadena {chain} · {samples} muestras de {joints} articulaciones en {span} s · confianza media {confidence}.",
     observedTag: "DEL VIDEO · ÁNGULOS ESTIMADOS",
+    observedTagRejected: "DEL VIDEO · MUESTRAS RECHAZADAS",
+    observedTagSuspect: "DEL VIDEO · MUESTRAS SOSPECHOSAS",
     observedTitle: "Ángulos de articulación observados en el video",
     observedDescription: "{joints} articulaciones observadas durante {duration} s, cada una dibujada como su propio ángulo en el tiempo.",
     observedSummary: "Esto sí sale de tu video: {joints} articulaciones, {duration} s, {points} lecturas. Cada línea es un ángulo, no un cuerpo.",
+    observedSummaryUnverified: "{joints} articulaciones, {duration} s, {points} lecturas devueltas por el modelo. Cada línea es un ángulo, no un cuerpo.",
+    observedVerdictNotEvidence: "La auditoría aritmética rechazó estas muestras: no son observaciones. Lo dibujado abajo es lo que el modelo devolvió, no lo que hizo el cuerpo del video. Las razones están en la vista Video.",
+    observedVerdictSuspect: "La auditoría marcó estas muestras como sospechosas. Léelas como borrador del modelo, no como medición. Las razones están en la vista Video.",
     observedOmitted: " Se omitieron {count} articulaciones que se movieron menos.",
     observedLegend: "Ángulos estimados por un modelo de visión, no medidos. Las líneas se cortan donde la articulación dejó de verse: ese hueco no se rellena. No se reconstruye el cuerpo porque las muestras no dicen dónde está cada parte ni cuánto mide.",
     observedPlay: "Reproducir el movimiento observado",
@@ -341,9 +346,14 @@ const translations = {
     simulationMotionNone: "You have not analysed the video's motion yet. That analysis lives in the Video view and spends one call.",
     simulationMotionSummary: "{subject} · {chain} chain · {samples} samples of {joints} joints across {span} s · mean confidence {confidence}.",
     observedTag: "FROM THE VIDEO · ESTIMATED ANGLES",
+    observedTagRejected: "FROM THE VIDEO · SAMPLES REJECTED",
+    observedTagSuspect: "FROM THE VIDEO · SAMPLES SUSPECT",
     observedTitle: "Joint angles observed in the video",
     observedDescription: "{joints} observed joints across {duration} s, each drawn as its own angle over time.",
     observedSummary: "This one does come from your video: {joints} joints, {duration} s, {points} readings. Each line is an angle, not a body.",
+    observedSummaryUnverified: "{joints} joints, {duration} s, {points} readings returned by the model. Each line is an angle, not a body.",
+    observedVerdictNotEvidence: "The arithmetic audit rejected these samples: they are not observations. What is drawn below is what the model returned, not what the body in the video did. The reasons are in the Video view.",
+    observedVerdictSuspect: "The audit marked these samples as suspect. Read them as the model's draft, not as measurement. The reasons are in the Video view.",
     observedOmitted: " {count} joints that moved less were left out.",
     observedLegend: "Angles estimated by a vision model, not measured. A line breaks where the joint stopped being visible, and that gap is not filled in. The body is not reconstructed, because the samples never say where each part is or how long it is.",
     observedPlay: "Play the observed motion",
@@ -1643,7 +1653,17 @@ function renderObservedMotion() {
   const t = translations[currentLanguage];
   const preview = observedPreview;
   observedPanel.hidden = !preview || !preview.tracks.length;
-  setContent("#observed-tag", t.observedTag);
+  // The audit decides whether these numbers are observations at all. Drawing
+  // them under a plain "from the video" badge is how somebody reads a
+  // rejected set of samples as a measurement of their own footage.
+  const verdict = preview?.evidence_verdict || "usable";
+  const rejected = verdict === "not_evidence";
+  const doubted = rejected || verdict === "suspect";
+  observedPanel.dataset.verdict = verdict;
+  setContent(
+    "#observed-tag",
+    rejected ? t.observedTagRejected : doubted ? t.observedTagSuspect : t.observedTag,
+  );
   setContent("#observed-legend", t.observedLegend);
   observedPlayButton?.setAttribute("aria-label", observedIntent ? t.observedPause : t.observedPlay);
   observedPlayButton?.setAttribute("aria-pressed", String(observedIntent));
@@ -1652,8 +1672,18 @@ function renderObservedMotion() {
   observedScrubber?.setAttribute("aria-label", t.observedScrubberLabel);
   if (observedPanel.hidden) return;
 
+  const verdictNote = document.querySelector("#observed-verdict");
+  if (verdictNote) {
+    verdictNote.hidden = !doubted;
+    verdictNote.textContent = rejected
+      ? t.observedVerdictNotEvidence
+      : doubted
+        ? t.observedVerdictSuspect
+        : "";
+  }
+
   const points = preview.tracks.reduce((total, track) => total + track.point_count, 0);
-  let summary = t.observedSummary
+  let summary = (doubted ? t.observedSummaryUnverified : t.observedSummary)
     .replace("{joints}", String(preview.tracks.length))
     .replace("{duration}", preview.duration_seconds.toFixed(1))
     .replace("{points}", String(points));

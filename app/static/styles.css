@@ -799,6 +799,15 @@ body.workspace-open .trainer-preview {
 .observed-motion { margin-top: 0.4rem; padding: 0.85rem 0.9rem 0.9rem; border: 1px solid rgba(198,255,71,0.3); border-radius: 0.8rem; background: rgba(198,255,71,0.045); }
 .observed-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.7rem; }
 .observed-tag { flex: none; padding: 0.2rem 0.45rem; border-radius: 0.35rem; background: var(--lime); color: var(--ink); font-size: 0.55rem; font-weight: 800; letter-spacing: 0.08em; }
+/* Samples the audit refused are still drawn -- seeing what a model returned
+   is the point -- but never under the badge that means "measured here". */
+.observed-motion[data-verdict="suspect"] { border-color: rgba(255,196,84,0.42); background: rgba(255,196,84,0.06); }
+.observed-motion[data-verdict="not_evidence"] { border-color: rgba(255,143,122,0.45); background: rgba(255,143,122,0.06); }
+.observed-motion[data-verdict="suspect"] .observed-tag { background: #ffc46b; }
+.observed-motion[data-verdict="not_evidence"] .observed-tag { background: #ff8f7a; }
+.observed-motion[data-verdict="not_evidence"] .observed-trace { stroke: #ff8f7a; }
+.observed-motion[data-verdict="suspect"] .observed-trace { stroke: #ffc46b; }
+.observed-verdict { margin: 0.6rem 0 0; color: rgba(255,255,255,0.8); font-size: 0.72rem; line-height: 1.5; }
 .observed-summary { margin: 0; color: rgba(255,255,255,0.74); font-size: 0.72rem; line-height: 1.45; }
 .observed-stage { margin-top: 0.75rem; overflow-x: auto; }
 #observed-canvas { display: block; width: 100%; min-width: 19rem; height: auto; }

@@ -236,7 +236,7 @@ def test_the_simulation_view_separates_the_video_from_the_built_in_arm(workspace
     observed = text_of(page, "#observed-tag")
     built_in = text_of(page, ".monitor-tag")
 
-    assert observed == "DEL VIDEO · ÁNGULOS ESTIMADOS"
+    assert observed.startswith("DEL VIDEO ·")
     assert built_in == "TRAYECTORIA INTERNA · NO ES EL VIDEO"
     # The built-in console must never be captioned with the user's own task.
     assert "SimArm-6" in text_of(page, "#monitor-task")
@@ -306,6 +306,29 @@ def test_scrubbing_into_the_hole_reports_no_reading_rather_than_a_number(
     assert page.errors == []
 
 
+def test_samples_the_audit_rejected_are_not_drawn_as_measurements(workspace) -> None:
+    """The seeded analysis failed its audit, and the panel has to say so.
+
+    Drawing rejected samples is right -- seeing what a model returned is the
+    point -- but not under a badge that reads as "measured from your video".
+    """
+    page = open_simulation(workspace)
+
+    tag = text_of(page, "#observed-tag")
+    verdict = page.query_selector("#observed-verdict")
+    summary = text_of(page, "#observed-summary")
+
+    assert page.query_selector("#observed-motion").get_attribute("data-verdict") == (
+        "not_evidence"
+    )
+    assert tag == "DEL VIDEO · MUESTRAS RECHAZADAS"
+    assert verdict.is_visible()
+    assert "no son observaciones" in verdict.inner_text()
+    # The confident claim is withdrawn, not merely qualified further down.
+    assert "Esto sí sale de tu video" not in summary
+    assert page.errors == []
+
+
 def test_the_observed_panel_speaks_the_chosen_language(workspace) -> None:
     page = open_simulation(workspace)
 
@@ -314,7 +337,7 @@ def test_the_observed_panel_speaks_the_chosen_language(workspace) -> None:
     english = text_of(page, "#observed-tag")
     legend = text_of(page, "#observed-legend")
 
-    assert english == "FROM THE VIDEO · ESTIMATED ANGLES"
+    assert english.startswith("FROM THE VIDEO ·")
     assert "not measured" in legend
     assert page.errors == []
 

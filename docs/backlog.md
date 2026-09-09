@@ -42,7 +42,11 @@ creating an API key is not on the critical path.
 ## P3 - Robot evidence and simulation
 
 The current dense Gemini joint samples failed their deterministic plausibility
-audit. More frames or another prose extraction do not make them measurements.
+audit twice: human walking on 2026-08-30 and quadrupedal locomotion on
+2026-09-07, on different videos and different kinematic chains. More frames or
+another prose extraction do not make them measurements. P3.2 is therefore the
+blocker for this whole section, ahead of P3.1: a joint map onto a robot would
+only connect hardware to numbers that are not observations.
 
 | ID | Status | Work | Acceptance evidence |
 | --- | --- | --- | --- |
