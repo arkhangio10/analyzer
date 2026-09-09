@@ -34,3 +34,7 @@ data/examples/*
 !data/examples/.gitkeep
 
 data/records/
+
+# The pose model is a fetched build input, not source. scripts/fetch_pose_model.py
+# gets it against a pinned checksum, so the bytes never need to live in git.
+models/

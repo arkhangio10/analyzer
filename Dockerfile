@@ -22,6 +22,18 @@ RUN if [ "$INSTALL_BROWSER" = "true" ]; then \
         echo "Skipping Chromium; browser execution will be unavailable."; \
     fi
 
+# Local pose measurement, off by default for the same reason: MediaPipe and
+# OpenCV carry a native runtime this image otherwise has no use for. Enable
+# it with --build-arg INSTALL_POSE=true, and fetch the model first with
+# scripts/fetch_pose_model.py; without the file the routes answer 503 and
+# name the file that is missing.
+ARG INSTALL_POSE=false
+RUN if [ "$INSTALL_POSE" = "true" ]; then \
+        pip install --no-cache-dir "mediapipe==0.10.35" opencv-python-headless; \
+    else \
+        echo "Skipping MediaPipe; local pose measurement will be unavailable."; \
+    fi
+
 RUN groupadd --system --gid 10001 aprendiz \
     && useradd --system --uid 10001 --gid 10001 --no-create-home aprendiz \
     && mkdir -p /app/.runtime /data \
@@ -31,6 +43,9 @@ COPY --chown=10001:10001 app ./app
 # The protected evaluation set ships with the application so a mounted
 # data volume cannot replace the answers a model is graded against.
 COPY --chown=10001:10001 data/evaluations ./data/evaluations
+# The human-labelled pose benchmark ships for the same reason the frozen
+# cases do: ground truth a mounted volume could replace is not ground truth.
+COPY --chown=10001:10001 data/pose-benchmarks ./data/pose-benchmarks
 
 USER 10001:10001
 

@@ -35,10 +35,11 @@ MODEL_URL = (
     "pose_landmarker_lite/float16/1/pose_landmarker_lite.task"
 )
 
-# Fill this in with the digest printed on the first successful run, then commit
-# it. An empty value means the model has never been pinned and the script will
-# not install one.
-EXPECTED_SHA256 = ""
+# Observed on 2026-09-09 at 5,777,746 bytes. Pinning a digest seen on a first
+# download is trust on first use: it defends against the file changing under
+# us later, or arriving corrupted, and not against the first fetch having been
+# wrong. That is worth stating rather than implying a stronger guarantee.
+EXPECTED_SHA256 = "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a"
 
 MAX_BYTES = 64 * 1024 * 1024
 

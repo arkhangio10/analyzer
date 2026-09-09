@@ -1,9 +1,12 @@
 """Tests for the local pose-measurement endpoints.
 
-The deployment under test has no pose model file, which is the ordinary state
-of a machine that has not fetched one. That makes these tests mostly about
-refusing well: the right status, a sentence that names the missing thing, and
-no pretence that an unmeasured video was measured.
+These are mostly about refusing well: the right status, a sentence that names
+the missing thing, and no pretence that an unmeasured video was measured.
+
+Whether the machine running them has a pose model is not allowed to change
+what they assert. An earlier version of this file encoded "there is no model
+here" as a fact, and two tests broke the moment one was fetched -- so the ones
+that care point the service at a path they control.
 """
 
 from __future__ import annotations
@@ -98,9 +101,15 @@ def test_claiming_a_non_human_subject_is_rejected_by_the_contract() -> None:
 # --- refusing when the model is not installed ------------------------------
 
 
-def test_a_deployment_without_the_model_says_so_rather_than_failing_oddly() -> None:
+def test_a_deployment_without_the_model_says_so_rather_than_failing_oddly(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Pointed at a machine with no model, whether or not this one has one."""
     project_id = create_project()
     upload = upload_video(project_id)
+    monkeypatch.setattr(
+        pose_measurement_service, "_model_path", tmp_path / "absent.task"
+    )
 
     response = client.post(
         measurement_url(project_id, upload["upload_id"]), json=measurement_body()
@@ -112,9 +121,21 @@ def test_a_deployment_without_the_model_says_so_rather_than_failing_oddly() -> N
     assert "fetch_pose_model" in detail
 
 
-def test_the_service_reports_whether_this_deployment_can_measure_at_all() -> None:
-    assert pose_measurement_service.is_available is False
+def test_availability_follows_the_file_rather_than_being_assumed(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Whether this deployment can measure is one question: is the file there."""
     assert pose_measurement_service.model_path.name.endswith(".task")
+
+    monkeypatch.setattr(
+        pose_measurement_service, "_model_path", tmp_path / "absent.task"
+    )
+    assert pose_measurement_service.is_available is False
+
+    present = tmp_path / "present.task"
+    present.write_bytes(b"not a real model, but a real file")
+    monkeypatch.setattr(pose_measurement_service, "_model_path", present)
+    assert pose_measurement_service.is_available is True
 
 
 # --- reading a measurement back --------------------------------------------
