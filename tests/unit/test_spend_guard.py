@@ -38,6 +38,9 @@ FREE_POST_ROUTES = {
     "/api/projects/{project_id}/agent-packages":
         "Packages already-retained records into a download; contacts nothing.",
     "/api/projects/{project_id}/uploads": "Writes a file the user supplied.",
+    "/api/projects/{project_id}/uploads/{upload_id}/pose-measurement":
+        "Runs a pose model on this machine over a file already stored here; "
+        "reaches no provider and reports cloud_calls_made as zero.",
     "/api/projects/{project_id}/video-procedures/{extraction_id}/review":
         "The human approval gate itself. Free, and gating it would be circular.",
     "/api/projects/{project_id}/video-procedures/{extraction_id}/adapt":

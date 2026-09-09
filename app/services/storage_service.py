@@ -25,8 +25,11 @@ import logging
 import os
 import re
 import shutil
+import tempfile
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from collections.abc import Iterator
 from typing import Any, BinaryIO, ClassVar
 from uuid import uuid4
 
@@ -60,6 +63,10 @@ BUCKET_STORAGE_NOTE = (
     "only a public YouTube URL, so an upload can be kept and verified by its "
     "hash but cannot yet be turned into a procedure."
 )
+
+
+class UploadNotReadableError(RuntimeError):
+    """Raised when a retained upload cannot be produced as a readable file."""
 
 
 class UploadRejectedError(ValueError):
@@ -99,6 +106,20 @@ class VideoStorage:
     def is_durable(self) -> bool:
         """Report whether the upload index survives a restart."""
         return bool(self._store and self._store.is_durable)
+
+    @contextmanager
+    def local_copy(self, record: UploadedVideoRecord) -> Iterator[Path]:
+        """Yield a path a decoder can open, for as long as the block runs.
+
+        Measuring a video means decoding it, and a decoder needs a file. A
+        destination that cannot produce one says so rather than letting a
+        caller guess at a path that is not there.
+        """
+        raise UploadNotReadableError(
+            "This deployment's upload destination cannot provide a local file "
+            "to read."
+        )
+        yield  # pragma: no cover - unreachable, keeps this a generator
 
     def list_for_project(self, project_id: str) -> list[UploadedVideoRecord]:
         """Return every retained upload for one project, oldest first."""
@@ -245,6 +266,16 @@ class LocalVideoStorage(VideoStorage):
         """Return where one retained upload lives on this machine."""
         return self._root / record.project_id / record.stored_filename
 
+    @contextmanager
+    def local_copy(self, record: UploadedVideoRecord) -> Iterator[Path]:
+        """Yield the file itself; nothing needs copying on this machine."""
+        path = self.path_for(record)
+        if not path.is_file():
+            raise UploadNotReadableError(
+                "The retained file is missing from this machine."
+            )
+        yield path
+
     def remove_project(self, project_id: str) -> None:
         """Forget every upload for one project and delete its directory."""
         super().remove_project(project_id)
@@ -307,6 +338,35 @@ class GcsVideoStorage(VideoStorage):
     def object_for(self, record: UploadedVideoRecord) -> str:
         """Return the object name one retained upload occupies."""
         return self._object_name(record.project_id, record.stored_filename)
+
+    @contextmanager
+    def local_copy(self, record: UploadedVideoRecord) -> Iterator[Path]:
+        """Download the object to a temporary file, and delete it afterwards.
+
+        The copy lives only for the block that reads it. A stateless container
+        has nowhere durable to leave somebody's video, and leaving one behind
+        on a warm instance would hand the next request a file it was never
+        given.
+        """
+        try:
+            blob = self._bucket().blob(self.object_for(record))
+        except Exception as error:  # noqa: BLE001 - unreachable bucket, no file
+            raise UploadNotReadableError(
+                "The storage bucket is not reachable, so the video cannot be read."
+            ) from error
+
+        directory = tempfile.mkdtemp(prefix="aprendiz-measure-")
+        path = Path(directory) / record.stored_filename
+        try:
+            try:
+                blob.download_to_filename(str(path))
+            except Exception as error:  # noqa: BLE001 - absent or unreadable object
+                raise UploadNotReadableError(
+                    "The retained file could not be read from the bucket."
+                ) from error
+            yield path
+        finally:
+            shutil.rmtree(directory, ignore_errors=True)
 
     def _object_name(self, project_id: str, stored_filename: str) -> str:
         return f"{self._prefix}/{project_id}/{stored_filename}"

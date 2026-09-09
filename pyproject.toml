@@ -29,6 +29,11 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest"]
+# Local pose measurement. Kept out of the base dependencies on purpose: these
+# two carry a native runtime of their own, and every exported agent installs
+# from the same lock. An agent that only replays an approved procedure has no
+# use for a pose model, so it does not get one.
+pose = ["mediapipe==0.10.35", "opencv-python-headless"]
 
 [tool.setuptools.packages.find]
 include = ["app*"]

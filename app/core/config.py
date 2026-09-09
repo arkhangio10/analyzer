@@ -50,6 +50,12 @@ class Settings(BaseSettings):
     clickhouse_database: str = "default"
     clickhouse_secure: bool = True
 
+    # Local pose measurement. Both default to None so a deployment without the
+    # model file simply reports the feature as unavailable rather than failing
+    # at startup.
+    pose_model_path: str | None = None
+    pose_benchmark_dir: str | None = None
+
     firestore_database: str | None = None
     gcs_bucket: str | None = None
     data_dir: str = "data"

@@ -39,6 +39,7 @@ from app.services.project_video_procedure_service import ProjectVideoProcedureSe
 from app.services.record_store import JsonRecordStore, RecordStore
 from app.services.robot_motion_training import RobotMotionTrainingService
 from app.services.spend_ledger import SpendLedger
+from app.services.pose_measurement_service import PoseMeasurementService
 from app.services.storage_service import (
     GcsVideoStorage,
     LocalVideoStorage,
@@ -112,6 +113,14 @@ motion_analysis_service = MotionAnalysisService(
     evidence_store=evidence_store,
 )
 video_storage = _video_storage()
+# Local pose measurement spends nothing and reaches no provider, so it is
+# constructed unconditionally. Whether this deployment can actually run it is
+# a question about one file on disk, and the service answers that itself.
+pose_measurement_service = PoseMeasurementService(
+    model_path=_settings.pose_model_path,
+    benchmark_dir=_settings.pose_benchmark_dir,
+    store=_record_store("pose-measurements"),
+)
 # The exported agent is this application, so the package is built from this
 # process's own source tree and the protected cases it was started with.
 agent_export_service = AgentExportService(
