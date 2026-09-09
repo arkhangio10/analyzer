@@ -8,5 +8,6 @@ __pycache__
 tests
 data
 !data/evaluations
+!data/pose-benchmarks
 exports
 
