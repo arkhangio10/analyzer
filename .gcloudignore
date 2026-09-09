@@ -21,3 +21,4 @@ deploy
 # so a local build would never have shown this.
 data/*
 !data/evaluations
+!data/pose-benchmarks
