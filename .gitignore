@@ -42,3 +42,6 @@ models/
 # Generated on demand by scripts/make_synthetic_walk.py; it is output,
 # not source, and regenerating it is one command.
 synthetic-walk*.mp4
+thumbnail-3x2.png
+project-story.txt
+built-with.txt

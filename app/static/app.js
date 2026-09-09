@@ -359,7 +359,7 @@ const translations = {
     observedPlay: "Play the observed motion",
     observedPause: "Pause the observed motion",
     observedScrubberLabel: "Observed motion time",
-    observedOccluded: "occluded",
+    observedOccluded: "hidden",
     observedFailed: "The observed motion could not be loaded: {detail}",
     simulationConsoleLabel: "WHAT THE LOCAL SIMULATION RUNS",
     simulationGapLabel: "WHAT IS MISSING BEFORE THIS COULD DRIVE THE ROBOT",
