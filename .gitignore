@@ -38,3 +38,7 @@ data/records/
 # The pose model is a fetched build input, not source. scripts/fetch_pose_model.py
 # gets it against a pinned checksum, so the bytes never need to live in git.
 models/
+
+# Generated on demand by scripts/make_synthetic_walk.py; it is output,
+# not source, and regenerating it is one command.
+synthetic-walk*.mp4
