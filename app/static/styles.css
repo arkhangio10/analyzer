@@ -113,6 +113,7 @@ h1 span, h2 span { color: transparent; -webkit-text-stroke: 1.5px var(--ink); }
 .card-label { display: block; margin-bottom: 2.4rem; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.12em; }
 .flow-card-score strong { display: block; font-size: clamp(3.2rem, 6vw, 6.5rem); line-height: 0.8; letter-spacing: -0.08em; }
 .flow-card-score strong span { font-size: 0.45em; }
+.flow-card-score strong span.of { font-size: 0.34em; letter-spacing: -0.02em; }
 .flow-card-score p, .flow-card-export p { margin: 1rem 0 0; font-size: 0.78rem; font-weight: 700; }
 .flow-card-export { top: 8%; right: 4%; width: min(15rem, 34%); padding: 1.35rem; background: var(--violet); color: var(--white); transform: translate3d(var(--export-x, 0), var(--export-y, 0), 0) rotate(5deg); transition: transform 400ms cubic-bezier(.2,.8,.2,1); }
 .flow-card-export strong { display: block; font-size: 1.7rem; letter-spacing: -0.04em; }
