@@ -64,7 +64,7 @@ only connect hardware to numbers that are not observations.
 | P4.1 | done | Build the per-agent Docker export | Built ahead of the P2.6 gate by owner decision on 2026-09-08. Verified the same day on a real package: `start.sh` built the image from `requirements.lock` and started Compose; `/health` answered in 4 s; `/api/skill` served the baked procedure (v1, 6 steps) with every guarantee false; the container ran as UID 10001 on a read-only filesystem with no `.env` and both frozen cases present; secrets stay runtime-only. |
 | P4.2 | deferred | Enable automatic YouTube discovery | The key is restricted to YouTube Data API, stays outside Git, and has quota and budget controls. |
 | P4.3 | deferred | Replace the direct-YouTube compatibility model | A bounded approved regression proves the replacement before `gemini-2.5-flash-lite` is retired; there is no paid automatic fallback. |
-| P4.4 | deferred | Deploy to Cloud Run | Requires explicit project, region, public/private access, persistent storage, secrets, and budget decisions. |
+| P4.4 | done | Deploy to Cloud Run | Every decision it was deferred on has been made and verified on 2026-09-09: project `analyzer-robotics-ark10`, region `us-central1`, public access, records durable in Cloud Storage (`/api/status` reports `durable_storage: true`), the spend token and ClickHouse password injected from Secret Manager, and spending capped in the application at 20.00 PEN rather than by a GCP budget, which only alerts. Serving revision `aprendiz-00012-gr9`. |
 | P4.5 | deferred | Add authentication and per-user isolation | Begins only if a multi-user deployment is approved and its ownership model is defined. |
 
 ## Cross-cutting work
